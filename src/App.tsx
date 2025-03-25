@@ -2,6 +2,30 @@ import { useState, createContext, useContext, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import chance from "chance";
 
+const actions = ["share", "like", "comment", "read more", "ignore"];
+
+type Actions = (typeof actions)[number];
+
+const likertQuestions = [
+	"I consider this post to be well-regarded by others.",
+	"I consider this post to be interesting, engaging, or relevant to me.",
+	"I consider this post to be correct and reliable.",
+];
+
+type LikertQuestion = (typeof likertQuestions)[number];
+
+const likertOptions = [
+	"Strongly Disagree",
+	"Disagree",
+	"Somewhat Disagree",
+	"Neutral",
+	"Somewhat Agree",
+	"Agree",
+	"Strongly Agree",
+] as const;
+
+type LikertOption = (typeof likertOptions)[number];
+
 type Post = {
 	uuid: string;
 	source: string;
@@ -18,18 +42,58 @@ type Post = {
 	linkThumbnail?: string;
 };
 
+type InitialPhase = {
+	snapshot: string;
+	responses: Record<
+		1 | 2 | 3 | 4 | 5,
+		{
+			postUUID: string;
+			actions: Set<Actions>;
+			likert: Record<LikertQuestion, LikertOption>;
+		}
+	>;
+} | null;
+
+type FeedPhase = {
+	snapshot: string;
+	responses: Record<
+		1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
+		{
+			postUUID: string;
+			actions: string[];
+			likert: Record<LikertQuestion, LikertOption>;
+		}
+	>;
+} | null;
+
+type Survey = {
+	participant: string;
+	Phase1: InitialPhase;
+	Phase2: FeedPhase;
+	Phase3: FeedPhase;
+};
+
 const SurveyContext = createContext<{
 	uuid: string;
 	selectedPost: string;
 	setSelectedPost: (selectedPost: string) => void;
 	completedPosts: string[];
 	setCompletedPosts: (completedPosts: string[]) => void;
+	survey: Survey;
+	setSurvey: (survey: Survey) => void;
 }>({
 	uuid: "",
 	selectedPost: "",
 	setSelectedPost: () => {},
 	completedPosts: [],
 	setCompletedPosts: () => {},
+	survey: {
+		participant: "",
+		Phase1: null,
+		Phase2: null,
+		Phase3: null,
+	},
+	setSurvey: () => {},
 });
 
 const posts: Post[] = [
@@ -340,24 +404,24 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
 		useContext(SurveyContext);
 
-	const actions: Array<string> = [
+	const actions: Array<Actions> = [
 		...new chance(postUUID).shuffle(["share", "comment", "like", "read more"]),
 		"ignore",
 	];
 
-	console.log(actions);
-
 	const [responses, setResponses] = useState<{
 		actions: string[];
 		likert: Record<string, string>;
+		overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
 	}>({
 		actions: [],
 		likert: {},
+		overallQuality: null,
 	});
 
 	// Clear answers when postUUID changes
 	useEffect(() => {
-		setResponses({ actions: [], likert: {} });
+		setResponses({ actions: [], likert: {}, overallQuality: null });
 	}, [postUUID]);
 
 	const handleActionChange = (action: string) => {
@@ -381,30 +445,50 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 		}));
 	};
 
+	const handleOverallQualityChance = (value: 1 | 2 | 3 | 4 | 5 | 6 | 7) => {
+		setResponses((prev) => ({
+			...prev,
+			overallQuality: value,
+		}));
+	};
+
+	function valid(responses: {
+		actions: string[];
+		likert: Record<string, string>;
+		overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
+	}): boolean {
+		// Responses are valid if (1) they selected at least one action,
+		if (responses.actions.length === 0) {
+			return false;
+		}
+
+		// (2) they answered all likert questions,
+		const allLikertAnswered = likertQuestions.every(
+			(question) => responses.likert[question] !== undefined
+		);
+		if (!allLikertAnswered) {
+			return false;
+		}
+
+		// and (3) they selected an overall quality rating.
+		if (responses.overallQuality === null) {
+			return false;
+		}
+
+		return true;
+	}
 	const handleSubmit = () => {
 		if (completedPosts.includes(selectedPost)) return;
 
-		// TODO: Validate answers.
+		// Validate answers.
+		if (!valid(responses)) {
+			alert("Please answer all the questions.");
+			return;
+		}
 
 		setCompletedPosts([...completedPosts, selectedPost]);
 		setSelectedPost("");
 	};
-
-	const likertQuestions = [
-		"I consider this post to be well-regarded by others.",
-		"I consider this post to be interesting, engaging, or relevant to me.",
-		"I consider this post to be correct and reliable.",
-	];
-
-	const likertOptions = [
-		"Strongly Disagree",
-		"Disagree",
-		"Somewhat Disagree",
-		"Neutral",
-		"Somewhat Agree",
-		"Agree",
-		"Strongly Agree",
-	];
 
 	return (
 		<>
@@ -455,11 +539,44 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 					</div>
 				))}
 			</div>
+			<div>
+				<h2 className="font-bold mb-1">
+					How would you rate the overall quality of this post?
+				</h2>
+				<div className="mb-4">
+					<div className="flex flex-wrap gap-2">
+						{[1, 2, 3, 4, 5, 6, 7].map((value) => (
+							<label key={value} className="flex items-center gap-2">
+								<input
+									type="radio"
+									name={"Overall Quality"}
+									value={value}
+									checked={responses.overallQuality === value}
+									onChange={() =>
+										handleOverallQualityChance(
+											value as 1 | 2 | 3 | 4 | 5 | 6 | 7
+										)
+									}
+								/>
+								<span className="text-[8pt]">{value}</span>
+							</label>
+						))}
+					</div>
+				</div>
+			</div>
+			<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
+				{JSON.stringify(responses, null, 2)}
+			</pre>
 			<button
-				className="bg-blue-500 text-white text-[8pt] py-2 px-3 rounded-md hover:bg-blue-600 transition-colors mt-2"
+				className={`py-2 px-3 rounded-md text-[8pt] transition-colors mt-2 ${
+					valid(responses)
+						? "bg-blue-500 text-white hover:bg-blue-600"
+						: "bg-gray-300 text-gray-500 cursor-not-allowed"
+				}`}
 				onClick={handleSubmit}
+				disabled={!valid(responses)}
 			>
-				Submit
+				{valid(responses) ? "Submit" : "Please answer all the questions."}
 			</button>
 		</>
 	);
@@ -471,6 +588,12 @@ function App() {
 
 	const [selectedPost, setSelectedPost] = useState("");
 	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
+	const [survey, setSurvey] = useState<Survey>({
+		participant: "",
+		Phase1: null,
+		Phase2: null,
+		Phase3: null,
+	});
 
 	return (
 		<SurveyContext.Provider
@@ -480,11 +603,22 @@ function App() {
 				setSelectedPost,
 				completedPosts,
 				setCompletedPosts,
+				survey,
+				setSurvey,
 			}}
 		>
 			<div className="p-4 text-[8pt]">
 				<p>Completed Posts: {completedPosts.length}</p>
 				<p>Selected Post: {selectedPost}</p>
+				<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
+					{JSON.stringify(survey, null, 2)}
+				</pre>
+			</div>
+			<div className="m-3">
+				<h1 className="font-bold text-2xl">Trending on Reddit</h1>
+				<p className="text-[10pt]">
+					To start assessing posts, please click on any post.
+				</p>
 			</div>
 			<div className="flex justify-center gap-2 m-3">
 				<div className="w-1/2 flex flex-col gap-2">
