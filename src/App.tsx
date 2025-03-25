@@ -23,7 +23,7 @@ const posts: Post[] = [
 		upvotes: 60_424,
 		comments: 5_231,
 		author: "ptrdo",
-		image: ["https://i.redd.it/5slrrqfrbpqe1.png"],
+		image: ["https://u.cubeupload.com/jackiec1998/ae464044b889434d87d8.png"],
 	},
 	{
 		source:
@@ -72,6 +72,20 @@ AITA for calling her out in front of everyone?
 		author: "SillyAlterative420",
 		videoLink: "https://www.youtube.com/embed/6svTm7zC50w",
 	},
+	{
+		source:
+			"https://www.reddit.com/r/pics/comments/1jh8k04/i_spent_98_hours_drawing_the_audi_rs6_with/",
+		type: "image",
+		subreddit: "pics",
+		title: "I spent 98 hours drawing the Audi RS6 with colored pencils.",
+		author: "Scherbatyuk",
+		upvotes: 71_324,
+		comments: 1_532,
+		image: [
+			"https://u.cubeupload.com/jackiec1998/4682dd2ad3f44a318e69.jpg",
+			"https://u.cubeupload.com/jackiec1998/0fe0a29603154afd8c85.jpg",
+		],
+	},
 ];
 
 function formatNumber(num: number): string {
@@ -88,23 +102,22 @@ function PostHeader({
 	hideAuthor?: boolean;
 }) {
 	return (
-		<div className="text-gray-500 text-sm mb-1">
+		<div className="text-gray-500 text-[8pt] mb-1">
 			r/{post.subreddit} • {!hideAuthor && `Posted by u/${post.author}`}
 		</div>
 	);
 }
 
 function PostTitle({ title }: { title: string }) {
-	return <h2 className="text-lg font-bold mb-2">{title}</h2>;
+	return <h2 className="text-[10pt] font-bold mb-2">{title}</h2>;
 }
 
 function PostPreview({ post }: { post: Post }) {
-	const [expanded, setExpanded] = useState(false);
-
 	if (post.type === "text" && post.body) {
+		const [expanded, setExpanded] = useState(false);
 		const previewText = post.body.split("\n").slice(0, 3).join("\n");
 		return (
-			<div className="text-gray-700 text-sm mb-2">
+			<div className="text-gray-700 text-[8pt] mb-2">
 				<p>{expanded ? post.body : previewText}</p>
 				{!expanded && post.body.split("\n").length > 3 && (
 					<button
@@ -125,7 +138,53 @@ function PostPreview({ post }: { post: Post }) {
 			</div>
 		);
 	} else if (post.type === "image" && post.image) {
-		return <img src={post.image[0]} className="w-full rounded-md mb-2" />;
+		if (post.image.length > 1) {
+			const [currentIndex, setCurrentIndex] = useState(0);
+
+			return (
+				<div className="relative w-full rounded-md mb-2">
+					<img
+						src={post.image[currentIndex]}
+						className="w-full rounded-md"
+						style={{ height: "auto" }}
+					/>
+					{currentIndex > 0 && (
+						<button
+							onClick={() => setCurrentIndex(currentIndex - 1)}
+							className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-70 text-white text-[7pt] p-2 rounded-full"
+						>
+							&lt;
+						</button>
+					)}
+					{currentIndex < post.image.length - 1 && (
+						<button
+							onClick={() => setCurrentIndex(currentIndex + 1)}
+							className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-70 text-white text-[7pt] p-2 rounded-full"
+						>
+							&gt;
+						</button>
+					)}
+					<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-70 px-2 py-1.5 rounded-full flex space-x-2">
+						{post.image.map((_, index) => (
+							<div
+								key={index}
+								className={`w-1.5 h-1.5 rounded-full ${
+									index === currentIndex ? "bg-white" : "bg-gray-400"
+								}`}
+							></div>
+						))}
+					</div>
+				</div>
+			);
+		}
+
+		return (
+			<img
+				src={post.image[0]}
+				className="w-full rounded-md mb-2"
+				style={{ height: "auto" }}
+			/>
+		);
 	} else if (post.type === "video" && post.videoLink) {
 		return (
 			<iframe
@@ -149,7 +208,7 @@ function PostEngagement({
 	comments: number;
 }) {
 	return (
-		<div className="flex items-center text-gray-500 text-sm">
+		<div className="flex items-center text-gray-500 text-[8pt]">
 			<span className="mr-4">{formatNumber(upvotes)} upvotes</span>
 			<span>{formatNumber(comments)} comments</span>
 		</div>
@@ -158,7 +217,7 @@ function PostEngagement({
 
 function Post({ post }: { post: Post }) {
 	return (
-		<div className="border border-gray-300 rounded-md p-4 m-4">
+		<div className="border border-gray-300 rounded-md p-4">
 			<PostHeader post={post} />
 			<PostTitle title={post.title} />
 			<PostPreview post={post} />
@@ -169,11 +228,22 @@ function Post({ post }: { post: Post }) {
 
 function App() {
 	return (
-		<>
-			<Post post={posts[0]} />
-			<Post post={posts[1]} />
-			<Post post={posts[2]} />
-		</>
+		<div className="flex justify-center gap-2 m-3">
+			<div className="w-1/2 flex flex-col gap-2">
+				{posts.map((post, index) => (
+					<Post key={index} post={post} />
+				))}
+			</div>
+			<div className="w-1/2">
+				{/* Placeholder for survey questions */}
+				<div className="border border-gray-300 rounded-md p-4">
+					<h2 className="text-[10pt] font-bold mb-2">Survey Questions</h2>
+					<p className="text-gray-500 text-[8pt]">
+						Questions will appear here.
+					</p>
+				</div>
+			</div>
+		</div>
 	);
 }
 
