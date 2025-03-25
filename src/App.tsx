@@ -242,6 +242,8 @@ function VideoPreview({
 	videoLink: string;
 	title: string;
 }) {
+	// FIXME: iframe is causing code to be unreachable after return statement. Not sure why. It might be Google's fault.
+
 	return (
 		<iframe
 			src={videoLink}
@@ -249,9 +251,11 @@ function VideoPreview({
 			className="w-full rounded-md mb-2"
 			style={{ aspectRatio: "16/9", height: "auto" }}
 			allowFullScreen
-		></iframe>
+			referrerPolicy="strict-origin-when-cross-origin"
+		/>
 	);
 }
+
 function LinkPreview({
 	link,
 	linkThumbnail,
@@ -285,7 +289,7 @@ function PostPreview({ post }: { post: Post }) {
 		return <LinkPreview link={post.link} linkThumbnail={post.linkThumbnail} />;
 	}
 
-	return <></>;
+	return null;
 }
 
 function PostEngagement({
@@ -304,7 +308,8 @@ function PostEngagement({
 }
 
 function Post({ post }: { post: Post }) {
-	const { selectedPost, setSelectedPost } = useContext(SurveyContext);
+	const { selectedPost, setSelectedPost, completedPosts } =
+		useContext(SurveyContext);
 
 	const isSelected = selectedPost === post.uuid;
 
@@ -313,7 +318,11 @@ function Post({ post }: { post: Post }) {
 			className={`border rounded-md p-4 ${
 				isSelected ? "border-blue-500" : "border-gray-300"
 			}`}
-			onClick={() => setSelectedPost(post.uuid)}
+			onClick={() => {
+				if (!completedPosts.includes(post.uuid)) {
+					setSelectedPost(post.uuid);
+				}
+			}}
 		>
 			<PostHeader post={post} />
 			<PostTitle title={post.title} />
@@ -327,7 +336,7 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 	// TODO: If the post is already completed, show a message saying "You have already completed this post."
 	// TODO: Randomize the order of actions.
 
-	const { selectedPost, completedPosts, setCompletedPosts } =
+	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
 		useContext(SurveyContext);
 
 	const [actions, setActions] = useState<string[]>([]);
@@ -352,11 +361,10 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 			return;
 		}
 
-		if (actions.length === 0 || rating === null) {
-			return;
-		}
+		// TODO: Validate answers.
 
 		setCompletedPosts([...completedPosts, selectedPost]);
+		setSelectedPost("");
 	};
 
 	return (
@@ -367,7 +375,7 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 				{posts.find((p) => p.uuid === selectedPost)?.title}
 			</span>
 			<hr className="my-2 border-gray-300" />
-			<div className="border-l-2 border-gray-300 pl-4">
+			<div className="">
 				<h2 className="font-bold mb-1">
 					What actions would you take on this post? (Select all that apply.)
 				</h2>
@@ -419,42 +427,116 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 					</label>
 				</div>
 			</div>
-			<div className="border-l-2 border-gray-300 pl-4 mt-3">
-				<h2 className="font-bold mb-1">How would you describe this post?</h2>
-				<p className="mb-2 italic">
-					I consider this post to be well-regarded by others.
-				</p>
+			<hr className="my-2 border-gray-300" />
+			<h2 className="font-bold mb-1">How would you describe this post?</h2>
+			<div className="flex flex-col gap-4">
+				<div className="">
+					<p className="mb-2 italic">
+						I consider this post to be well-regarded by others.
+					</p>
 
-				<div
-					className="flex flex-wrap gap-2"
-					style={{ flexDirection: "column", alignItems: "flex-start" }}
-				>
-					{[
-						"Strongly Disagree",
-						"Disagree",
-						"Somewhat Disagree",
-						"Neutral",
-						"Somewhat Agree",
-						"Agree",
-						"Strongly Agree",
-					].map((value) => (
-						<label
-							key={value}
-							className="flex items-center gap-2"
-							style={{ flexDirection: "row" }}
-						>
-							<input
-								type="radio"
-								name="likert"
-								value={value}
-								checked={rating === value}
-								onChange={() => setRating(value)}
-							/>
-							<span className="text-[8pt]">{value}</span>
-						</label>
-					))}
+					<div
+						className="flex flex-wrap gap-2"
+						style={{ flexDirection: "column", alignItems: "flex-start" }}
+					>
+						{[
+							"Strongly Disagree",
+							"Disagree",
+							"Somewhat Disagree",
+							"Neutral",
+							"Somewhat Agree",
+							"Agree",
+							"Strongly Agree",
+						].map((value) => (
+							<label
+								key={value}
+								className="flex items-center gap-2"
+								style={{ flexDirection: "row" }}
+							>
+								<input
+									type="radio"
+									name="likert"
+									value={value}
+									checked={rating === value}
+									onChange={() => setRating(value)}
+								/>
+								<span className="text-[8pt]">{value}</span>
+							</label>
+						))}
+					</div>
+				</div>
+				<div className="">
+					<p className="mb-2 italic">
+						I consider this post to be well-regarded by others.
+					</p>
+
+					<div
+						className="flex flex-wrap gap-2"
+						style={{ flexDirection: "column", alignItems: "flex-start" }}
+					>
+						{[
+							"Strongly Disagree",
+							"Disagree",
+							"Somewhat Disagree",
+							"Neutral",
+							"Somewhat Agree",
+							"Agree",
+							"Strongly Agree",
+						].map((value) => (
+							<label
+								key={value}
+								className="flex items-center gap-2"
+								style={{ flexDirection: "row" }}
+							>
+								<input
+									type="radio"
+									name="likert"
+									value={value}
+									checked={rating === value}
+									onChange={() => setRating(value)}
+								/>
+								<span className="text-[8pt]">{value}</span>
+							</label>
+						))}
+					</div>
+				</div>
+				<div className="">
+					<p className="mb-2 italic">
+						I consider this post to be well-regarded by others.
+					</p>
+
+					<div
+						className="flex flex-wrap gap-2"
+						style={{ flexDirection: "column", alignItems: "flex-start" }}
+					>
+						{[
+							"Strongly Disagree",
+							"Disagree",
+							"Somewhat Disagree",
+							"Neutral",
+							"Somewhat Agree",
+							"Agree",
+							"Strongly Agree",
+						].map((value) => (
+							<label
+								key={value}
+								className="flex items-center gap-2"
+								style={{ flexDirection: "row" }}
+							>
+								<input
+									type="radio"
+									name="likert"
+									value={value}
+									checked={rating === value}
+									onChange={() => setRating(value)}
+								/>
+								<span className="text-[8pt]">{value}</span>
+							</label>
+						))}
+					</div>
 				</div>
 			</div>
+
 			<button
 				className="bg-blue-500 text-white text-[8pt] py-2 px-3 rounded-md hover:bg-blue-600 transition-colors mt-2"
 				onClick={handleSubmit}
@@ -480,13 +562,17 @@ function App() {
 				setCompletedPosts,
 			}}
 		>
+			<div className="p-4 text-[8pt]">
+				<p>Completed Posts: {completedPosts.length}</p>
+				<p>Selected Post: {selectedPost}</p>
+			</div>
 			<div className="flex justify-center gap-2 m-3">
 				<div className="w-1/2 flex flex-col gap-2">
 					{posts.map((post, index) => (
 						<Post key={index} post={post} />
 					))}
 				</div>
-				{selectedPost ? (
+				{selectedPost && !completedPosts.includes(selectedPost) ? (
 					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 border border-gray-300 rounded-md p-4 text-[8pt]">
 						<PostQuestionnaire postUUID={selectedPost} />
 					</div>
