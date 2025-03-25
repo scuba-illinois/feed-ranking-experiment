@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 
 type Post = {
+	uuid: string;
 	source: string;
 	type: "text" | "image" | "video" | "link";
 	subreddit: string;
@@ -15,8 +16,21 @@ type Post = {
 	linkThumbnail?: string;
 };
 
+const SurveyContext = createContext<{
+	selectedPost: string;
+	setSelectedPost: (selectedPost: string) => void;
+	completedPosts: string[];
+	setCompletedPosts: (completedPosts: string[]) => void;
+}>({
+	selectedPost: "",
+	setSelectedPost: () => {},
+	completedPosts: [],
+	setCompletedPosts: () => {},
+});
+
 const posts: Post[] = [
 	{
+		uuid: "61f067a3-5eda-4886-b62e-54de07a89c5f",
 		source:
 			"https://www.reddit.com/r/pics/comments/1jj1u0f/colorados_painting_of_trump_and_his_official/",
 		type: "image",
@@ -28,6 +42,7 @@ const posts: Post[] = [
 		images: ["https://u.cubeupload.com/jackiec1998/ae464044b889434d87d8.png"],
 	},
 	{
+		uuid: "d480cfb6-386a-4fd9-b68d-3b3c0af2fd7c",
 		source:
 			"https://www.reddit.com/r/AITAH/comments/1ji36pp/aitah_for_embarrassing_my_stepmom_at_dinner_after/",
 		type: "text",
@@ -63,6 +78,7 @@ AITA for calling her out in front of everyone?
 `,
 	},
 	{
+		uuid: "10b6ba2b-7b1e-4629-b617-2cda96ae893a",
 		source:
 			"https://www.reddit.com/r/videos/comments/1jjayj6/ceo_kenneth_lay_told_his_employees_to_buy_more/",
 		type: "video",
@@ -75,6 +91,7 @@ AITA for calling her out in front of everyone?
 		videoLink: "https://www.youtube.com/embed/6svTm7zC50w",
 	},
 	{
+		uuid: "8788f895-57d6-46cd-be55-edce5fa84eb2",
 		source:
 			"https://www.reddit.com/r/pics/comments/1jh8k04/i_spent_98_hours_drawing_the_audi_rs6_with/",
 		type: "image",
@@ -89,6 +106,7 @@ AITA for calling her out in front of everyone?
 		],
 	},
 	{
+		uuid: "1389a39c-456b-42c5-af08-5970cbaa3d73",
 		source:
 			"https://www.reddit.com/r/news/comments/1jjom7u/as_top_trump_aides_sent_texts_on_signal_flight/",
 		type: "link",
@@ -117,9 +135,19 @@ function PostHeader({
 	post: Post;
 	hideAuthor?: boolean;
 }) {
+	const { completedPosts } = useContext(SurveyContext);
+	const isCompleted = completedPosts.includes(post.uuid);
+
 	return (
-		<div className="text-gray-500 text-[8pt] mb-1">
-			r/{post.subreddit} • {!hideAuthor && `Posted by u/${post.author}`}
+		<div className="text-gray-500 text-[8pt] mb-1 flex justify-between items-center">
+			<span>
+				r/{post.subreddit} • {!hideAuthor && `Posted by u/${post.author}`}
+			</span>
+			{isCompleted && (
+				<span className="text-green-500 text-[8pt] flex items-center">
+					✅ Completed
+				</span>
+			)}
 		</div>
 	);
 }
@@ -268,16 +296,25 @@ function PostEngagement({
 	comments: number;
 }) {
 	return (
-		<div className="flex items-center text-gray-500 text-[8pt]">
-			<span className="mr-4">{formatNumber(upvotes)} upvotes</span>
+		<div className="flex items-center text-gray-500 text-[8pt] gap-2">
+			<span>{formatNumber(upvotes)} upvotes</span>
 			<span>{formatNumber(comments)} comments</span>
 		</div>
 	);
 }
 
 function Post({ post }: { post: Post }) {
+	const { selectedPost, setSelectedPost } = useContext(SurveyContext);
+
+	const isSelected = selectedPost === post.uuid;
+
 	return (
-		<div className="border border-gray-300 rounded-md p-4">
+		<div
+			className={`border rounded-md p-4 ${
+				isSelected ? "border-blue-500" : "border-gray-300"
+			}`}
+			onClick={() => setSelectedPost(post.uuid)}
+		>
 			<PostHeader post={post} />
 			<PostTitle title={post.title} />
 			<PostPreview post={post} />
@@ -286,24 +323,178 @@ function Post({ post }: { post: Post }) {
 	);
 }
 
-function App() {
+function PostQuestionnaire({ postUUID }: { postUUID: string }) {
+	// TODO: If the post is already completed, show a message saying "You have already completed this post."
+	// TODO: Randomize the order of actions.
+
+	const { selectedPost, completedPosts, setCompletedPosts } =
+		useContext(SurveyContext);
+
+	const [actions, setActions] = useState<string[]>([]);
+	const [rating, setRating] = useState<string | null>(null);
+
+	// Clear answers when postUUID changes
+	useEffect(() => {
+		setActions([]);
+		setRating(null);
+	}, [postUUID]);
+
+	const handleActionChange = (action: string) => {
+		setActions((prev) =>
+			prev.includes(action)
+				? prev.filter((a) => a !== action)
+				: [...prev, action]
+		);
+	};
+
+	const handleSubmit = () => {
+		if (completedPosts.includes(selectedPost)) {
+			return;
+		}
+
+		if (actions.length === 0 || rating === null) {
+			return;
+		}
+
+		setCompletedPosts([...completedPosts, selectedPost]);
+	};
+
 	return (
-		<div className="flex justify-center gap-2 m-3">
-			<div className="w-1/2 flex flex-col gap-2">
-				{posts.map((post, index) => (
-					<Post key={index} post={post} />
-				))}
-			</div>
-			<div className="w-1/2">
-				{/* Placeholder for survey questions */}
-				<div className="border border-gray-300 rounded-md p-4">
-					<h2 className="text-[10pt] font-bold mb-2">Survey Questions</h2>
-					<p className="text-gray-500 text-[8pt]">
-						Questions will appear here.
-					</p>
+		<>
+			<h2 className="text-[10pt] font-bold mb-2">Survey Questions</h2>
+			<span>
+				<i>Title of Selected Post:</i>{" "}
+				{posts.find((p) => p.uuid === selectedPost)?.title}
+			</span>
+			<hr className="my-2 border-gray-300" />
+			<div className="border-l-2 border-gray-300 pl-4">
+				<h2 className="font-bold mb-1">
+					What actions would you take on this post? (Select all that apply.)
+				</h2>
+				<div className="flex flex-col gap-2">
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							value="share"
+							checked={actions.includes("share")}
+							onChange={() => handleActionChange("share")}
+						/>
+						Share
+					</label>
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							value="comment"
+							checked={actions.includes("comment")}
+							onChange={() => handleActionChange("comment")}
+						/>
+						Comment
+					</label>
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							value="like"
+							checked={actions.includes("like")}
+							onChange={() => handleActionChange("like")}
+						/>
+						Like
+					</label>
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							value="read more"
+							checked={actions.includes("read more")}
+							onChange={() => handleActionChange("read more")}
+						/>
+						Read More
+					</label>
+					<label className="flex items-center gap-2">
+						<input
+							type="checkbox"
+							value="ignore"
+							checked={actions.includes("ignore")}
+							onChange={() => handleActionChange("ignore")}
+						/>
+						Ignore/Scroll Past
+					</label>
 				</div>
 			</div>
-		</div>
+			<div className="border-l-2 border-gray-300 pl-4 mt-3">
+				<h2 className="font-bold mb-1">How would you describe this post?</h2>
+				<p className="mb-2 italic">
+					I consider this post to be well-regarded by others.
+				</p>
+
+				<div
+					className="flex flex-wrap gap-2"
+					style={{ flexDirection: "column", alignItems: "flex-start" }}
+				>
+					{[
+						"Strongly Disagree",
+						"Disagree",
+						"Somewhat Disagree",
+						"Neutral",
+						"Somewhat Agree",
+						"Agree",
+						"Strongly Agree",
+					].map((value) => (
+						<label
+							key={value}
+							className="flex items-center gap-2"
+							style={{ flexDirection: "row" }}
+						>
+							<input
+								type="radio"
+								name="likert"
+								value={value}
+								checked={rating === value}
+								onChange={() => setRating(value)}
+							/>
+							<span className="text-[8pt]">{value}</span>
+						</label>
+					))}
+				</div>
+			</div>
+			<button
+				className="bg-blue-500 text-white text-[8pt] py-2 px-3 rounded-md hover:bg-blue-600 transition-colors mt-2"
+				onClick={handleSubmit}
+			>
+				Submit
+			</button>
+		</>
+	);
+}
+
+function App() {
+	// TODO: Remove the div when the post has been submitted and is contained within the completedPosts array.
+
+	const [selectedPost, setSelectedPost] = useState("");
+	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
+
+	return (
+		<SurveyContext.Provider
+			value={{
+				selectedPost,
+				setSelectedPost,
+				completedPosts,
+				setCompletedPosts,
+			}}
+		>
+			<div className="flex justify-center gap-2 m-3">
+				<div className="w-1/2 flex flex-col gap-2">
+					{posts.map((post, index) => (
+						<Post key={index} post={post} />
+					))}
+				</div>
+				{selectedPost ? (
+					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 border border-gray-300 rounded-md p-4 text-[8pt]">
+						<PostQuestionnaire postUUID={selectedPost} />
+					</div>
+				) : (
+					<div className="w-1/2"></div>
+				)}
+			</div>
+		</SurveyContext.Provider>
 	);
 }
 
