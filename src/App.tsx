@@ -9,8 +9,10 @@ type Post = {
 	upvotes: number;
 	comments: number;
 	body?: string;
-	image?: string[];
+	images?: string[];
 	videoLink?: string;
+	link?: string;
+	linkThumbnail?: string;
 };
 
 const posts: Post[] = [
@@ -23,7 +25,7 @@ const posts: Post[] = [
 		upvotes: 60_424,
 		comments: 5_231,
 		author: "ptrdo",
-		image: ["https://u.cubeupload.com/jackiec1998/ae464044b889434d87d8.png"],
+		images: ["https://u.cubeupload.com/jackiec1998/ae464044b889434d87d8.png"],
 	},
 	{
 		source:
@@ -81,10 +83,24 @@ AITA for calling her out in front of everyone?
 		author: "Scherbatyuk",
 		upvotes: 71_324,
 		comments: 1_532,
-		image: [
+		images: [
 			"https://u.cubeupload.com/jackiec1998/4682dd2ad3f44a318e69.jpg",
 			"https://u.cubeupload.com/jackiec1998/0fe0a29603154afd8c85.jpg",
 		],
+	},
+	{
+		source:
+			"https://www.reddit.com/r/news/comments/1jjom7u/as_top_trump_aides_sent_texts_on_signal_flight/",
+		type: "link",
+		subreddit: "news",
+		title:
+			"As top Trump aides sent texts on Signal, flight data show a member of the group chat was in Russia",
+		author: "evissimus",
+		upvotes: 6_796,
+		comments: 221,
+		link: "https://www.cbsnews.com/news/trump-envoy-steve-witkoff-signal-text-group-chat-russia-putin/",
+		linkThumbnail:
+			"https://u.cubeupload.com/jackiec1998/5dea4b099455462f8cb6.png",
 	},
 ];
 
@@ -112,89 +128,130 @@ function PostTitle({ title }: { title: string }) {
 	return <h2 className="text-[10pt] font-bold mb-2">{title}</h2>;
 }
 
-function PostPreview({ post }: { post: Post }) {
-	if (post.type === "text" && post.body) {
-		const [expanded, setExpanded] = useState(false);
-		const previewText = post.body.split("\n").slice(0, 3).join("\n");
+function TextPreview({ body }: { body: string }) {
+	const [expanded, setExpanded] = useState(false);
+	const previewText = body.split("\n").slice(0, 3).join("\n");
+	return (
+		<div className="text-gray-700 text-[8pt] mb-2">
+			<p>{expanded ? body : previewText}</p>
+			{!expanded && body.split("\n").length > 3 && (
+				<button
+					onClick={() => setExpanded(true)}
+					className="text-blue-500 underline mt-1"
+				>
+					Read more
+				</button>
+			)}
+			{expanded && (
+				<button
+					onClick={() => setExpanded(false)}
+					className="text-blue-500 underline mt-1"
+				>
+					Show less
+				</button>
+			)}
+		</div>
+	);
+}
+
+function ImagePreview({ images }: { images: string[] }) {
+	if (images.length > 1) {
+		const [currentIndex, setCurrentIndex] = useState(0);
+
 		return (
-			<div className="text-gray-700 text-[8pt] mb-2">
-				<p>{expanded ? post.body : previewText}</p>
-				{!expanded && post.body.split("\n").length > 3 && (
+			<div className="relative w-full rounded-md mb-2">
+				<img
+					src={images[currentIndex]}
+					className="w-full rounded-md"
+					style={{ height: "auto" }}
+				/>
+				{currentIndex > 0 && (
 					<button
-						onClick={() => setExpanded(true)}
-						className="text-blue-500 underline mt-1"
+						onClick={() => setCurrentIndex(currentIndex - 1)}
+						className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-70 text-white text-[7pt] p-2 rounded-full"
 					>
-						Read more
+						&lt;
 					</button>
 				)}
-				{expanded && (
+				{currentIndex < images.length - 1 && (
 					<button
-						onClick={() => setExpanded(false)}
-						className="text-blue-500 underline mt-1"
+						onClick={() => setCurrentIndex(currentIndex + 1)}
+						className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-70 text-white text-[7pt] p-2 rounded-full"
 					>
-						Show less
+						&gt;
 					</button>
 				)}
+				<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-70 px-2 py-1.5 rounded-full flex space-x-2">
+					{images.map((_, index) => (
+						<div
+							key={index}
+							className={`w-1.5 h-1.5 rounded-full ${
+								index === currentIndex ? "bg-white" : "bg-gray-400"
+							}`}
+						></div>
+					))}
+				</div>
 			</div>
 		);
-	} else if (post.type === "image" && post.image) {
-		if (post.image.length > 1) {
-			const [currentIndex, setCurrentIndex] = useState(0);
+	}
 
-			return (
-				<div className="relative w-full rounded-md mb-2">
-					<img
-						src={post.image[currentIndex]}
-						className="w-full rounded-md"
-						style={{ height: "auto" }}
-					/>
-					{currentIndex > 0 && (
-						<button
-							onClick={() => setCurrentIndex(currentIndex - 1)}
-							className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-70 text-white text-[7pt] p-2 rounded-full"
-						>
-							&lt;
-						</button>
-					)}
-					{currentIndex < post.image.length - 1 && (
-						<button
-							onClick={() => setCurrentIndex(currentIndex + 1)}
-							className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-70 text-white text-[7pt] p-2 rounded-full"
-						>
-							&gt;
-						</button>
-					)}
-					<div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-gray-800 bg-opacity-70 px-2 py-1.5 rounded-full flex space-x-2">
-						{post.image.map((_, index) => (
-							<div
-								key={index}
-								className={`w-1.5 h-1.5 rounded-full ${
-									index === currentIndex ? "bg-white" : "bg-gray-400"
-								}`}
-							></div>
-						))}
-					</div>
-				</div>
-			);
-		}
+	return (
+		<img
+			src={images[0]}
+			className="w-full rounded-md mb-2"
+			style={{ height: "auto" }}
+		/>
+	);
+}
 
-		return (
-			<img
-				src={post.image[0]}
-				className="w-full rounded-md mb-2"
-				style={{ height: "auto" }}
-			/>
-		);
+function VideoPreview({
+	videoLink,
+	title,
+}: {
+	videoLink: string;
+	title: string;
+}) {
+	return (
+		<iframe
+			src={videoLink}
+			title={title}
+			className="w-full rounded-md mb-2"
+			style={{ aspectRatio: "16/9", height: "auto" }}
+			allowFullScreen
+		></iframe>
+	);
+}
+function LinkPreview({
+	link,
+	linkThumbnail,
+}: {
+	link: string;
+	linkThumbnail: string;
+}) {
+	return (
+		<a
+			href={link}
+			target="_blank"
+			rel="noopener noreferrer"
+			className="block rounded-md shadow-md overflow-hidden my-3"
+		>
+			<img src={linkThumbnail} alt="Thumbnail" className="w-full h-auto" />
+			<div className="bg-gray-100 text-blue-500 text-[8pt] py-2 px-2">
+				{new URL(link).hostname}
+			</div>
+		</a>
+	);
+}
+
+function PostPreview({ post }: { post: Post }) {
+	if (post.type === "text" && post.body) {
+		return <TextPreview body={post.body} />;
+	} else if (post.type === "image" && post.images) {
+		return <ImagePreview images={post.images} />;
 	} else if (post.type === "video" && post.videoLink) {
-		return (
-			<iframe
-				src={post.videoLink}
-				title={post.title}
-				className="w-full rounded-md mb-2"
-				style={{ aspectRatio: "16/9", height: "auto" }}
-				allowFullScreen
-			></iframe>
-		);
+		return <VideoPreview videoLink={post.videoLink} title={post.title} />;
+	} else if (post.type === "link" && post.link && post.linkThumbnail) {
+		return <LinkPreview link={post.link} linkThumbnail={post.linkThumbnail} />;
 	}
 
 	return <></>;
