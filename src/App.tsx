@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 type Post = {
 	source: string;
 	type: "text" | "image" | "video" | "link";
@@ -8,7 +10,7 @@ type Post = {
 	comments: number;
 	body?: string;
 	image?: string[];
-	video_link?: string;
+	videoLink?: string;
 };
 
 const posts: Post[] = [
@@ -21,9 +23,7 @@ const posts: Post[] = [
 		upvotes: 60_424,
 		comments: 5_231,
 		author: "ptrdo",
-		image: [
-			"https://www.reddit.com/media?url=https%3A%2F%2Fi.redd.it%2F5slrrqfrbpqe1.png",
-		],
+		image: ["https://i.redd.it/5slrrqfrbpqe1.png"],
 	},
 	{
 		source:
@@ -70,7 +70,7 @@ AITA for calling her out in front of everyone?
 		upvotes: 7_934,
 		comments: 253,
 		author: "SillyAlterative420",
-		video_link: "https://youtu.be/6svTm7zC50w?si=j_gjRcrJJAXiyQW3",
+		videoLink: "https://www.youtube.com/embed/6svTm7zC50w",
 	},
 ];
 
@@ -80,59 +80,99 @@ function formatNumber(num: number): string {
 	return num.toString();
 }
 
-function Post({ post }: { post: Post }) {
+function PostHeader({
+	post,
+	hideAuthor = false,
+}: {
+	post: Post;
+	hideAuthor?: boolean;
+}) {
 	return (
-		<div className="border border-gray-300 rounded-md p-4 mb-4">
-			<div className="text-gray-500 text-sm mb-1">
-				r/{post.subreddit} • Posted by u/{post.author}
-			</div>
-
-			<h2 className="text-lg font-bold mb-2">{post.title}</h2>
-			{post.type === "text" && post.body && (
-				<p className="text-gray-700 text-sm mb-2">{post.body}</p>
-			)}
-			{post.type === "image" && post.image && (
-				<img
-					src={post.image[0]}
-					alt={post.title}
-					className="w-full rounded-md mb-2"
-				/>
-			)}
-			{post.type === "video" && post.video_link && (
-				<iframe
-					src={post.video_link}
-					title={post.title}
-					className="w-full h-64 rounded-md mb-2"
-					allowFullScreen
-				></iframe>
-			)}
-			<div className="flex items-center text-gray-500 text-sm">
-				<span className="mr-4">{formatNumber(post.upvotes)} upvotes</span>
-				<span>{formatNumber(post.comments)} comments</span>
-			</div>
+		<div className="text-gray-500 text-sm mb-1">
+			r/{post.subreddit} • {!hideAuthor && `Posted by u/${post.author}`}
 		</div>
 	);
 }
-// function Post({ post }: { post: Post }) {
-// 	return (
-// 		<div className="">
-// 			<div>
-// 				<span className="text-[8pt]">r/{post.subreddit}</span>
-// 			</div>
-// 			<h2 className="text-[8pt]">{post.title}</h2>
-// 			{/* <Preview post={post} /> */}
-// 			<div>
-// 				<span>{post.upvotes}</span>
-// 				<span>{post.comments}</span>
-// 			</div>
-// 		</div>
-// 	);
-// }
+
+function PostTitle({ title }: { title: string }) {
+	return <h2 className="text-lg font-bold mb-2">{title}</h2>;
+}
+
+function PostPreview({ post }: { post: Post }) {
+	const [expanded, setExpanded] = useState(false);
+
+	if (post.type === "text" && post.body) {
+		const previewText = post.body.split("\n").slice(0, 3).join("\n");
+		return (
+			<div className="text-gray-700 text-sm mb-2">
+				<p>{expanded ? post.body : previewText}</p>
+				{!expanded && post.body.split("\n").length > 3 && (
+					<button
+						onClick={() => setExpanded(true)}
+						className="text-blue-500 underline mt-1"
+					>
+						Read more
+					</button>
+				)}
+				{expanded && (
+					<button
+						onClick={() => setExpanded(false)}
+						className="text-blue-500 underline mt-1"
+					>
+						Show less
+					</button>
+				)}
+			</div>
+		);
+	} else if (post.type === "image" && post.image) {
+		return <img src={post.image[0]} className="w-full rounded-md mb-2" />;
+	} else if (post.type === "video" && post.videoLink) {
+		return (
+			<iframe
+				src={post.videoLink}
+				title={post.title}
+				className="w-full rounded-md mb-2"
+				style={{ aspectRatio: "16/9", height: "auto" }}
+				allowFullScreen
+			></iframe>
+		);
+	}
+
+	return <></>;
+}
+
+function PostEngagement({
+	upvotes,
+	comments,
+}: {
+	upvotes: number;
+	comments: number;
+}) {
+	return (
+		<div className="flex items-center text-gray-500 text-sm">
+			<span className="mr-4">{formatNumber(upvotes)} upvotes</span>
+			<span>{formatNumber(comments)} comments</span>
+		</div>
+	);
+}
+
+function Post({ post }: { post: Post }) {
+	return (
+		<div className="border border-gray-300 rounded-md p-4 m-4">
+			<PostHeader post={post} />
+			<PostTitle title={post.title} />
+			<PostPreview post={post} />
+			<PostEngagement upvotes={post.upvotes} comments={post.comments} />
+		</div>
+	);
+}
 
 function App() {
 	return (
 		<>
 			<Post post={posts[0]} />
+			<Post post={posts[1]} />
+			<Post post={posts[2]} />
 		</>
 	);
 }
