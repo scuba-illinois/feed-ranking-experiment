@@ -44,25 +44,29 @@ type Post = {
 
 type InitialPhase = {
 	snapshot: string;
-	responses: Record<
-		1 | 2 | 3 | 4 | 5,
-		{
-			postUUID: string;
-			actions: Set<Actions>;
-			likert: Record<LikertQuestion, LikertOption>;
-		}
+	responses: Partial<
+		Record<
+			1 | 2 | 3 | 4 | 5,
+			{
+				postUUID: string;
+				actions: Set<Actions>;
+				likert: Record<LikertQuestion, LikertOption>;
+			}
+		>
 	>;
 } | null;
 
 type FeedPhase = {
 	snapshot: string;
-	responses: Record<
-		1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
-		{
-			postUUID: string;
-			actions: string[];
-			likert: Record<LikertQuestion, LikertOption>;
-		}
+	responses: Partial<
+		Record<
+			1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
+			{
+				postUUID: string;
+				actions: string[];
+				likert: Record<LikertQuestion, LikertOption>;
+			}
+		>
 	>;
 } | null;
 
@@ -81,6 +85,8 @@ const SurveyContext = createContext<{
 	setCompletedPosts: (completedPosts: string[]) => void;
 	survey: Survey;
 	setSurvey: (survey: Survey) => void;
+	postPosition: number;
+	setPostPosition: (postPosition: number) => void;
 }>({
 	uuid: "",
 	selectedPost: "",
@@ -94,6 +100,8 @@ const SurveyContext = createContext<{
 		Phase3: null,
 	},
 	setSurvey: () => {},
+	postPosition: 0,
+	setPostPosition: () => {},
 });
 
 const posts: Post[] = [
@@ -375,9 +383,14 @@ function PostEngagement({
 	);
 }
 
-function Post({ post }: { post: Post }) {
-	const { selectedPost, setSelectedPost, completedPosts } =
-		useContext(SurveyContext);
+function Post({ post, position }: { post: Post; position: number }) {
+	const {
+		selectedPost,
+		setSelectedPost,
+		completedPosts,
+		postPosition,
+		setPostPosition,
+	} = useContext(SurveyContext);
 
 	const isSelected = selectedPost === post.uuid;
 
@@ -389,6 +402,7 @@ function Post({ post }: { post: Post }) {
 			onClick={() => {
 				if (!completedPosts.includes(post.uuid)) {
 					setSelectedPost(post.uuid);
+					setPostPosition(position);
 				}
 			}}
 		>
@@ -401,8 +415,15 @@ function Post({ post }: { post: Post }) {
 }
 
 function PostQuestionnaire({ postUUID }: { postUUID: string }) {
-	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
-		useContext(SurveyContext);
+	const {
+		selectedPost,
+		setSelectedPost,
+		completedPosts,
+		setCompletedPosts,
+		survey,
+		setSurvey,
+		postPosition,
+	} = useContext(SurveyContext);
 
 	const actions: Array<Actions> = [
 		...new chance(postUUID).shuffle(["share", "comment", "like", "read more"]),
@@ -488,6 +509,20 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 
 		setCompletedPosts([...completedPosts, selectedPost]);
 		setSelectedPost("");
+		setSurvey({
+			...survey,
+			Phase2: {
+				snapshot: "",
+				responses: {
+					...survey.Phase2?.responses,
+					[postPosition]: {
+						postUUID: selectedPost,
+						actions: responses.actions,
+						likert: responses.likert,
+					},
+				},
+			},
+		});
 	};
 
 	return (
@@ -587,6 +622,7 @@ function App() {
 	const uuid = uuidv4();
 
 	const [selectedPost, setSelectedPost] = useState("");
+	const [postPosition, setPostPosition] = useState(0);
 	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
@@ -605,6 +641,8 @@ function App() {
 				setCompletedPosts,
 				survey,
 				setSurvey,
+				postPosition,
+				setPostPosition,
 			}}
 		>
 			<div className="p-4 text-[8pt]">
@@ -623,7 +661,7 @@ function App() {
 			<div className="flex justify-center gap-2 m-3">
 				<div className="w-1/2 flex flex-col gap-2">
 					{posts.map((post, index) => (
-						<Post key={index} post={post} />
+						<Post key={index} post={post} position={index + 1} />
 					))}
 				</div>
 				{selectedPost && !completedPosts.includes(selectedPost) ? (
