@@ -1,4 +1,6 @@
 import { useState, createContext, useContext, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
+import chance from "chance";
 
 type Post = {
 	uuid: string;
@@ -17,11 +19,13 @@ type Post = {
 };
 
 const SurveyContext = createContext<{
+	uuid: string;
 	selectedPost: string;
 	setSelectedPost: (selectedPost: string) => void;
 	completedPosts: string[];
 	setCompletedPosts: (completedPosts: string[]) => void;
 }>({
+	uuid: "",
 	selectedPost: "",
 	setSelectedPost: () => {},
 	completedPosts: [],
@@ -333,39 +337,74 @@ function Post({ post }: { post: Post }) {
 }
 
 function PostQuestionnaire({ postUUID }: { postUUID: string }) {
-	// TODO: If the post is already completed, show a message saying "You have already completed this post."
-	// TODO: Randomize the order of actions.
-
 	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
 		useContext(SurveyContext);
 
-	const [actions, setActions] = useState<string[]>([]);
-	const [rating, setRating] = useState<string | null>(null);
+	const actions: Array<string> = [
+		...new chance(postUUID).shuffle(["share", "comment", "like", "read more"]),
+		"ignore",
+	];
+
+	console.log(actions);
+
+	const [responses, setResponses] = useState<{
+		actions: string[];
+		likert: Record<string, string>;
+	}>({
+		actions: [],
+		likert: {},
+	});
 
 	// Clear answers when postUUID changes
 	useEffect(() => {
-		setActions([]);
-		setRating(null);
+		setResponses({ actions: [], likert: {} });
 	}, [postUUID]);
 
 	const handleActionChange = (action: string) => {
-		setActions((prev) =>
-			prev.includes(action)
-				? prev.filter((a) => a !== action)
-				: [...prev, action]
-		);
+		setResponses((prev) => {
+			if (action === "ignore") {
+				return { ...prev, actions: ["ignore"] };
+			}
+			return {
+				...prev,
+				actions: prev.actions.includes(action)
+					? prev.actions.filter((a) => a !== action)
+					: [...prev.actions.filter((a) => a !== "ignore"), action],
+			};
+		});
+	};
+
+	const handleLikertChange = (question: string, value: string) => {
+		setResponses((prev) => ({
+			...prev,
+			likert: { ...prev.likert, [question]: value },
+		}));
 	};
 
 	const handleSubmit = () => {
-		if (completedPosts.includes(selectedPost)) {
-			return;
-		}
+		if (completedPosts.includes(selectedPost)) return;
 
 		// TODO: Validate answers.
 
 		setCompletedPosts([...completedPosts, selectedPost]);
 		setSelectedPost("");
 	};
+
+	const likertQuestions = [
+		"I consider this post to be well-regarded by others.",
+		"I consider this post to be interesting, engaging, or relevant to me.",
+		"I consider this post to be correct and reliable.",
+	];
+
+	const likertOptions = [
+		"Strongly Disagree",
+		"Disagree",
+		"Somewhat Disagree",
+		"Neutral",
+		"Somewhat Agree",
+		"Agree",
+		"Strongly Agree",
+	];
 
 	return (
 		<>
@@ -375,168 +414,47 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 				{posts.find((p) => p.uuid === selectedPost)?.title}
 			</span>
 			<hr className="my-2 border-gray-300" />
-			<div className="">
+			<div>
 				<h2 className="font-bold mb-1">
 					What actions would you take on this post? (Select all that apply.)
 				</h2>
 				<div className="flex flex-col gap-2">
-					<label className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							value="share"
-							checked={actions.includes("share")}
-							onChange={() => handleActionChange("share")}
-						/>
-						Share
-					</label>
-					<label className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							value="comment"
-							checked={actions.includes("comment")}
-							onChange={() => handleActionChange("comment")}
-						/>
-						Comment
-					</label>
-					<label className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							value="like"
-							checked={actions.includes("like")}
-							onChange={() => handleActionChange("like")}
-						/>
-						Like
-					</label>
-					<label className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							value="read more"
-							checked={actions.includes("read more")}
-							onChange={() => handleActionChange("read more")}
-						/>
-						Read More
-					</label>
-					<label className="flex items-center gap-2">
-						<input
-							type="checkbox"
-							value="ignore"
-							checked={actions.includes("ignore")}
-							onChange={() => handleActionChange("ignore")}
-						/>
-						Ignore/Scroll Past
-					</label>
+					{actions.map((action) => (
+						<label key={action} className="flex items-center gap-2">
+							<input
+								type="checkbox"
+								value={action}
+								checked={responses.actions.includes(action)}
+								onChange={() => handleActionChange(action)}
+							/>
+							{action.charAt(0).toUpperCase() + action.slice(1)}
+						</label>
+					))}
 				</div>
 			</div>
 			<hr className="my-2 border-gray-300" />
-			<h2 className="font-bold mb-1">How would you describe this post?</h2>
-			<div className="flex flex-col gap-4">
-				<div className="">
-					<p className="mb-2 italic">
-						I consider this post to be well-regarded by others.
-					</p>
-
-					<div
-						className="flex flex-wrap gap-2"
-						style={{ flexDirection: "column", alignItems: "flex-start" }}
-					>
-						{[
-							"Strongly Disagree",
-							"Disagree",
-							"Somewhat Disagree",
-							"Neutral",
-							"Somewhat Agree",
-							"Agree",
-							"Strongly Agree",
-						].map((value) => (
-							<label
-								key={value}
-								className="flex items-center gap-2"
-								style={{ flexDirection: "row" }}
-							>
-								<input
-									type="radio"
-									name="likert"
-									value={value}
-									checked={rating === value}
-									onChange={() => setRating(value)}
-								/>
-								<span className="text-[8pt]">{value}</span>
-							</label>
-						))}
+			<div>
+				<h2 className="font-bold mb-1">How would you describe this post?</h2>
+				{likertQuestions.map((question) => (
+					<div key={question} className="mb-4">
+						<p className="mb-2 italic">{question}</p>
+						<div className="flex flex-wrap gap-2">
+							{likertOptions.map((value) => (
+								<label key={value} className="flex items-center gap-2">
+									<input
+										type="radio"
+										name={question}
+										value={value}
+										checked={responses.likert[question] === value}
+										onChange={() => handleLikertChange(question, value)}
+									/>
+									<span className="text-[8pt]">{value}</span>
+								</label>
+							))}
+						</div>
 					</div>
-				</div>
-				<div className="">
-					<p className="mb-2 italic">
-						I consider this post to be well-regarded by others.
-					</p>
-
-					<div
-						className="flex flex-wrap gap-2"
-						style={{ flexDirection: "column", alignItems: "flex-start" }}
-					>
-						{[
-							"Strongly Disagree",
-							"Disagree",
-							"Somewhat Disagree",
-							"Neutral",
-							"Somewhat Agree",
-							"Agree",
-							"Strongly Agree",
-						].map((value) => (
-							<label
-								key={value}
-								className="flex items-center gap-2"
-								style={{ flexDirection: "row" }}
-							>
-								<input
-									type="radio"
-									name="likert"
-									value={value}
-									checked={rating === value}
-									onChange={() => setRating(value)}
-								/>
-								<span className="text-[8pt]">{value}</span>
-							</label>
-						))}
-					</div>
-				</div>
-				<div className="">
-					<p className="mb-2 italic">
-						I consider this post to be well-regarded by others.
-					</p>
-
-					<div
-						className="flex flex-wrap gap-2"
-						style={{ flexDirection: "column", alignItems: "flex-start" }}
-					>
-						{[
-							"Strongly Disagree",
-							"Disagree",
-							"Somewhat Disagree",
-							"Neutral",
-							"Somewhat Agree",
-							"Agree",
-							"Strongly Agree",
-						].map((value) => (
-							<label
-								key={value}
-								className="flex items-center gap-2"
-								style={{ flexDirection: "row" }}
-							>
-								<input
-									type="radio"
-									name="likert"
-									value={value}
-									checked={rating === value}
-									onChange={() => setRating(value)}
-								/>
-								<span className="text-[8pt]">{value}</span>
-							</label>
-						))}
-					</div>
-				</div>
+				))}
 			</div>
-
 			<button
 				className="bg-blue-500 text-white text-[8pt] py-2 px-3 rounded-md hover:bg-blue-600 transition-colors mt-2"
 				onClick={handleSubmit}
@@ -549,6 +467,7 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 
 function App() {
 	// TODO: Remove the div when the post has been submitted and is contained within the completedPosts array.
+	const uuid = uuidv4();
 
 	const [selectedPost, setSelectedPost] = useState("");
 	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
@@ -556,6 +475,7 @@ function App() {
 	return (
 		<SurveyContext.Provider
 			value={{
+				uuid: uuid,
 				selectedPost,
 				setSelectedPost,
 				completedPosts,
