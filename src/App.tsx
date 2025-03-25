@@ -132,14 +132,17 @@ function TextPreview({ body }: { body: string }) {
 	const [expanded, setExpanded] = useState(false);
 	const previewText = body.split("\n").slice(0, 3).join("\n");
 	return (
-		<div className="text-gray-700 text-[8pt] mb-2">
+		<div
+			className="text-gray-700 text-[8pt] mb-2"
+			style={{ whiteSpace: "pre-line" }}
+		>
 			<p>{expanded ? body : previewText}</p>
 			{!expanded && body.split("\n").length > 3 && (
 				<button
 					onClick={() => setExpanded(true)}
 					className="text-blue-500 underline mt-1"
 				>
-					Read more
+					Read More
 				</button>
 			)}
 			{expanded && (
@@ -147,7 +150,7 @@ function TextPreview({ body }: { body: string }) {
 					onClick={() => setExpanded(false)}
 					className="text-blue-500 underline mt-1"
 				>
-					Show less
+					Show Less
 				</button>
 			)}
 		</div>
@@ -233,7 +236,7 @@ function LinkPreview({
 			href={link}
 			target="_blank"
 			rel="noopener noreferrer"
-			className="block rounded-md shadow-md overflow-hidden my-3"
+			className="block rounded-md overflow-hidden my-3"
 		>
 			<img src={linkThumbnail} alt="Thumbnail" className="w-full h-auto" />
 			<div className="bg-gray-100 text-blue-500 text-[8pt] py-2 px-2">
