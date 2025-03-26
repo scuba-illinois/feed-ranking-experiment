@@ -220,7 +220,7 @@ function PostCard({ post, position }: { post: Post; position: number }) {
 		selectedPost,
 		setSelectedPost,
 		completedPosts,
-		postPosition,
+		// postPosition,
 		setPostPosition,
 	} = useContext(SurveyContext);
 
