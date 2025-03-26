@@ -228,8 +228,8 @@ function PostCard({ post, position }: { post: Post; position: number }) {
 
 	return (
 		<div
-			className={`border rounded-md p-4 ${
-				isSelected ? "border-blue-500" : "border-gray-300"
+			className={`rounded-md p-4 ${
+				isSelected ? "outline-2 outline-blue-500" : "border border-gray-300"
 			}`}
 			onClick={() => {
 				if (!completedPosts.includes(post.uuid)) {
@@ -515,7 +515,7 @@ function App() {
 					))}
 				</div>
 				{selectedPost && !completedPosts.includes(selectedPost) ? (
-					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 border border-gray-300 rounded-md p-4 text-[8pt]">
+					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
 						<PostQuestionnaire postUUID={selectedPost} />
 					</div>
 				) : (
