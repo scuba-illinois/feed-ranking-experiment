@@ -79,6 +79,8 @@ type Survey = {
 
 const SurveyContext = createContext<{
 	uuid: string;
+	debug: boolean;
+	setDebug: (debug: boolean) => void;
 	selectedPost: string;
 	setSelectedPost: (selectedPost: string) => void;
 	completedPosts: string[];
@@ -89,6 +91,8 @@ const SurveyContext = createContext<{
 	setPostPosition: (postPosition: number) => void;
 }>({
 	uuid: "",
+	debug: false,
+	setDebug: () => {},
 	selectedPost: "",
 	setSelectedPost: () => {},
 	completedPosts: [],
@@ -423,6 +427,7 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 		survey,
 		setSurvey,
 		postPosition,
+		debug,
 	} = useContext(SurveyContext);
 
 	const actions: Array<Actions> = [
@@ -599,9 +604,11 @@ function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 					</div>
 				</div>
 			</div>
-			<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
-				{JSON.stringify(responses, null, 2)}
-			</pre>
+			{debug && (
+				<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
+					{JSON.stringify(responses, null, 2)}
+				</pre>
+			)}
 			<button
 				className={`py-2 px-3 rounded-md text-[8pt] transition-colors mt-2 ${
 					valid(responses)
@@ -630,11 +637,14 @@ function App() {
 		Phase2: null,
 		Phase3: null,
 	});
+	const [debug, setDebug] = useState(false);
 
 	return (
 		<SurveyContext.Provider
 			value={{
 				uuid: uuid,
+				debug: debug,
+				setDebug: setDebug,
 				selectedPost,
 				setSelectedPost,
 				completedPosts,
@@ -645,18 +655,30 @@ function App() {
 				setPostPosition,
 			}}
 		>
-			<div className="p-4 text-[8pt]">
-				<p>Completed Posts: {completedPosts.length}</p>
-				<p>Selected Post: {selectedPost}</p>
-				<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
-					{JSON.stringify(survey, null, 2)}
-				</pre>
-			</div>
+			{debug && (
+				<div className="p-4 text-[8pt]">
+					<p>Completed Posts: {completedPosts.length}</p>
+					<p>Selected Post: {selectedPost}</p>
+					<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
+						{JSON.stringify(survey, null, 2)}
+					</pre>
+				</div>
+			)}
 			<div className="m-3">
 				<h1 className="font-bold text-2xl">Trending on Reddit</h1>
 				<p className="text-[10pt]">
 					To start assessing posts, please click on any post.
 				</p>
+				<button
+					className={`py-2 px-3 rounded-md text-[8pt] transition-colors mt-2 ${
+						debug
+							? "bg-red-500 text-white hover:bg-red-600"
+							: "bg-blue-500 text-white hover:bg-blue-600"
+					}`}
+					onClick={() => setDebug(!debug)}
+				>
+					{debug ? "Disable Debug" : "Enable Debug"}
+				</button>
 			</div>
 			<div className="flex justify-center gap-2 m-3">
 				<div className="w-1/2 flex flex-col gap-2">
