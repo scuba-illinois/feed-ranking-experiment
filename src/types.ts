@@ -1,4 +1,21 @@
-export const actions = ["share", "like", "comment", "read more", "ignore"];
+export const phases = [
+	"intro",
+	"instructions",
+	"phase1",
+	"phase2",
+	"phase3",
+	"exit",
+] as const;
+
+export type Phases = (typeof phases)[number];
+
+export const actions = [
+	"share",
+	"like",
+	"comment",
+	"read more",
+	"ignore",
+] as const;
 
 export type Actions = (typeof actions)[number];
 
