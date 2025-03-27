@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SurveyContext } from "./App";
 import { Actions, likertOptions, likertQuestions } from "./types";
 import chance from "chance";
@@ -17,8 +17,13 @@ export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 	} = useContext(SurveyContext);
 
 	const actions: Array<Actions> = [
-		...new chance(postUUID).shuffle(["share", "comment", "like", "read more"]),
-		"ignore",
+		...(new chance(postUUID).shuffle([
+			"share",
+			"comment",
+			"like",
+			"read more",
+		]) as Array<"share" | "comment" | "like" | "read more">),
+		"ignore" as "ignore",
 	];
 
 	const [responses, setResponses] = useState<{
