@@ -9,7 +9,7 @@ import ExitQuestionnaire from "./pages/ExitQuestionnaire";
 import IntroPhase from "./pages/Intro";
 import InstructionsPhase1 from "./pages/InstructionsPhase1";
 import InstructionsPhase2 from "./pages/InstructionsPhase2";
-import { Body, Button, Header } from "./components/general";
+import { Body, Header } from "./components/general";
 import Transition from "./pages/Transition";
 import { rotatePosts } from "./utils";
 
@@ -135,30 +135,30 @@ function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 	);
 }
 
-function Debug() {
-	const { debug, setDebug, survey } = useContext(SurveyContext);
+// function Debug() {
+// 	const { debug, setDebug, survey } = useContext(SurveyContext);
 
-	return (
-		<div className="text-[6pt] flex flex-col gap-2 p-4">
-			{debug && (
-				<div className="font-mono whitespace-pre-wrap text-[6pt]">
-					{JSON.stringify(survey, null, 2)}
-				</div>
-			)}
-			<Button
-				onClick={() => setDebug(!debug)}
-				className={debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""}
-			>
-				{debug ? "Disable Debug" : "Enable Debug"}
-			</Button>
-		</div>
-	);
-}
+// 	return (
+// 		<div className="text-[6pt] flex flex-col gap-2 p-4">
+// 			{debug && (
+// 				<div className="font-mono whitespace-pre-wrap text-[6pt]">
+// 					{JSON.stringify(survey, null, 2)}
+// 				</div>
+// 			)}
+// 			<Button
+// 				onClick={() => setDebug(!debug)}
+// 				className={debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""}
+// 			>
+// 				{debug ? "Disable Debug" : "Enable Debug"}
+// 			</Button>
+// 		</div>
+// 	);
+// }
 
 function App() {
 	// TODO: Pull the assigned posts from the server depending on the participant's ID.
 
-	const [phase, setPhase] = useState<Phases>("phase2");
+	const [phase, setPhase] = useState<Phases>("intro");
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
 		Phase1: null,
@@ -170,7 +170,7 @@ function App() {
 	const posts = snapshots["625a57f7-6ec1-47e7-bbf0-0e4edbad412e"].posts;
 
 	const [phase1Posts] = useState<Post[]>(
-		new chance(survey.participant).shuffle(posts).slice(0, 2)
+		new chance(survey.participant).shuffle(posts).slice(0, 5)
 	);
 	const [phase2Posts] = useState<Post[]>(posts);
 	const [phase3Posts] = useState<Post[]>(rotatePosts(posts, 3)); // Example with n = 3

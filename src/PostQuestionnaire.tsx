@@ -234,7 +234,7 @@ export function PostQuestionnaire({
 	setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
 	position?: number; // State that is only used for the FeedPhase.
 }) {
-	const { survey, setSurvey, setPhase, phase1Posts, phase2Posts, phase3Posts } =
+	const { survey, setSurvey, setPhase, phase2Posts, phase3Posts } =
 		useContext(SurveyContext);
 	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
 		useContext(PhaseContext);
