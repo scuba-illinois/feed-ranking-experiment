@@ -42,11 +42,13 @@ export function PostQuestionnaire({
 	phase,
 	currentPost,
 	setCurrentPost,
+	position,
 }: {
 	postUUID: string;
 	phase: "phase1" | "phase2" | "phase3";
 	currentPost?: number;
 	setCurrentPost?: (currentPost: number) => void;
+	position?: number;
 }) {
 	const {
 		selectedPost,
@@ -55,7 +57,6 @@ export function PostQuestionnaire({
 		setCompletedPosts,
 		survey,
 		setSurvey,
-		postPosition,
 		debug,
 		setPhase,
 	} = useContext(SurveyContext);
@@ -141,6 +142,7 @@ export function PostQuestionnaire({
 
 			if (currentPost === 2) {
 				setPhase("instructions-2");
+				setSelectedPost("");
 			}
 		}
 		if (phase === "phase2") {
@@ -152,7 +154,7 @@ export function PostQuestionnaire({
 					snapshot: "",
 					responses: {
 						...survey.Phase2?.responses,
-						[postPosition]: {
+						[position!]: {
 							postUUID: selectedPost,
 							actions: responses.actions,
 							likert: responses.likert,

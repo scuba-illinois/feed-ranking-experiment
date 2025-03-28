@@ -4,6 +4,7 @@ import { posts } from "./posts";
 import { PostQuestionnaire } from "./PostQuestionnaire";
 import { PostCard } from "./PostCard";
 import chance from "chance";
+import { Goodbye } from "./pages/Gooybye";
 
 export const SurveyContext = createContext<{
 	phase: Phases;
@@ -16,8 +17,6 @@ export const SurveyContext = createContext<{
 	setCompletedPosts: (completedPosts: string[]) => void;
 	survey: Survey;
 	setSurvey: (survey: Survey) => void;
-	postPosition: number;
-	setPostPosition: (postPosition: number) => void;
 }>({
 	phase: "intro",
 	setPhase: () => {},
@@ -34,8 +33,6 @@ export const SurveyContext = createContext<{
 		Phase3: null,
 	},
 	setSurvey: () => {},
-	postPosition: 0,
-	setPostPosition: () => {},
 });
 
 function FeedPhase() {
@@ -250,9 +247,8 @@ function PostPhase() {
 }
 
 function App() {
-	const [phase, setPhase] = useState<Phases>("intro");
+	const [phase, setPhase] = useState<Phases>("exit");
 	const [selectedPost, setSelectedPost] = useState("");
-	const [postPosition, setPostPosition] = useState(0);
 	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
@@ -275,8 +271,6 @@ function App() {
 				setCompletedPosts,
 				survey,
 				setSurvey,
-				postPosition,
-				setPostPosition,
 			}}
 		>
 			{phase === "intro" && <IntroPhase />}
@@ -284,6 +278,8 @@ function App() {
 			{phase === "phase1" && <PostPhase />}
 			{phase === "instructions-2" && <InstructionsPhase2 />}
 			{phase === "phase2" && <FeedPhase />}
+			{phase === "phase3" && <FeedPhase />}
+			{phase === "exit" && <Goodbye />}
 		</SurveyContext.Provider>
 	);
 }
