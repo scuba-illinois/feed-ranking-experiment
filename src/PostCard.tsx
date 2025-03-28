@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { Post } from "./types";
 import { formatNumber } from "./utils";
-import { SurveyContext } from "./App";
+import { PhaseContext } from "./App";
 
 function PostHeader({
 	post,
@@ -10,7 +10,7 @@ function PostHeader({
 	post: Post;
 	hideAuthor?: boolean;
 }) {
-	const { completedPosts } = useContext(SurveyContext);
+	const { completedPosts } = useContext(PhaseContext);
 	const isCompleted = completedPosts.includes(post.uuid);
 
 	return (
@@ -174,6 +174,8 @@ function PostEngagement({
 	upvotes: number;
 	comments: number;
 }) {
+	// TODO: Make these pills.
+
 	return (
 		<div className="flex items-center text-gray-500 text-[8pt] gap-2">
 			<span>{formatNumber(upvotes)} upvotes</span>
@@ -190,7 +192,7 @@ export function PostCard({
 	position?: number;
 }) {
 	const { selectedPost, setSelectedPost, completedPosts } =
-		useContext(SurveyContext);
+		useContext(PhaseContext);
 
 	const isSelected = selectedPost === post.uuid;
 

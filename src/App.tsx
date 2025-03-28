@@ -1,5 +1,5 @@
 import { useState, createContext, useContext } from "react";
-import { Phases, Survey } from "./types";
+import { Phases, Post, Survey } from "./types";
 import { posts } from "./posts";
 import { PostQuestionnaire } from "./PostQuestionnaire";
 import { PostCard } from "./PostCard";
@@ -15,10 +15,6 @@ export const SurveyContext = createContext<{
 	setPhase: (phase: Phases) => void;
 	debug: boolean;
 	setDebug: (debug: boolean) => void;
-	selectedPost: string;
-	setSelectedPost: (selectedPost: string) => void;
-	completedPosts: string[];
-	setCompletedPosts: (completedPosts: string[]) => void;
 	survey: Survey;
 	setSurvey: (survey: Survey) => void;
 }>({
@@ -26,10 +22,6 @@ export const SurveyContext = createContext<{
 	setPhase: () => {},
 	debug: false,
 	setDebug: () => {},
-	selectedPost: "",
-	setSelectedPost: () => {},
-	completedPosts: [],
-	setCompletedPosts: () => {},
 	survey: {
 		participant: "",
 		Phase1: null,
@@ -40,8 +32,9 @@ export const SurveyContext = createContext<{
 });
 
 function FeedPhase() {
-	const { debug, selectedPost, completedPosts, survey, setDebug, phase } =
-		useContext(SurveyContext);
+	const { debug, survey, setDebug, phase } = useContext(SurveyContext);
+	const { selectedPost, setSelectedPost, completedPosts } =
+		useContext(PhaseContext);
 
 	return (
 		<>
@@ -92,17 +85,34 @@ function FeedPhase() {
 	);
 }
 
-function PostPhase() {
+export const PhaseContext = createContext<{
+	selectedPost: string;
+	setSelectedPost: (postUUID: string) => void;
+	completedPosts: string[];
+	setCompletedPosts: (posts: string[]) => void;
+}>({
+	selectedPost: "", // Default to an empty string
+	setSelectedPost: () => {}, // Default to an empty function
+	completedPosts: [], // Default to an empty array
+	setCompletedPosts: () => {}, // Default to an empty function
+});
+
+function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 	// FIXME: On refresh, the post changes. PATCH: chance object takes a seed that is the participant ID.
 
 	const [currentPost, setCurrentPost] = useState(1);
-	const { selectedPost, survey } = useContext(SurveyContext);
-	const [selectedPosts] = useState<typeof posts>(
-		new chance(survey.participant).shuffle(posts).slice(0, 2)
-	);
+	const [selectedPost, setSelectedPost] = useState("");
+	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
 
 	return (
-		<>
+		<PhaseContext.Provider
+			value={{
+				selectedPost,
+				setSelectedPost,
+				completedPosts,
+				setCompletedPosts,
+			}}
+		>
 			<div className="m-3">
 				<h2 className="font-bold text-2xl">
 					Trending on Reddit (Post {currentPost} / 2)
@@ -114,28 +124,24 @@ function PostPhase() {
 					<PostCard post={selectedPosts[currentPost - 1]} />
 				</div>
 				{selectedPost ? (
-					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
-						<PostQuestionnaire
-							postUUID={selectedPosts[currentPost - 1].uuid}
-							phase="phase1"
-							currentPost={currentPost}
-							setCurrentPost={setCurrentPost}
-						/>
-					</div>
+					<PostQuestionnaire
+						postUUID={selectedPosts[currentPost - 1].uuid}
+						phase="phase1"
+						currentPost={currentPost}
+						setCurrentPost={setCurrentPost}
+					/>
 				) : (
 					<div className="w-1/2"></div>
 				)}
 			</div>
-		</>
+		</PhaseContext.Provider>
 	);
 }
 
 function App() {
 	// TODO: Pull the assigned posts from the server depending on the participant's ID.
 
-	const [phase, setPhase] = useState<Phases>("instructions-2");
-	const [selectedPost, setSelectedPost] = useState("");
-	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
+	const [phase, setPhase] = useState<Phases>("phase1");
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
 		Phase1: null,
@@ -144,6 +150,10 @@ function App() {
 	});
 	const [debug, setDebug] = useState(false);
 
+	const [phase1Posts] = useState<typeof posts>(
+		new chance(survey.participant).shuffle(posts).slice(0, 2)
+	);
+
 	return (
 		<SurveyContext.Provider
 			value={{
@@ -151,17 +161,13 @@ function App() {
 				setPhase: setPhase,
 				debug: debug,
 				setDebug: setDebug,
-				selectedPost,
-				setSelectedPost,
-				completedPosts,
-				setCompletedPosts,
-				survey,
-				setSurvey,
+				survey: survey,
+				setSurvey: setSurvey,
 			}}
 		>
 			{phase === "intro" && <IntroPhase />}
 			{phase === "instructions" && <InstructionsPhase1 />}
-			{phase === "phase1" && <PostPhase />}
+			{phase === "phase1" && <PostPhase selectedPosts={phase1Posts} />}
 			{phase === "instructions-2" && <InstructionsPhase2 />}
 			{phase === "phase2" && <FeedPhase />}
 			{phase === "phase3" && <FeedPhase />}
