@@ -9,6 +9,7 @@ import ExitQuestionnaire from "./pages/ExitQuestionnaire";
 import IntroPhase from "./pages/Intro";
 import InstructionsPhase1 from "./pages/InstructionsPhase1";
 import InstructionsPhase2 from "./pages/InstructionsPhase2";
+import { Button } from "./components/general";
 
 export const SurveyContext = createContext<{
 	phase: Phases;
@@ -138,7 +139,7 @@ function App() {
 		Phase2: null,
 		Phase3: null,
 	});
-	const [debug, setDebug] = useState(true);
+	const [debug, setDebug] = useState(false);
 
 	const [phase1Posts] = useState<typeof posts>(
 		new chance(survey.participant).shuffle(posts).slice(0, 2)
@@ -155,8 +156,20 @@ function App() {
 				setSurvey: setSurvey,
 			}}
 		>
-			<div className="font-mono whitespace-pre-wrap p-4 text-[6pt]">
-				{JSON.stringify(survey, null, 2)}
+			<div className="text-[6pt] flex flex-col gap-2 p-4">
+				{debug && (
+					<div className="font-mono whitespace-pre-wrap text-[6pt]">
+						{JSON.stringify(survey, null, 2)}
+					</div>
+				)}
+				<Button
+					onClick={() => setDebug(!debug)}
+					className={
+						debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""
+					}
+				>
+					{debug ? "Disable Debug" : "Enable Debug"}
+				</Button>
 			</div>
 			{phase === "intro" && <IntroPhase />}
 			{phase === "instructions" && <InstructionsPhase1 />}

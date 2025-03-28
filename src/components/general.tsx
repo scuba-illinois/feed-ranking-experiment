@@ -13,11 +13,13 @@ export function Button({
 	onClick = () => {}, // Default to an empty function if not provided
 	children,
 	disabled = false, // Default to false if not provided
+	className = "", // Additional className prop
 }: {
 	type?: "button" | "submit" | "reset"; // Optional type prop for the button
 	onClick?: () => void;
 	disabled?: boolean; // Optional prop to disable the button
 	children: React.ReactNode;
+	className?: string; // Optional className prop for custom styles
 }) {
 	return (
 		<button
@@ -26,7 +28,7 @@ export function Button({
 				!disabled
 					? "bg-blue-500 text-white hover:bg-blue-600 transition-colors"
 					: "bg-gray-300 text-gray-500 cursor-not-allowed"
-			}`}
+			} ${className}`}
 			onClick={onClick}
 			disabled={disabled}
 		>
