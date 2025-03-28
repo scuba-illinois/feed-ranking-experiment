@@ -2,6 +2,7 @@ export const phases = [
 	"intro",
 	"instructions",
 	"phase1",
+	"instructions-2",
 	"phase2",
 	"phase3",
 	"exit",

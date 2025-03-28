@@ -4,7 +4,50 @@ import { Actions, likertOptions, likertQuestions } from "./types";
 import chance from "chance";
 import { posts } from "./posts";
 
-export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
+// TODO: Could be more strict about the likert types instead of string, string.
+type Response = {
+	actions: string[];
+	likert: Record<string, string>;
+	overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
+};
+
+function valid(responses: {
+	actions: string[];
+	likert: Record<string, string>;
+	overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
+}): boolean {
+	// Responses are valid if (1) they selected at least one action,
+	if (responses.actions.length === 0) {
+		return false;
+	}
+
+	// (2) they answered all likert questions,
+	const allLikertAnswered = likertQuestions.every(
+		(question) => responses.likert[question] !== undefined
+	);
+	if (!allLikertAnswered) {
+		return false;
+	}
+
+	// and (3) they selected an overall quality rating.
+	if (responses.overallQuality === null) {
+		return false;
+	}
+
+	return true;
+}
+
+export function PostQuestionnaire({
+	postUUID,
+	phase,
+	currentPost,
+	setCurrentPost,
+}: {
+	postUUID: string;
+	phase: "phase1" | "phase2" | "phase3";
+	currentPost?: number;
+	setCurrentPost?: (currentPost: number) => void;
+}) {
 	const {
 		selectedPost,
 		setSelectedPost,
@@ -14,6 +57,7 @@ export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 		setSurvey,
 		postPosition,
 		debug,
+		setPhase,
 	} = useContext(SurveyContext);
 
 	const actions: Array<Actions> = [
@@ -26,11 +70,7 @@ export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 		"ignore" as "ignore",
 	];
 
-	const [responses, setResponses] = useState<{
-		actions: string[];
-		likert: Record<string, string>;
-		overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
-	}>({
+	const [responses, setResponses] = useState<Response>({
 		actions: [],
 		likert: {},
 		overallQuality: null,
@@ -46,6 +86,7 @@ export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 			if (action === "ignore") {
 				return { ...prev, actions: ["ignore"] };
 			}
+
 			return {
 				...prev,
 				actions: prev.actions.includes(action)
@@ -69,31 +110,6 @@ export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 		}));
 	};
 
-	function valid(responses: {
-		actions: string[];
-		likert: Record<string, string>;
-		overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
-	}): boolean {
-		// Responses are valid if (1) they selected at least one action,
-		if (responses.actions.length === 0) {
-			return false;
-		}
-
-		// (2) they answered all likert questions,
-		const allLikertAnswered = likertQuestions.every(
-			(question) => responses.likert[question] !== undefined
-		);
-		if (!allLikertAnswered) {
-			return false;
-		}
-
-		// and (3) they selected an overall quality rating.
-		if (responses.overallQuality === null) {
-			return false;
-		}
-
-		return true;
-	}
 	const handleSubmit = () => {
 		if (completedPosts.includes(selectedPost)) return;
 
@@ -101,6 +117,31 @@ export function PostQuestionnaire({ postUUID }: { postUUID: string }) {
 		if (!valid(responses)) {
 			alert("Please answer all the questions.");
 			return;
+		}
+
+		if (phase === "phase1") {
+			// Input the response into the survey object.
+			setSurvey({
+				...survey,
+				Phase1: {
+					snapshot: "",
+					responses: {
+						...survey.Phase1?.responses,
+						[currentPost!]: {
+							postUUID: postUUID,
+							actions: responses.actions,
+							likert: responses.likert,
+						},
+					},
+				},
+			});
+
+			// Increment currentPost.
+			setCurrentPost!(currentPost! + 1);
+
+			if (currentPost === 2) {
+				setPhase("instructions-2");
+			}
 		}
 
 		setCompletedPosts([...completedPosts, selectedPost]);

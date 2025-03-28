@@ -1,8 +1,9 @@
-import { useState, createContext, useContext } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { Phases, Survey } from "./types";
 import { posts } from "./posts";
 import { PostQuestionnaire } from "./PostQuestionnaire";
 import { PostCard } from "./PostCard";
+import chance from "chance";
 
 export const SurveyContext = createContext<{
 	phase: Phases;
@@ -42,7 +43,7 @@ export const SurveyContext = createContext<{
 });
 
 function FeedPhase() {
-	const { debug, selectedPost, completedPosts, survey, setDebug } =
+	const { debug, selectedPost, completedPosts, survey, setDebug, phase } =
 		useContext(SurveyContext);
 
 	return (
@@ -81,7 +82,10 @@ function FeedPhase() {
 				</div>
 				{selectedPost && !completedPosts.includes(selectedPost) ? (
 					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
-						<PostQuestionnaire postUUID={selectedPost} />
+						<PostQuestionnaire
+							postUUID={selectedPost}
+							phase={phase as "phase1" | "phase2" | "phase3"}
+						/>
 					</div>
 				) : (
 					<div className="w-1/2"></div>
@@ -139,8 +143,82 @@ function IntroPhase() {
 	);
 }
 
+function InstructionsPhase() {
+	const { setPhase } = useContext(SurveyContext);
+
+	return (
+		<div className="flex items-center justify-center h-screen">
+			<div className="flex flex-col gap-4 w-full max-w-md p-6 bg-white rounded-md text-[10pt]">
+				<h2 className="text-[12pt] font-bold">Task Overview</h2>
+				<p className="text-gray-700">
+					You will be shown five social media posts from Reddit, all of which
+					have previously appeared on Reddit's trending feed (r/popular). These
+					posts will be presented one at a time and we want to understand how
+					you would naturally engage with it if you came across it on a trending
+					feed you browse.
+				</p>
+				<p className="text-gray-700">
+					For the purposes of this experiment, do not open Reddit to view these
+					posts.
+				</p>
+				<p className="text-gray-700">
+					<span className="font-bold">Content Warning:</span> There is the
+					potential that some social media posts included in this study may
+					contain profanity or language that some participants may find
+					offensive. While we do not intentionally select harmful content,
+					trending posts reflect real user interactions and may include strong
+					language. If you encounter any content that makes you uncomfortable,
+					you are free to discontinue participation at any time.
+				</p>
+				<button
+					className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+					onClick={() => setPhase("phase1")}
+				>
+					Continue
+				</button>
+			</div>
+		</div>
+	);
+}
+
+function PostPhase() {
+	const [selectedPosts] = useState<typeof posts>(
+		new chance().shuffle(posts).slice(0, 2)
+	);
+	const [currentPost, setCurrentPost] = useState(1);
+	const { selectedPost } = useContext(SurveyContext);
+
+	return (
+		<>
+			<div className="m-3">
+				<h1 className="font-bold text-2xl">
+					Trending on Reddit (Post {currentPost} / 2)
+				</h1>
+				<p className="text-[10pt]">To start assessing the post, click on it.</p>
+			</div>
+			<div className="flex justify-center gap-2 m-3">
+				<div className="w-1/2 flex flex-col gap-2">
+					<PostCard post={selectedPosts[currentPost - 1]} />
+				</div>
+				{selectedPost ? (
+					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
+						<PostQuestionnaire
+							postUUID={selectedPosts[currentPost - 1].uuid}
+							phase="phase1"
+							currentPost={currentPost}
+							setCurrentPost={setCurrentPost}
+						/>
+					</div>
+				) : (
+					<div className="w-1/2"></div>
+				)}
+			</div>
+		</>
+	);
+}
+
 function App() {
-	const [phase, setPhase] = useState<Phases>("intro");
+	const [phase, setPhase] = useState<Phases>("phase1");
 	const [participantUUID, setParticipantUUID] = useState("");
 	const [selectedPost, setSelectedPost] = useState("");
 	const [postPosition, setPostPosition] = useState(0);
@@ -173,6 +251,10 @@ function App() {
 			}}
 		>
 			{phase === "intro" && <IntroPhase />}
+			{phase === "instructions" && <InstructionsPhase />}
+			{phase === "phase1" && <PostPhase />}
+			{phase === "instructions-2" && <InstructionsPhase2 />}
+			{phase === "phase2" && <FeedPhase />}
 		</SurveyContext.Provider>
 	);
 }

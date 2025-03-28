@@ -182,7 +182,13 @@ function PostEngagement({
 	);
 }
 
-export function PostCard({ post, position }: { post: Post; position: number }) {
+export function PostCard({
+	post,
+	position = 0,
+}: {
+	post: Post;
+	position?: number;
+}) {
 	const {
 		selectedPost,
 		setSelectedPost,
