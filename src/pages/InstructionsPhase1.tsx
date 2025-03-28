@@ -38,6 +38,7 @@ export default function InstructionsPhase1() {
 					language. If you encounter any content that makes you uncomfortable,
 					you are free to discontinue participation at any time.
 				</Body>
+				<Body>You will be allowed to continue in four seconds.</Body>
 				<Button disabled={!isButtonEnabled} onClick={() => setPhase("phase1")}>
 					Continue
 				</Button>
