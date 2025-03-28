@@ -4,6 +4,7 @@ export const phases = [
 	"phase1",
 	"instructions-2",
 	"phase2",
+	"transition",
 	"phase3",
 	"exit-questionnaire",
 	"exit",

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { PhaseContext, SurveyContext } from "./App";
-import { Actions, likertOptions, likertQuestions } from "./types";
+import { Actions, likertOptions, likertQuestions, Survey } from "./types";
 import chance from "chance";
 import { posts } from "./posts";
 
@@ -179,6 +179,45 @@ function LikertQuestions({
 	);
 }
 
+function handleFeedPhaseSubmit(
+	phase: "phase2" | "phase3",
+	position: number,
+	completedPosts: string[],
+	setCompletedPosts: (posts: string[]) => void,
+	selectedPost: string,
+	setSelectedPost: (post: string) => void,
+	survey: Survey,
+	setSurvey: (survey: Survey) => void,
+	responses: Response
+): void {
+	setCompletedPosts([...completedPosts, selectedPost]);
+
+	setSelectedPost("");
+
+	setSurvey({
+		...survey,
+		[phase === "phase2" ? "Phase2" : "Phase3"]: {
+			snapshot: "",
+			responses: {
+				...survey.Phase2?.responses, // FIXME
+				[position!]: {
+					postUUID: selectedPost,
+					actions: responses.actions,
+					likert: responses.likert,
+				},
+			},
+		},
+	});
+
+	console.log(completedPosts);
+}
+
+const emptyResponse: Response = {
+	actions: [],
+	likert: {},
+	overallQuality: null,
+};
+
 export function PostQuestionnaire({
 	postUUID,
 	phase,
@@ -188,22 +227,17 @@ export function PostQuestionnaire({
 }: {
 	postUUID: string;
 	phase: "phase1" | "phase2" | "phase3";
-	currentPost?: number;
-	setCurrentPost?: (currentPost: number) => void;
-	position?: number;
+	currentPost?: number; // State that is only used for the PostPhase.
+	setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
+	position?: number; // State that is only used for the FeedPhase.
 }) {
-	// TODO: Extract out the questions into their own components.
-
-	const { survey, setSurvey, setPhase } = useContext(SurveyContext);
+	const { survey, setSurvey, setPhase, phase1Posts, phase2Posts, phase3Posts } =
+		useContext(SurveyContext);
 	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
 		useContext(PhaseContext);
 
 	// Managing the state of the post-level response.
-	const [responses, setResponses] = useState<Response>({
-		actions: [],
-		likert: {},
-		overallQuality: null,
-	});
+	const [responses, setResponses] = useState<Response>(emptyResponse);
 
 	// Clear answers when postUUID changes.
 	useEffect(() => {
@@ -244,24 +278,38 @@ export function PostQuestionnaire({
 				setPhase("instructions-2");
 				setSelectedPost("");
 			}
-		}
-		if (phase === "phase2") {
-			setCompletedPosts([...completedPosts, selectedPost]);
+		} else if (phase === "phase2" || phase === "phase3") {
+			handleFeedPhaseSubmit(
+				phase,
+				position!,
+				completedPosts,
+				setCompletedPosts,
+				selectedPost,
+				setSelectedPost,
+				survey,
+				setSurvey,
+				responses
+			);
+
+			if (
+				phase === "phase2" &&
+				completedPosts.length + 1 === phase2Posts.length
+			) {
+				// Add one because completedPosts is a copy of the state and doesn't
+				// update immediately in handleSubmit.
+				setPhase("phase3");
+				setCompletedPosts([]);
+				setSelectedPost("");
+				setResponses(emptyResponse);
+			}
+		} else if (
+			phase === "phase3" &&
+			completedPosts.length + 1 === phase3Posts.length
+		) {
+			setPhase("exit");
+			setCompletedPosts([]);
 			setSelectedPost("");
-			setSurvey({
-				...survey,
-				Phase2: {
-					snapshot: "",
-					responses: {
-						...survey.Phase2?.responses,
-						[position!]: {
-							postUUID: selectedPost,
-							actions: responses.actions,
-							likert: responses.likert,
-						},
-					},
-				},
-			});
+			setResponses(emptyResponse);
 		}
 	};
 

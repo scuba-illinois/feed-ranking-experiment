@@ -9,7 +9,9 @@ import ExitQuestionnaire from "./pages/ExitQuestionnaire";
 import IntroPhase from "./pages/Intro";
 import InstructionsPhase1 from "./pages/InstructionsPhase1";
 import InstructionsPhase2 from "./pages/InstructionsPhase2";
-import { Button } from "./components/general";
+import { Body, Button, Header } from "./components/general";
+import Transition from "./pages/Transition";
+import { rotatePosts } from "./utils";
 
 export const SurveyContext = createContext<{
 	phase: Phases;
@@ -18,6 +20,9 @@ export const SurveyContext = createContext<{
 	setDebug: (debug: boolean) => void;
 	survey: Survey;
 	setSurvey: (survey: Survey) => void;
+	phase1Posts: Post[];
+	phase2Posts: Post[];
+	phase3Posts: Post[];
 }>({
 	phase: "intro",
 	setPhase: () => {},
@@ -30,51 +35,10 @@ export const SurveyContext = createContext<{
 		Phase3: null,
 	},
 	setSurvey: () => {},
+	phase1Posts: [],
+	phase2Posts: [],
+	phase3Posts: [],
 });
-
-function FeedPhase() {
-	const { debug, survey, setDebug, phase } = useContext(SurveyContext);
-	const { selectedPost, setSelectedPost, completedPosts } =
-		useContext(PhaseContext);
-
-	return (
-		<>
-			<div className="m-3">
-				<h1 className="font-bold text-2xl">Trending on Reddit</h1>
-				<p className="text-[10pt]">
-					To start assessing posts, please click on any post.
-				</p>
-				<button
-					className={`py-2 px-3 rounded-md text-[8pt] transition-colors mt-2 ${
-						debug
-							? "bg-red-500 text-white hover:bg-red-600"
-							: "bg-blue-500 text-white hover:bg-blue-600"
-					}`}
-					onClick={() => setDebug(!debug)}
-				>
-					{debug ? "Disable Debug" : "Enable Debug"}
-				</button>
-			</div>
-			<div className="flex justify-center gap-2 m-3">
-				<div className="w-1/2 flex flex-col gap-2">
-					{posts.map((post, index) => (
-						<PostCard key={index} post={post} position={index + 1} />
-					))}
-				</div>
-				{selectedPost && !completedPosts.includes(selectedPost) ? (
-					<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
-						<PostQuestionnaire
-							postUUID={selectedPost}
-							phase={phase as "phase1" | "phase2" | "phase3"}
-						/>
-					</div>
-				) : (
-					<div className="w-1/2"></div>
-				)}
-			</div>
-		</>
-	);
-}
 
 export const PhaseContext = createContext<{
 	selectedPost: string;
@@ -88,6 +52,46 @@ export const PhaseContext = createContext<{
 	setCompletedPosts: () => {}, // Default to an empty function
 });
 
+function FeedPhase({ posts }: { posts: Post[] }) {
+	const { phase } = useContext(SurveyContext);
+	const [selectedPost, setSelectedPost] = useState("");
+	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
+
+	return (
+		<PhaseContext.Provider
+			value={{
+				selectedPost: selectedPost,
+				setSelectedPost: setSelectedPost,
+				completedPosts: completedPosts,
+				setCompletedPosts: setCompletedPosts,
+			}}
+		>
+			<div className="m-3">
+				<Header>
+					Trending on Reddit ({phase === "phase2" ? "1" : "2"} / 2)
+				</Header>
+				<Body>To start assessing posts, please click on any post.</Body>
+			</div>
+			<div className="flex justify-center gap-2 m-3">
+				<div className="w-1/2 flex flex-col gap-2">
+					{posts.map((post, index) => (
+						<PostCard key={index} post={post} position={index + 1} />
+					))}
+				</div>
+				{selectedPost && !completedPosts.includes(selectedPost) ? (
+					<PostQuestionnaire
+						postUUID={selectedPost}
+						phase={phase as "phase1" | "phase2" | "phase3"}
+						position={posts.findIndex((post) => post.uuid === selectedPost) + 1}
+					/>
+				) : (
+					<div className="w-1/2"></div>
+				)}
+			</div>
+		</PhaseContext.Provider>
+	);
+}
+
 function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 	// FIXME: On refresh, the post changes. PATCH: chance object takes a seed that is the participant ID.
 
@@ -98,10 +102,10 @@ function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 	return (
 		<PhaseContext.Provider
 			value={{
-				selectedPost,
-				setSelectedPost,
-				completedPosts,
-				setCompletedPosts,
+				selectedPost: selectedPost,
+				setSelectedPost: setSelectedPost,
+				completedPosts: completedPosts,
+				setCompletedPosts: setCompletedPosts,
 			}}
 		>
 			<div className="m-3">
@@ -132,7 +136,7 @@ function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 function App() {
 	// TODO: Pull the assigned posts from the server depending on the participant's ID.
 
-	const [phase, setPhase] = useState<Phases>("phase1");
+	const [phase, setPhase] = useState<Phases>("transition");
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
 		Phase1: null,
@@ -141,9 +145,11 @@ function App() {
 	});
 	const [debug, setDebug] = useState(false);
 
-	const [phase1Posts] = useState<typeof posts>(
+	const [phase1Posts] = useState<Post[]>(
 		new chance(survey.participant).shuffle(posts).slice(0, 2)
 	);
+	const [phase2Posts] = useState<Post[]>(posts);
+	const [phase3Posts] = useState<Post[]>(rotatePosts(posts, 3)); // Example with n = 3
 
 	return (
 		<SurveyContext.Provider
@@ -154,6 +160,9 @@ function App() {
 				setDebug: setDebug,
 				survey: survey,
 				setSurvey: setSurvey,
+				phase1Posts: phase1Posts,
+				phase2Posts: phase2Posts,
+				phase3Posts: phase3Posts,
 			}}
 		>
 			<div className="text-[6pt] flex flex-col gap-2 p-4">
@@ -175,8 +184,9 @@ function App() {
 			{phase === "instructions" && <InstructionsPhase1 />}
 			{phase === "phase1" && <PostPhase selectedPosts={phase1Posts} />}
 			{phase === "instructions-2" && <InstructionsPhase2 />}
-			{phase === "phase2" && <FeedPhase />}
-			{phase === "phase3" && <FeedPhase />}
+			{phase === "phase2" && <FeedPhase posts={phase2Posts} />}
+			{phase === "transition" && <Transition />}
+			{phase === "phase3" && <FeedPhase posts={phase3Posts} />}
 			{phase === "exit-questionnaire" && <ExitQuestionnaire />}
 			{phase === "exit" && <Goodbye />}
 		</SurveyContext.Provider>
