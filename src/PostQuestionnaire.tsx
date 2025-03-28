@@ -143,23 +143,24 @@ export function PostQuestionnaire({
 				setPhase("instructions-2");
 			}
 		}
-
-		setCompletedPosts([...completedPosts, selectedPost]);
-		setSelectedPost("");
-		setSurvey({
-			...survey,
-			Phase2: {
-				snapshot: "",
-				responses: {
-					...survey.Phase2?.responses,
-					[postPosition]: {
-						postUUID: selectedPost,
-						actions: responses.actions,
-						likert: responses.likert,
+		if (phase === "phase2") {
+			setCompletedPosts([...completedPosts, selectedPost]);
+			setSelectedPost("");
+			setSurvey({
+				...survey,
+				Phase2: {
+					snapshot: "",
+					responses: {
+						...survey.Phase2?.responses,
+						[postPosition]: {
+							postUUID: selectedPost,
+							actions: responses.actions,
+							likert: responses.likert,
+						},
 					},
 				},
-			},
-		});
+			});
+		}
 	};
 
 	return (
