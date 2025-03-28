@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { PhaseContext, SurveyContext } from "./App";
-import { Actions, likertOptions, likertQuestions, Survey } from "./types";
+import { Actions, likertOptions, likertQuestions, Post, Survey } from "./types";
 import chance from "chance";
-import { posts } from "./posts";
 
 function HorizontalLine() {
 	return <hr className="my-2 border-gray-300" />;
@@ -221,12 +220,14 @@ const emptyResponse: Response = {
 };
 
 export function PostQuestionnaire({
+	post,
 	postUUID,
 	phase,
 	currentPost,
 	setCurrentPost,
 	position,
 }: {
+	post: Post;
 	postUUID: string;
 	phase: "phase1" | "phase2" | "phase3";
 	currentPost?: number; // State that is only used for the PostPhase.
@@ -321,8 +322,7 @@ export function PostQuestionnaire({
 		<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
 			<h2 className="font-bold text-[10pt]">Survey Questions</h2>
 			<div className="text-gray-600">
-				<i>Title of Selected Post:</i>{" "}
-				{posts.find((p) => p.uuid === selectedPost)?.title}
+				<i>Title of Selected Post:</i> {post.title}
 			</div>
 			<HorizontalLine />
 			<ActionQuestion

@@ -44,6 +44,7 @@ export type LikertOption = (typeof likertOptions)[number];
 
 export type Post = {
 	uuid: string;
+	rank: number;
 	source: string;
 	type: "text" | "image" | "video" | "link";
 	subreddit: string;

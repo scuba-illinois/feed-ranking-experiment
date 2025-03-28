@@ -61,6 +61,8 @@ function TextPreview({ body }: { body: string }) {
 }
 
 function ImagePreview({ images }: { images: string[] }) {
+	const MAX_HEIGHT = "300px";
+
 	if (images.length > 1) {
 		const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -69,7 +71,11 @@ function ImagePreview({ images }: { images: string[] }) {
 				<img
 					src={images[currentIndex]}
 					className="w-full rounded-md"
-					style={{ height: "auto" }}
+					style={{
+						height: "auto",
+						maxHeight: MAX_HEIGHT,
+						objectFit: "contain",
+					}}
 				/>
 				{currentIndex > 0 && (
 					<button
@@ -105,7 +111,7 @@ function ImagePreview({ images }: { images: string[] }) {
 		<img
 			src={images[0]}
 			className="w-full rounded-md mb-2"
-			style={{ height: "auto" }}
+			style={{ height: "auto", maxHeight: MAX_HEIGHT, objectFit: "contain" }}
 		/>
 	);
 }
@@ -117,9 +123,10 @@ function VideoPreview({
 	videoLink: string;
 	title: string;
 }) {
-	// FIXME: iframe is causing code to be unreachable after return statement. Not sure why. It might be Google's fault.
+	const isYouTube =
+		videoLink.includes("youtube.com") || videoLink.includes("youtu.be");
 
-	return (
+	return isYouTube ? (
 		<iframe
 			src={videoLink}
 			title={title}
@@ -128,6 +135,16 @@ function VideoPreview({
 			allowFullScreen
 			referrerPolicy="strict-origin-when-cross-origin"
 		/>
+	) : (
+		<video
+			className="w-full rounded-md mb-2"
+			style={{ aspectRatio: "16/9", height: "auto" }}
+			autoPlay
+			controls
+			muted
+		>
+			<source src={videoLink} type="video/mp4" />
+		</video>
 	);
 }
 
@@ -184,13 +201,7 @@ function PostEngagement({
 	);
 }
 
-export function PostCard({
-	post,
-	position = 0,
-}: {
-	post: Post;
-	position?: number;
-}) {
+export function PostCard({ post }: { post: Post; position?: number }) {
 	const { selectedPost, setSelectedPost, completedPosts } =
 		useContext(PhaseContext);
 

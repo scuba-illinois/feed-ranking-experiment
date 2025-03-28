@@ -1,6 +1,6 @@
 import { useState, createContext, useContext } from "react";
 import { Phases, Post, Survey } from "./types";
-import { posts } from "./posts";
+import { snapshots } from "./posts";
 import { PostQuestionnaire } from "./PostQuestionnaire";
 import { PostCard } from "./PostCard";
 import chance from "chance";
@@ -80,6 +80,7 @@ function FeedPhase({ posts }: { posts: Post[] }) {
 				</div>
 				{selectedPost && !completedPosts.includes(selectedPost) ? (
 					<PostQuestionnaire
+						post={posts[posts.findIndex((post) => post.uuid === selectedPost)]}
 						postUUID={selectedPost}
 						phase={phase as "phase1" | "phase2" | "phase3"}
 						position={posts.findIndex((post) => post.uuid === selectedPost) + 1}
@@ -120,6 +121,7 @@ function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 				</div>
 				{selectedPost ? (
 					<PostQuestionnaire
+						post={selectedPosts[currentPost - 1]}
 						postUUID={selectedPosts[currentPost - 1].uuid}
 						phase="phase1"
 						currentPost={currentPost}
@@ -156,7 +158,7 @@ function Debug() {
 function App() {
 	// TODO: Pull the assigned posts from the server depending on the participant's ID.
 
-	const [phase, setPhase] = useState<Phases>("intro");
+	const [phase, setPhase] = useState<Phases>("phase2");
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
 		Phase1: null,
@@ -164,6 +166,8 @@ function App() {
 		Phase3: null,
 	});
 	const [debug, setDebug] = useState(false);
+
+	const posts = snapshots["625a57f7-6ec1-47e7-bbf0-0e4edbad412e"].posts;
 
 	const [phase1Posts] = useState<Post[]>(
 		new chance(survey.participant).shuffle(posts).slice(0, 2)
