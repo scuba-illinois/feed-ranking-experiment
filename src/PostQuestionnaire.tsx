@@ -199,7 +199,9 @@ function handleFeedPhaseSubmit(
 		[phase === "phase2" ? "Phase2" : "Phase3"]: {
 			snapshot: "",
 			responses: {
-				...survey.Phase2?.responses, // FIXME
+				...(phase === "phase2"
+					? survey.Phase2?.responses
+					: survey.Phase3?.responses),
 				[position!]: {
 					postUUID: selectedPost,
 					actions: responses.actions,
@@ -275,6 +277,7 @@ export function PostQuestionnaire({
 			setCurrentPost!(currentPost! + 1);
 
 			if (currentPost === 2) {
+				// FIXME: Use completedPost logic to handle this transition.
 				setPhase("instructions-2");
 				setSelectedPost("");
 			}
@@ -291,25 +294,26 @@ export function PostQuestionnaire({
 				responses
 			);
 
+			// Handles transitions.
 			if (
 				phase === "phase2" &&
 				completedPosts.length + 1 === phase2Posts.length
 			) {
 				// Add one because completedPosts is a copy of the state and doesn't
 				// update immediately in handleSubmit.
-				setPhase("phase3");
+				setPhase("transition");
+				setCompletedPosts([]);
+				setSelectedPost("");
+				setResponses(emptyResponse);
+			} else if (
+				phase === "phase3" &&
+				completedPosts.length + 1 === phase3Posts.length
+			) {
+				setPhase("exit");
 				setCompletedPosts([]);
 				setSelectedPost("");
 				setResponses(emptyResponse);
 			}
-		} else if (
-			phase === "phase3" &&
-			completedPosts.length + 1 === phase3Posts.length
-		) {
-			setPhase("exit");
-			setCompletedPosts([]);
-			setSelectedPost("");
-			setResponses(emptyResponse);
 		}
 	};
 
