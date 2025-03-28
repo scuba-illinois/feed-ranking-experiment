@@ -228,7 +228,6 @@ function handleFeedPhaseSubmit(
 	setSurvey({
 		...survey,
 		[phase === "phase2" ? "Phase2" : "Phase3"]: {
-			snapshot: "",
 			responses: {
 				...(phase === "phase2"
 					? survey.Phase2?.responses
