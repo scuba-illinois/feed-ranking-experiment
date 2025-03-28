@@ -9,7 +9,7 @@ import ExitQuestionnaire from "./pages/ExitQuestionnaire";
 import IntroPhase from "./pages/Intro";
 import InstructionsPhase1 from "./pages/InstructionsPhase1";
 import InstructionsPhase2 from "./pages/InstructionsPhase2";
-import { Body, Button, Header } from "./components/general";
+import { Body, Header } from "./components/general";
 import Transition from "./pages/Transition";
 import { rotatePosts } from "./utils";
 
@@ -71,7 +71,7 @@ function FeedPhase({ posts }: { posts: Post[] }) {
 		>
 			<div className="m-3">
 				<Header>
-					Trending on Reddit ({phase === "phase2" ? "1" : "2"} / 2)
+					Trending on Reddit (Feed {phase === "phase2" ? "1" : "2"} / 2)
 				</Header>
 				<Body>To start assessing posts, please click on any post.</Body>
 			</div>
@@ -138,34 +138,36 @@ function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 	);
 }
 
-function Debug() {
-	const { debug, setDebug, survey } = useContext(SurveyContext);
+// function Debug() {
+// 	const { debug, setDebug, survey } = useContext(SurveyContext);
 
-	return (
-		<div className="text-[6pt] flex flex-col gap-2 p-4">
-			{debug && (
-				<div className="font-mono whitespace-pre-wrap text-[6pt]">
-					{JSON.stringify(survey, null, 2)}
-				</div>
-			)}
-			<Button
-				onClick={() => setDebug(!debug)}
-				className={debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""}
-			>
-				{debug ? "Disable Debug" : "Enable Debug"}
-			</Button>
-		</div>
-	);
-}
+// 	return (
+// 		<div className="text-[6pt] flex flex-col gap-2 p-4">
+// 			{debug && (
+// 				<div className="font-mono whitespace-pre-wrap text-[6pt]">
+// 					{JSON.stringify(survey, null, 2)}
+// 				</div>
+// 			)}
+// 			<Button
+// 				onClick={() => setDebug(!debug)}
+// 				className={debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""}
+// 			>
+// 				{debug ? "Disable Debug" : "Enable Debug"}
+// 			</Button>
+// 		</div>
+// 	);
+// }
 
 function App() {
-	// TODO: Pull the assigned posts from the server depending on the participant's ID.
+	const shuffledSnapshotKeys = new chance().shuffle(Object.keys(snapshots));
+	const rotation1 = new chance().integer({ min: 0 });
+	const rotation2 = new chance().integer({ min: 0 });
 
-	const [phase, setPhase] = useState<Phases>("phase2");
+	const [phase, setPhase] = useState<Phases>("intro");
 	const [survey, setSurvey] = useState<Survey>({
-		phase1Snapshot: "625a57f7-6ec1-47e7-bbf0-0e4edbad412e", // TODO: Have these randomized.
-		phase2Snapshot: "625a57f7-6ec1-47e7-bbf0-0e4edbad412e",
-		phase3Snapshot: "625a57f7-6ec1-47e7-bbf0-0e4edbad412e",
+		phase1Snapshot: shuffledSnapshotKeys[0],
+		phase2Snapshot: shuffledSnapshotKeys[1],
+		phase3Snapshot: shuffledSnapshotKeys[2],
 		participant: "",
 		Phase1: null,
 		Phase2: null,
@@ -173,13 +175,15 @@ function App() {
 	});
 	const [debug, setDebug] = useState(false);
 
-	const posts = snapshots["a79d7ea5-5160-479e-80aa-1b274ccce342"].posts;
-
 	const [phase1Posts] = useState<Post[]>(
-		new chance(survey.participant).shuffle(posts).slice(0, 5) // FIXME: The seed is always empty string.
+		new chance().shuffle(snapshots[shuffledSnapshotKeys[0]].posts).slice(0, 5)
 	);
-	const [phase2Posts] = useState<Post[]>(posts);
-	const [phase3Posts] = useState<Post[]>(rotatePosts(posts, 3)); // Example with n = 3
+	const [phase2Posts] = useState<Post[]>(
+		rotatePosts(snapshots[shuffledSnapshotKeys[1]].posts, rotation1)
+	);
+	const [phase3Posts] = useState<Post[]>(
+		rotatePosts(snapshots[shuffledSnapshotKeys[2]].posts, rotation2)
+	);
 
 	return (
 		<SurveyContext.Provider
@@ -195,7 +199,7 @@ function App() {
 				phase3Posts: phase3Posts,
 			}}
 		>
-			<Debug />
+			{/* <Debug /> */}
 			{phase === "intro" && <IntroPhase />}
 			{phase === "instructions" && <InstructionsPhase1 />}
 			{phase === "phase1" && <PostPhase selectedPosts={phase1Posts} />}
