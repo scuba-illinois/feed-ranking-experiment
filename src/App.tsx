@@ -133,10 +133,30 @@ function PostPhase({ selectedPosts }: { selectedPosts: Post[] }) {
 	);
 }
 
+function Debug() {
+	const { debug, setDebug, survey } = useContext(SurveyContext);
+
+	return (
+		<div className="text-[6pt] flex flex-col gap-2 p-4">
+			{debug && (
+				<div className="font-mono whitespace-pre-wrap text-[6pt]">
+					{JSON.stringify(survey, null, 2)}
+				</div>
+			)}
+			<Button
+				onClick={() => setDebug(!debug)}
+				className={debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""}
+			>
+				{debug ? "Disable Debug" : "Enable Debug"}
+			</Button>
+		</div>
+	);
+}
+
 function App() {
 	// TODO: Pull the assigned posts from the server depending on the participant's ID.
 
-	const [phase, setPhase] = useState<Phases>("transition");
+	const [phase, setPhase] = useState<Phases>("intro");
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
 		Phase1: null,
@@ -165,21 +185,7 @@ function App() {
 				phase3Posts: phase3Posts,
 			}}
 		>
-			<div className="text-[6pt] flex flex-col gap-2 p-4">
-				{debug && (
-					<div className="font-mono whitespace-pre-wrap text-[6pt]">
-						{JSON.stringify(survey, null, 2)}
-					</div>
-				)}
-				<Button
-					onClick={() => setDebug(!debug)}
-					className={
-						debug ? "bg-red-500 hover:bg-red-600 transition-colors" : ""
-					}
-				>
-					{debug ? "Disable Debug" : "Enable Debug"}
-				</Button>
-			</div>
+			{/* <Debug /> */}
 			{phase === "intro" && <IntroPhase />}
 			{phase === "instructions" && <InstructionsPhase1 />}
 			{phase === "phase1" && <PostPhase selectedPosts={phase1Posts} />}
