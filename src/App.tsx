@@ -173,7 +173,7 @@ function App() {
 	});
 	const [debug, setDebug] = useState(false);
 
-	const posts = snapshots["9591ff0b-7c31-42bd-b7ea-f6851ada90a8"].posts;
+	const posts = snapshots["a79d7ea5-5160-479e-80aa-1b274ccce342"].posts;
 
 	const [phase1Posts] = useState<Post[]>(
 		new chance(survey.participant).shuffle(posts).slice(0, 5) // FIXME: The seed is always empty string.
