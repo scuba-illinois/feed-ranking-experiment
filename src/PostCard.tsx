@@ -137,6 +137,7 @@ function VideoPreview({
 		/>
 	) : (
 		<video
+			key={videoLink}
 			className="w-full rounded-md mb-2"
 			style={{ aspectRatio: "16/9", minHeight: "300px" }} // FIXME: Seems weird to have this fixed.
 			autoPlay
