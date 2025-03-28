@@ -93,11 +93,13 @@ function FeedPhase() {
 }
 
 function PostPhase() {
-	const [selectedPosts] = useState<typeof posts>(
-		new chance().shuffle(posts).slice(0, 2)
-	);
+	// FIXME: On refresh, the post changes. PATCH: chance object takes a seed that is the participant ID.
+
 	const [currentPost, setCurrentPost] = useState(1);
-	const { selectedPost } = useContext(SurveyContext);
+	const { selectedPost, survey } = useContext(SurveyContext);
+	const [selectedPosts] = useState<typeof posts>(
+		new chance(survey.participant).shuffle(posts).slice(0, 2)
+	);
 
 	return (
 		<>
@@ -131,7 +133,7 @@ function PostPhase() {
 function App() {
 	// TODO: Pull the assigned posts from the server depending on the participant's ID.
 
-	const [phase, setPhase] = useState<Phases>("intro");
+	const [phase, setPhase] = useState<Phases>("instructions-2");
 	const [selectedPost, setSelectedPost] = useState("");
 	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
 	const [survey, setSurvey] = useState<Survey>({

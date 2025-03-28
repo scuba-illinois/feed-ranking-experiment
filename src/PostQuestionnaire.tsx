@@ -138,6 +138,7 @@ export function PostQuestionnaire({
 			});
 
 			// Increment currentPost.
+			setSelectedPost("");
 			setCurrentPost!(currentPost! + 1);
 
 			if (currentPost === 2) {

@@ -1,9 +1,18 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SurveyContext } from "../App";
 import { Header, Body, Button } from "../components/general";
 
 export default function InstructionsPhase1() {
 	const { setPhase } = useContext(SurveyContext);
+	const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setIsButtonEnabled(true);
+		}, 4000);
+
+		return () => clearTimeout(timer); // Cleanup the timer on component unmount
+	}, []);
 
 	return (
 		<div className="flex items-center justify-center h-screen">
@@ -21,15 +30,17 @@ export default function InstructionsPhase1() {
 					posts.
 				</Body>
 				<Body>
-					<span className="font-bold">Content Warning:</span> There is the
-					potential that some social media posts included in this study may
-					contain profanity or language that some participants may find
+					<span className="font-bold text-black">Content Warning:</span> There
+					is the potential that some social media posts included in this study
+					may contain profanity or language that some participants may find
 					offensive. While we do not intentionally select harmful content,
 					trending posts reflect real user interactions and may include strong
 					language. If you encounter any content that makes you uncomfortable,
 					you are free to discontinue participation at any time.
 				</Body>
-				<Button onClick={() => setPhase("phase1")}>Continue</Button>
+				<Button disabled={!isButtonEnabled} onClick={() => setPhase("phase1")}>
+					Continue
+				</Button>
 			</div>
 		</div>
 	);

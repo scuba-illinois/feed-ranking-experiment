@@ -1,8 +1,19 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { SurveyContext } from "../App";
+import { Button } from "../components/general";
 
 export default function InstructionsPhase2() {
 	const { setPhase } = useContext(SurveyContext);
+
+	const [isButtonEnabled, setIsButtonEnabled] = useState(false);
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			setIsButtonEnabled(true);
+		}, 2000);
+
+		return () => clearTimeout(timer); // Cleanup the timer on component unmount
+	}, []);
 
 	return (
 		<div className="flex items-center justify-center h-screen">
@@ -27,12 +38,9 @@ export default function InstructionsPhase2() {
 					language. If you encounter any content that makes you uncomfortable,
 					you are free to discontinue participation at any time.
 				</p>
-				<button
-					className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-					onClick={() => setPhase("phase2")}
-				>
+				<Button disabled={!isButtonEnabled} onClick={() => setPhase("phase2")}>
 					Continue
-				</button>
+				</Button>
 			</div>
 		</div>
 	);
