@@ -178,6 +178,38 @@ function LikertQuestions({
 	);
 }
 
+function handlePostPhaseSubmit(
+	selectedPost: string,
+	setSelectedPost: (post: string) => void,
+	currentPost: number,
+	setCurrentPost: (currentPost: number) => void,
+	completedPosts: string[],
+	setCompletedPosts: (posts: string[]) => void,
+	survey: Survey,
+	setSurvey: (survey: Survey) => void,
+	responses: Response
+) {
+	setSelectedPost("");
+
+	setCurrentPost!(currentPost + 1);
+
+	setCompletedPosts([...completedPosts, selectedPost]);
+
+	setSurvey({
+		...survey,
+		Phase1: {
+			responses: {
+				...survey.Phase1?.responses,
+				[currentPost]: {
+					postUUID: selectedPost,
+					actions: responses.actions,
+					likert: responses.likert,
+				},
+			},
+		},
+	});
+}
+
 function handleFeedPhaseSubmit(
 	phase: "phase2" | "phase3",
 	position: number,
@@ -209,8 +241,6 @@ function handleFeedPhaseSubmit(
 			},
 		},
 	});
-
-	console.log(completedPosts);
 }
 
 const emptyResponse: Response = {
@@ -234,7 +264,7 @@ export function PostQuestionnaire({
 	setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
 	position?: number; // State that is only used for the FeedPhase.
 }) {
-	const { survey, setSurvey, setPhase, phase2Posts, phase3Posts } =
+	const { survey, setSurvey, setPhase, phase1Posts, phase2Posts, phase3Posts } =
 		useContext(SurveyContext);
 	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
 		useContext(PhaseContext);
@@ -257,30 +287,23 @@ export function PostQuestionnaire({
 		}
 
 		if (phase === "phase1") {
-			// Input the response into the survey object.
-			setSurvey({
-				...survey,
-				Phase1: {
-					snapshot: "",
-					responses: {
-						...survey.Phase1?.responses,
-						[currentPost!]: {
-							postUUID: postUUID,
-							actions: responses.actions,
-							likert: responses.likert,
-						},
-					},
-				},
-			});
+			handlePostPhaseSubmit(
+				selectedPost,
+				setSelectedPost,
+				currentPost!,
+				setCurrentPost!,
+				completedPosts,
+				setCompletedPosts,
+				survey,
+				setSurvey,
+				responses
+			);
 
-			// Increment currentPost.
-			setSelectedPost("");
-			setCurrentPost!(currentPost! + 1);
-
-			if (currentPost === 2) {
-				// FIXME: Use completedPost logic to handle this transition.
+			if (completedPosts.length + 1 === phase1Posts.length) {
 				setPhase("instructions-2");
+				setCompletedPosts([]);
 				setSelectedPost("");
+				setResponses(emptyResponse);
 			}
 		} else if (phase === "phase2" || phase === "phase3") {
 			handleFeedPhaseSubmit(

@@ -131,14 +131,14 @@ function VideoPreview({
 			src={videoLink}
 			title={title}
 			className="w-full rounded-md mb-2"
-			style={{ aspectRatio: "16/9", height: "auto" }}
+			style={{ aspectRatio: "16/9", minHeight: "300px" }}
 			allowFullScreen
 			referrerPolicy="strict-origin-when-cross-origin"
 		/>
 	) : (
 		<video
 			className="w-full rounded-md mb-2"
-			style={{ aspectRatio: "16/9", height: "auto" }}
+			style={{ aspectRatio: "16/9", minHeight: "300px" }} // FIXME: Seems weird to have this fixed.
 			autoPlay
 			controls
 			muted

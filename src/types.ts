@@ -60,7 +60,6 @@ export type Post = {
 };
 
 export type InitialPhase = {
-	snapshot: string;
 	responses: Partial<
 		Record<
 			1 | 2 | 3 | 4 | 5,
@@ -74,7 +73,6 @@ export type InitialPhase = {
 } | null;
 
 export type FeedPhase = {
-	snapshot: string;
 	responses: Partial<
 		Record<
 			1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
@@ -89,6 +87,9 @@ export type FeedPhase = {
 
 export type Survey = {
 	participant: string;
+	phase1Snapshot: string;
+	phase2Snapshot: string;
+	phase3Snapshot: string;
 	Phase1: InitialPhase;
 	Phase2: FeedPhase;
 	Phase3: FeedPhase;
