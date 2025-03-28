@@ -189,13 +189,8 @@ export function PostCard({
 	post: Post;
 	position?: number;
 }) {
-	const {
-		selectedPost,
-		setSelectedPost,
-		completedPosts,
-		// postPosition,
-		setPostPosition,
-	} = useContext(SurveyContext);
+	const { selectedPost, setSelectedPost, completedPosts } =
+		useContext(SurveyContext);
 
 	const isSelected = selectedPost === post.uuid;
 
@@ -207,7 +202,6 @@ export function PostCard({
 			onClick={() => {
 				if (!completedPosts.includes(post.uuid)) {
 					setSelectedPost(post.uuid);
-					setPostPosition(position);
 				}
 			}}
 		>

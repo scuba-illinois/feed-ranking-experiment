@@ -1,4 +1,4 @@
-export function Goodbye() {
+export default function Goodbye() {
 	return (
 		<div className="p-4 flex flex-col items-center justify-center min-h-screen">
 			<div className="text-left max-w-md flex flex-col gap-4">
