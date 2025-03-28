@@ -4,7 +4,7 @@ import { snapshots } from "./posts";
 import { PostQuestionnaire } from "./PostQuestionnaire";
 import { PostCard } from "./PostCard";
 import chance from "chance";
-import Goodbye from "./pages/Gooybye";
+import Goodbye from "./pages/Goodbye";
 import ExitQuestionnaire from "./pages/ExitQuestionnaire";
 import IntroPhase from "./pages/Intro";
 import InstructionsPhase1 from "./pages/InstructionsPhase1";
