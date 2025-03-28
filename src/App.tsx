@@ -38,16 +38,6 @@ function FeedPhase() {
 
 	return (
 		<>
-			{" "}
-			{debug && (
-				<div className="p-4 text-[8pt]">
-					<p>Completed Posts: {completedPosts.length}</p>
-					<p>Selected Post: {selectedPost}</p>
-					<pre style={{ fontFamily: "monospace", whiteSpace: "pre-wrap" }}>
-						{JSON.stringify(survey, null, 2)}
-					</pre>
-				</div>
-			)}
 			<div className="m-3">
 				<h1 className="font-bold text-2xl">Trending on Reddit</h1>
 				<p className="text-[10pt]">
@@ -148,7 +138,7 @@ function App() {
 		Phase2: null,
 		Phase3: null,
 	});
-	const [debug, setDebug] = useState(false);
+	const [debug, setDebug] = useState(true);
 
 	const [phase1Posts] = useState<typeof posts>(
 		new chance(survey.participant).shuffle(posts).slice(0, 2)
@@ -165,6 +155,9 @@ function App() {
 				setSurvey: setSurvey,
 			}}
 		>
+			<div className="font-mono whitespace-pre-wrap p-4 text-[6pt]">
+				{JSON.stringify(survey, null, 2)}
+			</div>
 			{phase === "intro" && <IntroPhase />}
 			{phase === "instructions" && <InstructionsPhase1 />}
 			{phase === "phase1" && <PostPhase selectedPosts={phase1Posts} />}

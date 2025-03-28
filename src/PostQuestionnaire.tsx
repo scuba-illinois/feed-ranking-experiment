@@ -106,10 +106,10 @@ function QualityQuestion({
 	setResponses: React.Dispatch<React.SetStateAction<Response>>;
 }) {
 	const handleOverallQualityChance = (value: 1 | 2 | 3 | 4 | 5 | 6 | 7) => {
-		setResponses((prev) => ({
-			...prev,
+		setResponses({
+			...responses,
 			overallQuality: value,
-		}));
+		});
 	};
 
 	return (
@@ -145,10 +145,10 @@ function LikertQuestions({
 	setResponses: React.Dispatch<React.SetStateAction<Response>>;
 }) {
 	const handleLikertChange = (question: string, value: string) => {
-		setResponses((prev) => ({
-			...prev,
-			likert: { ...prev.likert, [question]: value },
-		}));
+		setResponses({
+			...responses,
+			likert: { ...responses.likert, [question]: value },
+		});
 	};
 
 	return (
