@@ -32,7 +32,9 @@ export default function IntroPhase() {
 						value={participantID}
 						onChange={(e) => setParticipantID(e.target.value)}
 					/>
-					<Button disabled={!participantID}>Submit</Button>
+					<Button type="submit" disabled={!participantID}>
+						Submit
+					</Button>
 				</form>
 			</div>
 		</div>
