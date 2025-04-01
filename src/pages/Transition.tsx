@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { SurveyContext } from "../App";
+import { SurveyContext } from "../contexts";
 import { Header, Body, Button } from "../components/general";
 
 export default function Transition() {

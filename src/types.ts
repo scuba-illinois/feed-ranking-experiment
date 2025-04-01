@@ -59,37 +59,22 @@ export type Post = {
 	linkThumbnail?: string;
 };
 
+export type Response = {
+	actions: string[];
+	likert: Record<LikertQuestion, LikertOption>;
+	overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
+};
+
 export type InitialPhase = {
-	responses: Partial<
-		Record<
-			1 | 2 | 3 | 4 | 5,
-			{
-				postUUID: string;
-				actions: Set<Actions>;
-				likert: Record<LikertQuestion, LikertOption>;
-			}
-		>
-	>;
+	responses: Partial<Record<1 | 2 | 3 | 4 | 5, Response>>;
 } | null;
 
 export type FeedPhase = {
-	responses: Partial<
-		Record<
-			1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10,
-			{
-				postUUID: string;
-				actions: string[];
-				likert: Record<LikertQuestion, LikertOption>;
-			}
-		>
-	>;
+	responses: Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10, Response>>;
 } | null;
 
 export type Survey = {
 	participant: string;
-	phase1Snapshot: string;
-	phase2Snapshot: string;
-	phase3Snapshot: string;
 	Phase1: InitialPhase;
 	Phase2: FeedPhase;
 	Phase3: FeedPhase;

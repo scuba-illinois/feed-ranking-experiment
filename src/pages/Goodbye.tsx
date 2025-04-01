@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { SurveyContext } from "../App";
+import { SurveyContext } from "../contexts";
 import { Body, Header } from "../components/general";
 
 export default function Goodbye() {

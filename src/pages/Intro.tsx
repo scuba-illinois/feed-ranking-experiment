@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { SurveyContext } from "../App";
+import { SurveyContext } from "../contexts";
 import { Body, Button, Header } from "../components/general";
 
 export default function IntroPhase() {

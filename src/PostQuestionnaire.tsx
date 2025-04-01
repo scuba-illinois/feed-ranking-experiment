@@ -1,18 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { PhaseContext, SurveyContext } from "./App";
-import { Actions, likertOptions, likertQuestions, Post, Survey } from "./types";
+import { PhaseContext, SurveyContext } from "./contexts";
+import {
+	Actions,
+	likertOptions,
+	likertQuestions,
+	Survey,
+	Response,
+	LikertOption,
+	LikertQuestion,
+} from "./types";
 import chance from "chance";
 
 function HorizontalLine() {
 	return <hr className="my-2 border-gray-300" />;
 }
-
-// TODO: Could be more strict about the likert types instead of string, string.
-type Response = {
-	actions: string[];
-	likert: Record<string, string>;
-	overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
-};
 
 function valid(responses: {
 	actions: string[];
@@ -42,12 +43,12 @@ function valid(responses: {
 
 function ActionQuestion({
 	postUUID,
-	responses,
-	setResponses,
+	response,
+	setResponse,
 }: {
 	postUUID: string;
-	responses: Response;
-	setResponses: React.Dispatch<React.SetStateAction<Response>>;
+	response: Response;
+	setResponse: React.Dispatch<React.SetStateAction<Response>>;
 }) {
 	// Randomly sorting the actions.
 	const actions: Array<Actions> = [
@@ -61,7 +62,7 @@ function ActionQuestion({
 	];
 
 	const handleActionChange = (action: string) => {
-		setResponses((prev: Response) => {
+		setResponse((prev: Response) => {
 			if (action === "ignore") {
 				return { ...prev, actions: ["ignore"] };
 			}
@@ -86,7 +87,7 @@ function ActionQuestion({
 						<input
 							type="checkbox"
 							value={action}
-							checked={responses.actions.includes(action)}
+							checked={response.actions.includes(action)}
 							onChange={() => handleActionChange(action)}
 						/>
 						{action.charAt(0).toUpperCase() + action.slice(1)}
@@ -98,15 +99,15 @@ function ActionQuestion({
 }
 
 function QualityQuestion({
-	responses,
-	setResponses,
+	response,
+	setResponse,
 }: {
-	responses: Response;
-	setResponses: React.Dispatch<React.SetStateAction<Response>>;
+	response: Response;
+	setResponse: React.Dispatch<React.SetStateAction<Response>>;
 }) {
 	const handleOverallQualityChance = (value: 1 | 2 | 3 | 4 | 5 | 6 | 7) => {
-		setResponses({
-			...responses,
+		setResponse({
+			...response,
 			overallQuality: value,
 		});
 	};
@@ -123,7 +124,7 @@ function QualityQuestion({
 							type="radio"
 							name={"Overall Quality"}
 							value={value}
-							checked={responses.overallQuality === value}
+							checked={response.overallQuality === value}
 							onChange={() =>
 								handleOverallQualityChance(value as 1 | 2 | 3 | 4 | 5 | 6 | 7)
 							}
@@ -137,16 +138,19 @@ function QualityQuestion({
 }
 
 function LikertQuestions({
-	responses,
-	setResponses,
+	response,
+	setResponse,
 }: {
-	responses: Response;
-	setResponses: React.Dispatch<React.SetStateAction<Response>>;
+	response: Response;
+	setResponse: React.Dispatch<React.SetStateAction<Response>>;
 }) {
 	const handleLikertChange = (question: string, value: string) => {
-		setResponses({
-			...responses,
-			likert: { ...responses.likert, [question]: value },
+		setResponse({
+			...response,
+			likert: {
+				...response.likert,
+				[question as LikertQuestion]: value as LikertOption,
+			},
 		});
 	};
 
@@ -164,7 +168,7 @@ function LikertQuestions({
 										type="radio"
 										name={question}
 										value={value}
-										checked={responses.likert[question] === value}
+										checked={response.likert[question] === value}
 										onChange={() => handleLikertChange(question, value)}
 									/>
 									<span className="text-[8pt]">{value}</span>
@@ -187,7 +191,7 @@ function handlePostPhaseSubmit(
 	setCompletedPosts: (posts: string[]) => void,
 	survey: Survey,
 	setSurvey: (survey: Survey) => void,
-	responses: Response
+	response: Response
 ) {
 	setSelectedPost("");
 
@@ -202,8 +206,8 @@ function handlePostPhaseSubmit(
 				...survey.Phase1?.responses,
 				[currentPost]: {
 					postUUID: selectedPost,
-					actions: responses.actions,
-					likert: responses.likert,
+					actions: response.actions,
+					likert: response.likert,
 				},
 			},
 		},
@@ -233,7 +237,6 @@ function handleFeedPhaseSubmit(
 					? survey.Phase2?.responses
 					: survey.Phase3?.responses),
 				[position!]: {
-					postUUID: selectedPost,
 					actions: responses.actions,
 					likert: responses.likert,
 				},
@@ -249,93 +252,88 @@ const emptyResponse: Response = {
 };
 
 export function PostQuestionnaire({
-	post,
-	postUUID,
 	phase,
-	currentPost,
-	setCurrentPost,
+	postUUID,
+	// currentPost,
+	// setCurrentPost,
 	position,
 }: {
-	post: Post;
+	// post: Post;
 	postUUID: string;
 	phase: "phase1" | "phase2" | "phase3";
-	currentPost?: number; // State that is only used for the PostPhase.
-	setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
+	// currentPost?: number; // State that is only used for the PostPhase.
+	// setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
 	position?: number; // State that is only used for the FeedPhase.
 }) {
-	const { survey, setSurvey, setPhase, phase1Posts, phase2Posts, phase3Posts } =
-		useContext(SurveyContext);
-	const { selectedPost, setSelectedPost, completedPosts, setCompletedPosts } =
-		useContext(PhaseContext);
+	const { survey, setSurvey, setPhase } = useContext(SurveyContext);
+	const {
+		selectedPostUUID,
+		setSelectedPostUUID,
+		completedPosts,
+		setCompletedPosts,
+	} = useContext(PhaseContext);
 
 	// Managing the state of the post-level response.
-	const [responses, setResponses] = useState<Response>(emptyResponse);
+	const [response, setResponse] = useState<Response>(emptyResponse);
 
 	// Clear answers when postUUID changes.
 	useEffect(() => {
-		setResponses({ actions: [], likert: {}, overallQuality: null });
-	}, [postUUID]);
+		setResponse({ actions: [], likert: {}, overallQuality: null });
+	}, [position]);
 
 	const handleSubmit = () => {
-		if (completedPosts.includes(selectedPost)) return;
+		if (completedPosts.includes(selectedPostUUID)) return;
 
 		// Validate answers.
-		if (!valid(responses)) {
+		if (!valid(response)) {
 			alert("Please answer all the questions.");
 			return;
 		}
 
 		if (phase === "phase1") {
-			handlePostPhaseSubmit(
-				selectedPost,
-				setSelectedPost,
-				currentPost!,
-				setCurrentPost!,
-				completedPosts,
-				setCompletedPosts,
-				survey,
-				setSurvey,
-				responses
-			);
-
-			if (completedPosts.length + 1 === phase1Posts.length) {
-				setPhase("instructions-2");
-				setCompletedPosts([]);
-				setSelectedPost("");
-				setResponses(emptyResponse);
-			}
+			// handlePostPhaseSubmit(
+			// 	selectedPost,
+			// 	setSelectedPost,
+			// 	currentPost!,
+			// 	setCurrentPost!,
+			// 	completedPosts,
+			// 	setCompletedPosts,
+			// 	survey,
+			// 	setSurvey,
+			// 	responses
+			// );
+			// if (completedPosts.length + 1 === phase1Posts.length) {
+			// 	setPhase("instructions-2");
+			// 	setCompletedPosts([]);
+			// 	setSelectedPost("");
+			// 	setResponses(emptyResponse);
+			// }
 		} else if (phase === "phase2" || phase === "phase3") {
 			handleFeedPhaseSubmit(
 				phase,
 				position!,
 				completedPosts,
 				setCompletedPosts,
-				selectedPost,
-				setSelectedPost,
+				selectedPostUUID,
+				setSelectedPostUUID,
 				survey,
 				setSurvey,
-				responses
+				response
 			);
 
 			// Handles transitions.
-			if (
-				phase === "phase2" &&
-				completedPosts.length + 1 === phase2Posts.length
-			) {
+			if (phase === "phase2" && completedPosts.length + 1 === 10) {
 				// Add one because completedPosts is a copy of the state and doesn't
 				// update immediately in handleSubmit.
 				setPhase("transition");
 				setCompletedPosts([]);
-				setSelectedPost("");
-				setResponses(emptyResponse);
-			} else if (
-				phase === "phase3" &&
-				completedPosts.length + 1 === phase3Posts.length
-			) {
+				setSelectedPostUUID("");
+				setResponse(emptyResponse);
+			} else if (phase === "phase3" && completedPosts.length + 1 === 10) {
 				setPhase("exit");
 				setCompletedPosts([]);
-				setSelectedPost("");
-				setResponses(emptyResponse);
+				setSelectedPostUUID("");
+				setResponse(emptyResponse);
 			}
 		}
 	};
@@ -344,28 +342,34 @@ export function PostQuestionnaire({
 		<div className="w-1/2 sticky top-2 self-start flex flex-col gap-1 outline-2 outline-blue-500 rounded-md p-4 text-[8pt]">
 			<h2 className="font-bold text-[10pt]">Survey Questions</h2>
 			<div className="text-gray-600">
-				<i>Title of Selected Post:</i> {post.title}
+				<span className="text-[8pt] mb-2 block">Your selected post:</span>
+				<div className="flex justify-center">
+					<img
+						src={`2025-04-01T19:30:19Z/${postUUID}.png`}
+						className="max-h-[200px]"
+					/>
+				</div>
 			</div>
 			<HorizontalLine />
 			<ActionQuestion
+				response={response}
+				setResponse={setResponse}
 				postUUID={postUUID}
-				responses={responses}
-				setResponses={setResponses}
 			/>
 			<HorizontalLine />
-			<LikertQuestions responses={responses} setResponses={setResponses} />
+			<LikertQuestions response={response} setResponse={setResponse} />
 			<HorizontalLine />
-			<QualityQuestion responses={responses} setResponses={setResponses} />
+			<QualityQuestion response={response} setResponse={setResponse} />
 			<button
 				className={`py-2 rounded-md text-[8pt] transition-colors ${
-					valid(responses)
+					valid(response)
 						? "bg-blue-500 text-white hover:bg-blue-600"
 						: "bg-gray-300 text-gray-500 cursor-not-allowed"
 				}`}
 				onClick={handleSubmit}
-				disabled={!valid(responses)}
+				disabled={!valid(response)}
 			>
-				{valid(responses) ? "Submit" : "Please answer all the questions."}
+				{valid(response) ? "Submit" : "Please answer all the questions."}
 			</button>
 		</div>
 	);
