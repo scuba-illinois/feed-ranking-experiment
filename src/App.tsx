@@ -1,4 +1,4 @@
-import { useState, createContext, useContext } from "react";
+import { useState, createContext, useContext, useEffect } from "react";
 import { Phases, Post, Survey } from "./types";
 import { snapshots } from "./posts";
 import { PostQuestionnaire } from "./PostQuestionnaire";
@@ -59,6 +59,22 @@ function FeedPhase({ posts }: { posts: Post[] }) {
 	const { phase } = useContext(SurveyContext);
 	const [selectedPost, setSelectedPost] = useState("");
 	const [completedPosts, setCompletedPosts] = useState<string[]>([]);
+	const [bounds, setBounds] = useState<any[] | undefined>(undefined);
+	const [imageHeight, setImageHeight] = useState<number | undefined>(undefined);
+
+	useEffect(() => {
+		fetch("public/2025-04-01T19:30:19Z/article-bounds-rot-0.json", {
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+		}).then((response) =>
+			response.json().then((bounds) => {
+				setBounds(bounds);
+				setImageHeight(bounds[9].height + bounds[9].y);
+			})
+		);
+	}, []);
 
 	return (
 		<PhaseContext.Provider
@@ -69,18 +85,52 @@ function FeedPhase({ posts }: { posts: Post[] }) {
 				setCompletedPosts: setCompletedPosts,
 			}}
 		>
-			<div className="m-3">
-				<Header>
-					Trending on Reddit (Feed {phase === "phase2" ? "1" : "2"} / 2)
-				</Header>
-				<Body>To start assessing posts, please click on any post.</Body>
-			</div>
-			<div className="flex justify-center gap-2 m-3">
-				<div className="w-1/2 flex flex-col gap-2">
+			<div className="flex justify-center h-[100vh] gap-2 p-4 ">
+				<div className=" flex flex-col w-[530px] shrink-0">
+					<div className="m-3">
+						<Header>
+							Trending on Reddit (Feed {phase === "phase2" ? "1" : "2"} / 2)
+						</Header>
+						<Body>To start assessing posts, please click on any post.</Body>
+					</div>
+					<div
+						className="overflow-y-scroll w-[530px] rounded-md relative"
+						style={{ direction: "rtl" }}
+					>
+						<div style={{ direction: "ltr" }} className="">
+							<div
+								className="border-2 overflow-y-clip ml-3"
+								style={{ height: `${imageHeight}px`, width: "fit-content" }}
+							>
+								<img
+									src="public/2025-04-01T19:30:19Z/full-page-rot-0.png"
+									className="w-[500px]"
+								/>
+							</div>
+							{bounds &&
+								bounds.map(({ y, height }, index) => (
+									<button
+										key={index}
+										className={`py-2 px-3 shadow-lg rounded-md text-[10pt] ${"bg-blue-500 text-white hover:bg-blue-600 transition-colors"}`}
+										style={{
+											left: "497px",
+											top: `${height / 2 + y - 20}px`,
+											position: "absolute",
+										}}
+									>
+										{">"}
+									</button>
+								))}
+						</div>
+					</div>
+				</div>
+
+				{/* <div className="w-1/2 flex flex-col gap-2">
 					{posts.map((post, index) => (
 						<PostCard key={index} post={post} position={index + 1} />
 					))}
-				</div>
+				</div> */}
+
 				{selectedPost && !completedPosts.includes(selectedPost) ? (
 					<PostQuestionnaire
 						post={posts[posts.findIndex((post) => post.uuid === selectedPost)]}
@@ -163,7 +213,7 @@ function App() {
 	const rotation1 = new chance().integer({ min: 0 });
 	const rotation2 = new chance().integer({ min: 0 });
 
-	const [phase, setPhase] = useState<Phases>("intro");
+	const [phase, setPhase] = useState<Phases>("phase2");
 	const [survey, setSurvey] = useState<Survey>({
 		phase1Snapshot: shuffledSnapshotKeys[0],
 		phase2Snapshot: shuffledSnapshotKeys[1],
