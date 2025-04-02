@@ -204,7 +204,7 @@ function handlePostPhaseSubmit(
 		Phase1: {
 			responses: {
 				...survey.Phase1?.responses,
-				[currentPost]: {
+				[currentPost + 1]: {
 					postUUID: selectedPost,
 					actions: response.actions,
 					likert: response.likert,
@@ -254,15 +254,15 @@ const emptyResponse: Response = {
 export function PostQuestionnaire({
 	phase,
 	postUUID,
-	// currentPost,
-	// setCurrentPost,
+	currentPost,
+	setCurrentPost,
 	position,
 }: {
 	// post: Post;
 	postUUID: string;
 	phase: "phase1" | "phase2" | "phase3";
-	// currentPost?: number; // State that is only used for the PostPhase.
-	// setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
+	currentPost?: number; // State that is only used for the PostPhase.
+	setCurrentPost?: (currentPost: number) => void; // Only used for the PostPhase.
 	position?: number; // State that is only used for the FeedPhase.
 }) {
 	const { survey, setSurvey, setPhase } = useContext(SurveyContext);
@@ -291,23 +291,23 @@ export function PostQuestionnaire({
 		}
 
 		if (phase === "phase1") {
-			// handlePostPhaseSubmit(
-			// 	selectedPost,
-			// 	setSelectedPost,
-			// 	currentPost!,
-			// 	setCurrentPost!,
-			// 	completedPosts,
-			// 	setCompletedPosts,
-			// 	survey,
-			// 	setSurvey,
-			// 	responses
-			// );
-			// if (completedPosts.length + 1 === phase1Posts.length) {
-			// 	setPhase("instructions-2");
-			// 	setCompletedPosts([]);
-			// 	setSelectedPost("");
-			// 	setResponses(emptyResponse);
-			// }
+			handlePostPhaseSubmit(
+				selectedPostUUID,
+				setSelectedPostUUID,
+				currentPost!,
+				setCurrentPost!,
+				completedPosts,
+				setCompletedPosts,
+				survey,
+				setSurvey,
+				response
+			);
+			if (completedPosts.length + 1 === 5) {
+				setPhase("instructions-2");
+				setCompletedPosts([]);
+				setSelectedPostUUID("");
+				setResponse(emptyResponse);
+			}
 		} else if (phase === "phase2" || phase === "phase3") {
 			handleFeedPhaseSubmit(
 				phase,
