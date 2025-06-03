@@ -161,7 +161,8 @@ function LikertQuestions({
 				{likertQuestions.map((question) => (
 					<div key={question}>
 						<p className="mb-2 italic">{question}</p>
-						<div className="flex flex-wrap gap-2">
+						<div className="flex flex-wrap gap-5">
+							<span>Disagree</span>
 							{likertOptions.map((value) => (
 								<label key={value} className="flex items-center gap-2">
 									<input
@@ -174,6 +175,7 @@ function LikertQuestions({
 									<span className="text-[8pt]">{value}</span>
 								</label>
 							))}
+							<span>Agree</span>
 						</div>
 					</div>
 				))}
@@ -351,15 +353,15 @@ export function PostQuestionnaire({
 				</div>
 			</div>
 			<HorizontalLine />
-			<ActionQuestion
+			{/* <ActionQuestion
 				response={response}
 				setResponse={setResponse}
 				postUUID={postUUID}
 			/>
-			<HorizontalLine />
+			<HorizontalLine /> */}
 			<LikertQuestions response={response} setResponse={setResponse} />
 			<HorizontalLine />
-			<QualityQuestion response={response} setResponse={setResponse} />
+			{/* <QualityQuestion response={response} setResponse={setResponse} /> */}
 			<button
 				className={`py-2 rounded-md text-[8pt] transition-colors ${
 					valid(response)

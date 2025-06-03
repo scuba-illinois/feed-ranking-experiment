@@ -23,22 +23,24 @@ export const actions = [
 export type Actions = (typeof actions)[number];
 
 export const likertQuestions = [
-	"I consider this post to be well-regarded by others.",
-	"I consider this post to be interesting, engaging, or relevant to me.",
-	"I consider this post to be correct and reliable.",
+	"This post is relevant to me.",
+	"This post is trustworthy.",
+	"This post is high quality.",
 ];
 
 export type LikertQuestion = (typeof likertQuestions)[number];
 
-export const likertOptions = [
-	"Strongly Disagree",
-	"Disagree",
-	"Somewhat Disagree",
-	"Neutral",
-	"Somewhat Agree",
-	"Agree",
-	"Strongly Agree",
-] as const;
+// export const likertOptions = [
+// 	"Strongly Disagree",
+// 	"Disagree",
+// 	"Somewhat Disagree",
+// 	"Neutral",
+// 	"Somewhat Agree",
+// 	"Agree",
+// 	"Strongly Agree",
+// ] as const
+//
+export const likertOptions = [1, 2, 3, 4, 5, 6, 7] as const;
 
 export type LikertOption = (typeof likertOptions)[number];
 

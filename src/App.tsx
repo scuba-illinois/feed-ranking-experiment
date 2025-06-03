@@ -41,7 +41,7 @@ function FeedView({
 		<div className="flex flex-col w-[530px] shrink-0">
 			<div className="m-3">
 				<Header>
-					Trending on Reddit (Feed {phase === "phase2" ? "1" : "2"} / 2)
+					Trending on Reddit (Feed {phase === "phase2" ? "1" : "2"} / 3)
 				</Header>
 				<Body>To start assessing posts, please click on any post.</Body>
 			</div>
@@ -307,7 +307,7 @@ function PostPhase({
 const snapshots = ["2025-04-01T19:30:19Z"];
 
 function App() {
-	const [phase, setPhase] = useState<Phases>("intro");
+	const [phase, setPhase] = useState<Phases>("phase2");
 	const [survey, setSurvey] = useState<Survey>({
 		participant: "",
 		Phase1: null,
