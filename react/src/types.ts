@@ -81,3 +81,17 @@ export type Survey = {
 	Phase2: FeedPhase;
 	Phase3: FeedPhase;
 };
+
+export type FeedData = {
+	uuid: string;
+	height: number;
+	width: number;
+	x: number;
+	y: number;
+}[];
+
+export type Logs = {
+	timestamp: string;
+	action: "START" | "SELECT" | "DESELECT" | "END";
+	uuid: string;
+}[];

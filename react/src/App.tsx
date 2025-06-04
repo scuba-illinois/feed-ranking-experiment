@@ -4,22 +4,9 @@ import { SurveyContext } from "./contexts";
 import { formatTime } from "./utils";
 import Goodbye from "./pages/Goodbye";
 import Intro from "./pages/Intro";
+import { FeedData, Logs } from "./types";
 
 const snapshots = ["2025-04-01T19:30:19Z"];
-
-type FeedData = {
-	uuid: string;
-	height: number;
-	width: number;
-	x: number;
-	y: number;
-}[];
-
-type Logs = {
-	timestamp: string;
-	action: "START" | "SELECT" | "DESELECT" | "END";
-	uuid: string;
-}[];
 
 function FeedButtons({
 	feedData,
@@ -64,28 +51,32 @@ function FeedButtons({
 			}
 		};
 
+		function TooManySelected() {
+			return (
+				<div
+					className="px-2 py-1 rounded-md bg-white text-black border-3 text-sm"
+					style={{
+						position: "absolute",
+						direction: "ltr",
+						top: "2px",
+						left: "-200px",
+						zIndex: 10,
+					}}
+				>
+					Too many posts selected.
+				</div>
+			);
+		}
+
 		return (
 			<div
 				style={{
 					position: "absolute",
-					left: "470px",
+					left: "485px", // MAGIC NUMBER
 					top: `${height / 2 + y - 20}px`,
 				}}
 			>
-				{showLimitMsg === uuid && (
-					<div
-						className="px-2 py-1 rounded-md bg-white text-black border-3 text-sm"
-						style={{
-							position: "absolute",
-							direction: "ltr",
-							top: "2px",
-							left: "-200px",
-							zIndex: 10,
-						}}
-					>
-						Too many posts selected.
-					</div>
-				)}
+				{showLimitMsg === uuid && <TooManySelected />}
 				<button
 					className="py-2 px-3 shadow-lg rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600 transition-colors"
 					onClick={handleClick}
@@ -105,26 +96,28 @@ function FeedButtons({
 		height: number;
 		y: number;
 	}) {
+		const handleClick = () => {
+			setSelectedPosts((state) => state.filter((_uuid) => _uuid !== uuid));
+			setLogs((state) => [
+				...state,
+				{
+					timestamp: new Date().toISOString(),
+					uuid: uuid,
+					action: "DESELECT",
+				},
+			]);
+		};
+
 		return (
 			<button
 				key={uuid}
 				className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-orange-500 text-white hover:bg-orange-600 transition-colors"
 				style={{
 					position: "absolute",
-					left: "465px",
+					left: "480px", // MAGIC NUMBER
 					top: `${height / 2 + y - 20}px`,
 				}}
-				onClick={() => {
-					setSelectedPosts((state) => state.filter((_uuid) => _uuid !== uuid));
-					setLogs((state) => [
-						...state,
-						{
-							timestamp: new Date().toISOString(),
-							uuid: uuid,
-							action: "DESELECT",
-						},
-					]);
-				}}
+				onClick={() => handleClick()}
 			>
 				Deselect
 			</button>
@@ -226,97 +219,106 @@ function Feed() {
 		return () => clearInterval(timer);
 	}, [isVisible, timeLeft]);
 
-	// const { data, setData } = useContext(SurveyContext);
-
-	if (!feedData) {
-		return <Header>Loading Feed...</Header>;
-	} else {
+	function ShowFeedButton() {
 		return (
-			<div className="flex justify-center h-[100vh] gap-2 p-4">
-				<div className="flex flex-col w-[530px]">
-					<div className="flex flex-col gap-2 mb-4">
-						<Directions />
+			<button
+				className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+				onClick={() => {
+					setIsVisible(true);
+					setTimeLeft(TIMER_SETTING);
+					setLogs((state) => [
+						...state,
+						{
+							timestamp: new Date().toISOString(),
+							action: "START",
+							uuid: "",
+						},
+					]);
+				}}
+			>
+				Show Feed
+			</button>
+		);
+	}
 
-						{isVisible && (
-							<div className="flex justify-between items-center w-full">
-								<Body>
-									<b className="text-black">Time Remaining: </b>
-									{formatTime(timeLeft)}
-								</Body>
-								<Body>
-									<span>
-										<b className="text-black">Posts Selected:</b>{" "}
-										{selectedPosts.length.toLocaleString()}
-									</span>
-								</Body>
-							</div>
-						)}
-						{!isVisible && (
-							<button
-								className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-								onClick={() => {
-									setIsVisible(true);
-									setTimeLeft(TIMER_SETTING);
-									setLogs((state) => [
-										...state,
-										{
-											timestamp: new Date().toISOString(),
-											action: "START",
-											uuid: "",
-										},
-									]);
-								}}
-							>
-								Show Feed
-							</button>
-						)}
-						{selectedPosts.length === 3 && (
-							<button
-								className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-								onClick={() => {
-									setPhase("end");
-									setData((state: object) => ({
-										...state,
-										selectedPosts: selectedPosts,
-										logs: [
-											...logs,
-											{
-												timestamp: new Date().toISOString(),
-												action: "END",
-												uuid: "",
-											},
-										],
-									}));
-								}}
-							>
-								Complete Selection
-							</button>
-						)}
-					</div>
+	function CompleteSelectionButton() {
+		return (
+			<button
+				className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+				onClick={() => {
+					setPhase("end");
+					setData((state: object) => ({
+						...state,
+						selectedPosts: selectedPosts,
+						logs: [
+							...logs,
+							{
+								timestamp: new Date().toISOString(),
+								action: "END",
+								uuid: "",
+							},
+						],
+					}));
+				}}
+			>
+				Complete Selection
+			</button>
+		);
+	}
 
-					{isVisible && (
-						<div
-							className="overflow-y-scroll relative w-[560px] grid justify-items-end" // Why does grid work?
-							style={{ direction: "rtl" }}
-						>
-							<FeedView
-								fileName={FEED_IMAGE}
-								// Use the last post's y and height to set the image height.
-								height={feedData[9].y + feedData[9].height}
-								feedData={feedData}
-							/>
-							<FeedButtons
-								feedData={feedData}
-								selectedPosts={selectedPosts}
-								setSelectedPosts={setSelectedPosts}
-								setLogs={setLogs}
-							/>
-						</div>
-					)}
-				</div>
+	function SelectionInfo() {
+		return (
+			<div className="flex justify-between items-center w-full">
+				<Body>
+					<b className="text-black">Time Remaining: </b>
+					{formatTime(timeLeft)}
+				</Body>
+				<Body>
+					<span>
+						<b className="text-black">Posts Selected:</b>{" "}
+						{selectedPosts.length.toLocaleString()}
+					</span>
+				</Body>
 			</div>
 		);
 	}
+
+	if (!feedData) {
+		return <Header>Loading Feed...</Header>;
+	}
+
+	return (
+		<div className="flex justify-center h-[100vh] gap-2 p-4">
+			<div className="flex flex-col w-[560px]">
+				<div className="flex flex-col gap-2 mb-4">
+					<Directions />
+					{isVisible && <SelectionInfo />}
+					{!isVisible && <ShowFeedButton />}
+					{selectedPosts.length === 3 && <CompleteSelectionButton />}
+				</div>
+
+				{isVisible && (
+					<div
+						className="overflow-y-scroll relative w-[580px] grid justify-items-end pl-4" // Why does grid work?
+						style={{ direction: "rtl" }}
+					>
+						<FeedView
+							fileName={FEED_IMAGE}
+							// Use the last post's y and height to set the image height.
+							height={feedData[9].y + feedData[9].height}
+							feedData={feedData}
+						/>
+						<FeedButtons
+							feedData={feedData}
+							selectedPosts={selectedPosts}
+							setSelectedPosts={setSelectedPosts}
+							setLogs={setLogs}
+						/>
+					</div>
+				)}
+			</div>
+		</div>
+	);
 }
 
 function App() {
