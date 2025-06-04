@@ -11,3 +11,11 @@ export const rotatePosts = (posts: Post[], n: number): Post[] => {
 	const rotation = ((n % len) + len) % len; // Handle negative and large n
 	return [...posts.slice(rotation), ...posts.slice(0, rotation)];
 };
+
+export function formatTime(seconds: number): string {
+	const mins = Math.floor(seconds / 60)
+		.toString()
+		.padStart(2, "0");
+	const secs = (seconds % 60).toString().padStart(2, "0");
+	return `${mins}:${secs}`;
+}

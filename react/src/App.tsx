@@ -9,6 +9,7 @@ import { useState, useContext, useEffect } from "react";
 import { Body, Header } from "./components/general";
 // import Transition from "./pages/Transition";
 import { SurveyContext } from "./contexts";
+import { formatTime } from "./utils";
 
 const snapshots = ["2025-04-01T19:30:19Z"];
 
@@ -52,6 +53,8 @@ function Feed() {
 	const FEED_IMAGE = `${snapshots[0]}/rotation-${0}.png`;
 
 	const [feedData, setFeedData] = useState<FeedData | null>(null);
+	const [isVisible, setIsVisible] = useState(false);
+	const [timeLeft, setTimeLeft] = useState(0);
 
 	// Retrieve the JSON describing the image.
 	useEffect(() => {
@@ -67,6 +70,25 @@ function Feed() {
 		);
 	}, []);
 
+	useEffect(() => {
+		if (!isVisible || timeLeft <= 0) {
+			return;
+		}
+
+		const timer = setInterval(() => {
+			setTimeLeft((prev) => {
+				if (prev <= 1) {
+					clearInterval(timer);
+					setIsVisible(false);
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1_000);
+
+		return () => clearInterval(timer);
+	}, [isVisible, timeLeft]);
+
 	// const { data, setData } = useContext(SurveyContext);
 
 	if (!feedData) {
@@ -74,23 +96,37 @@ function Feed() {
 	} else {
 		return (
 			<div className="flex justify-center h-[100vh] gap-2 p-4">
-				<div className="flex flex-col shrink-0">
+				<div className="flex flex-col w-[560px]">
 					<div className="m-3">
 						<Header>Trending on Reddit</Header>
 						<Body>To start assessing posts, please click on any post.</Body>
+						{isVisible && <Body>{formatTime(timeLeft)}</Body>}
 					</div>
+					{!isVisible && (
+						<button
+							className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors mb-4"
+							onClick={() => {
+								setIsVisible(true);
+								setTimeLeft(10); // Reset to 10 seconds
+							}}
+						>
+							Show Feed
+						</button>
+					)}
 
-					<div
-						className="overflow-y-scroll relative w-[560px] grid justify-items-end" // Why does grid work?
-						style={{ direction: "rtl" }}
-					>
-						<FeedView
-							fileName={FEED_IMAGE}
-							// Use the last post's y and height to set the image height.
-							height={feedData[9].y + feedData[9].height}
-						/>
-						<FeedButtons feedData={feedData} />
-					</div>
+					{isVisible && (
+						<div
+							className="overflow-y-scroll relative w-[560px] grid justify-items-end" // Why does grid work?
+							style={{ direction: "rtl" }}
+						>
+							<FeedView
+								fileName={FEED_IMAGE}
+								// Use the last post's y and height to set the image height.
+								height={feedData[9].y + feedData[9].height}
+							/>
+							<FeedButtons feedData={feedData} />
+						</div>
+					)}
 				</div>
 			</div>
 		);
