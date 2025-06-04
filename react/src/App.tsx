@@ -27,7 +27,7 @@ function FeedButtons({ feedData }: { feedData: FeedData }) {
 			className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
 			style={{
 				position: "absolute",
-				left: "497px",
+				left: "475px",
 				top: `${height / 2 + y - 20}px`,
 			}}
 		>
@@ -39,7 +39,7 @@ function FeedButtons({ feedData }: { feedData: FeedData }) {
 function FeedView({ fileName, height }: { fileName: string; height: number }) {
 	return (
 		<div
-			className="border-2 overflow-y-clip"
+			className="border-2 overflow-y-clip "
 			style={{ height: `${height}px`, width: "fit-content" }}
 		>
 			<img src={fileName} className="w-[500px]" />
@@ -81,17 +81,15 @@ function Feed() {
 					</div>
 
 					<div
-						className="overflow-y-scroll relative"
+						className="overflow-y-scroll relative w-[560px] grid justify-items-end" // Why does grid work?
 						style={{ direction: "rtl" }}
 					>
-						<div style={{ direction: "ltr" }}>
-							<FeedView
-								fileName={FEED_IMAGE}
-								// Use the last post's y and height to set the image height.
-								height={feedData[9].y + feedData[9].height}
-							/>
-							<FeedButtons feedData={feedData} />
-						</div>
+						<FeedView
+							fileName={FEED_IMAGE}
+							// Use the last post's y and height to set the image height.
+							height={feedData[9].y + feedData[9].height}
+						/>
+						<FeedButtons feedData={feedData} />
 					</div>
 				</div>
 			</div>
