@@ -210,8 +210,8 @@ function Consent() {
 			</Body>
 			<Body>
 				Please print this consent form if you would like to retain a copy for
-				your records. The PDF version of this consent form hoste on Google Docs
-				is found here: <b>TODO</b>.
+				your records. The PDF version of this consent form, hosted on Google
+				Docs, is found here: <b>TODO</b>.
 			</Body>
 		</>
 	);
@@ -247,6 +247,13 @@ export default function IntroPhase() {
 					className="flex flex-col gap-4 mt-4"
 					onSubmit={(e) => {
 						e.preventDefault();
+
+						setData((state: object) => ({
+							...state,
+							participantID: participantID,
+						}));
+
+						console.log(participantID);
 
 						setPhase("feed");
 					}}
