@@ -251,9 +251,10 @@ export default function IntroPhase() {
 						setData((state: object) => ({
 							...state,
 							participantID: participantID,
+							consentTimestamp: new Date().toISOString(),
 						}));
 
-						console.log(participantID);
+						console.log(participantID, new Date().toISOString());
 
 						setPhase("feed");
 					}}
