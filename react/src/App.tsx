@@ -15,14 +15,22 @@ type FeedData = {
 	y: number;
 }[];
 
+type Logs = {
+	timestamp: string;
+	action: "START" | "SELECT" | "DESELECT" | "END";
+	uuid: string;
+}[];
+
 function FeedButtons({
 	feedData,
 	selectedPosts,
 	setSelectedPosts,
+	setLogs,
 }: {
 	feedData: FeedData;
 	selectedPosts: string[];
 	setSelectedPosts: React.Dispatch<React.SetStateAction<string[]>>;
+	setLogs: React.Dispatch<React.SetStateAction<Logs>>;
 }) {
 	const [showLimitMsg, setShowLimitMsg] = useState<string | null>(null);
 
@@ -38,6 +46,14 @@ function FeedButtons({
 		const handleClick = () => {
 			if (selectedPosts.length < 3) {
 				setSelectedPosts((state) => [...state, uuid]);
+				setLogs((state) => [
+					...state,
+					{
+						timestamp: new Date().toISOString(),
+						uuid: uuid,
+						action: "SELECT",
+					},
+				]);
 				setShowLimitMsg(null);
 			} else {
 				console.log(uuid);
@@ -98,9 +114,17 @@ function FeedButtons({
 					left: "465px",
 					top: `${height / 2 + y - 20}px`,
 				}}
-				onClick={() =>
-					setSelectedPosts((state) => state.filter((_uuid) => _uuid !== uuid))
-				}
+				onClick={() => {
+					setSelectedPosts((state) => state.filter((_uuid) => _uuid !== uuid));
+					setLogs((state) => [
+						...state,
+						{
+							timestamp: new Date().toISOString(),
+							uuid: uuid,
+							action: "DESELECT",
+						},
+					]);
+				}}
 			>
 				Deselect
 			</button>
@@ -119,7 +143,6 @@ function FeedButtons({
 function FeedView({
 	fileName,
 	height,
-	feedData,
 }: {
 	fileName: string;
 	height: number;
@@ -135,6 +158,27 @@ function FeedView({
 	);
 }
 
+function Directions() {
+	return (
+		<>
+			<Header>Directions</Header>
+			<Body>
+				Here, you will be shown a screenshot of Reddit's r/popular feed
+				containing 10 posts. You will have 2 minutes to browse and select at
+				most 3 posts from this feed that you would like to read more about.
+			</Body>
+			<Body>
+				Next to each post on the screenshot of the feed, there is a "Flag"
+				button to denote that you would like to read more about this post.
+			</Body>
+			<Body>
+				To start, press the "Show Feed" button. The timer and feed will appear
+				below once to press the button.
+			</Body>
+		</>
+	);
+}
+
 function Feed() {
 	// TODO: Randomize this, right now you're just using one rotation/snapshot.
 	const FEED_IMAGE = `${snapshots[0]}/rotation-${0}.png`;
@@ -146,6 +190,7 @@ function Feed() {
 	const [isVisible, setIsVisible] = useState(false);
 	const [timeLeft, setTimeLeft] = useState(0);
 	const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
+	const [logs, setLogs] = useState<Logs>([]);
 
 	// Retrieve the JSON describing the image.
 	useEffect(() => {
@@ -190,21 +235,8 @@ function Feed() {
 			<div className="flex justify-center h-[100vh] gap-2 p-4">
 				<div className="flex flex-col w-[530px]">
 					<div className="flex flex-col gap-2 mb-4">
-						<Header>Directions</Header>
-						<Body>
-							Here, you will be shown a screenshot of Reddit's r/popular feed
-							containing 10 posts. You will have 2 minutes to browse and select
-							at most 3 posts from this feed that you would like to read more
-							about.
-						</Body>
-						<Body>
-							Next to each post on the screenshot of the feed, there is a "Flag"
-							button to denote that you would like to read more about this post.
-						</Body>
-						<Body>
-							To start, press the "Show Feed" button. The timer and feed will
-							appear below once to press the button.
-						</Body>
+						<Directions />
+
 						{isVisible && (
 							<div className="flex justify-between items-center w-full">
 								<Body>
@@ -225,6 +257,14 @@ function Feed() {
 								onClick={() => {
 									setIsVisible(true);
 									setTimeLeft(TIMER_SETTING);
+									setLogs((state) => [
+										...state,
+										{
+											timestamp: new Date().toISOString(),
+											action: "START",
+											uuid: "",
+										},
+									]);
 								}}
 							>
 								Show Feed
@@ -238,6 +278,14 @@ function Feed() {
 									setData((state: object) => ({
 										...state,
 										selectedPosts: selectedPosts,
+										logs: [
+											...logs,
+											{
+												timestamp: new Date().toISOString(),
+												action: "END",
+												uuid: "",
+											},
+										],
 									}));
 								}}
 							>
@@ -261,6 +309,7 @@ function Feed() {
 								feedData={feedData}
 								selectedPosts={selectedPosts}
 								setSelectedPosts={setSelectedPosts}
+								setLogs={setLogs}
 							/>
 						</div>
 					)}
