@@ -1,15 +1,9 @@
 import { useState, useContext, useEffect } from "react";
-// import { Phases, Survey } from "./types";
-// import { PostQuestionnaire } from "./PostQuestionnaire";
-// import Goodbye from "./pages/Goodbye";
-// import ExitQuestionnaire from "./pages/ExitQuestionnaire";
-// import IntroPhase from "./pages/Intro";
-// import InstructionsPhase1 from "./pages/InstructionsPhase1";
-// import InstructionsPhase2 from "./pages/InstructionsPhase2";
 import { Body, Header } from "./components/general";
-// import Transition from "./pages/Transition";
 import { SurveyContext } from "./contexts";
 import { formatTime } from "./utils";
+import Goodbye from "./pages/Goodbye";
+import Intro from "./pages/Intro";
 
 const snapshots = ["2025-04-01T19:30:19Z"];
 
@@ -30,6 +24,8 @@ function FeedButtons({
 	selectedPosts: string[];
 	setSelectedPosts: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
+	const [showLimitMsg, setShowLimitMsg] = useState<string | null>(null);
+
 	function FlagButton({
 		uuid,
 		height,
@@ -39,23 +35,48 @@ function FeedButtons({
 		height: number;
 		y: number;
 	}) {
+		const handleClick = () => {
+			if (selectedPosts.length < 3) {
+				setSelectedPosts((state) => [...state, uuid]);
+				setShowLimitMsg(null);
+			} else {
+				console.log(uuid);
+				setShowLimitMsg(uuid);
+				setTimeout(() => {
+					setShowLimitMsg((current) => (current === uuid ? null : current));
+				}, 5_000);
+			}
+		};
+
 		return (
-			<button
-				key={uuid}
-				className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+			<div
 				style={{
 					position: "absolute",
-					left: "475px",
+					left: "470px",
 					top: `${height / 2 + y - 20}px`,
 				}}
-				onClick={() => {
-					if (selectedPosts.length < 3) {
-						setSelectedPosts((state) => [...state, uuid]);
-					}
-				}}
 			>
-				Flag
-			</button>
+				{showLimitMsg === uuid && (
+					<div
+						className="px-2 py-1 rounded-md bg-white text-black border-3 text-sm"
+						style={{
+							position: "absolute",
+							direction: "ltr",
+							top: "2px",
+							left: "-200px",
+							zIndex: 10,
+						}}
+					>
+						Too many posts selected.
+					</div>
+				)}
+				<button
+					className="py-2 px-3 shadow-lg rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+					onClick={handleClick}
+				>
+					Select
+				</button>
+			</div>
 		);
 	}
 
@@ -74,28 +95,36 @@ function FeedButtons({
 				className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-orange-500 text-white hover:bg-orange-600 transition-colors"
 				style={{
 					position: "absolute",
-					left: "470px",
+					left: "465px",
 					top: `${height / 2 + y - 20}px`,
 				}}
 				onClick={() =>
 					setSelectedPosts((state) => state.filter((_uuid) => _uuid !== uuid))
 				}
 			>
-				Unflag
+				Deselect
 			</button>
 		);
 	}
 
 	return feedData.map(({ y, height, uuid }) => {
 		if (!selectedPosts.includes(uuid)) {
-			return <FlagButton uuid={uuid} height={height} y={y} />;
+			return <FlagButton key={uuid} uuid={uuid} height={height} y={y} />;
 		} else {
-			return <UnflagButton uuid={uuid} height={height} y={y} />;
+			return <UnflagButton key={uuid} uuid={uuid} height={height} y={y} />;
 		}
 	});
 }
 
-function FeedView({ fileName, height }: { fileName: string; height: number }) {
+function FeedView({
+	fileName,
+	height,
+	feedData,
+}: {
+	fileName: string;
+	height: number;
+	feedData: FeedData;
+}) {
 	return (
 		<div
 			className="border-2 overflow-y-clip "
@@ -110,6 +139,8 @@ function Feed() {
 	// TODO: Randomize this, right now you're just using one rotation/snapshot.
 	const FEED_IMAGE = `${snapshots[0]}/rotation-${0}.png`;
 	const TIMER_SETTING = 1200000;
+
+	const { setData, setPhase } = useContext(SurveyContext);
 
 	const [feedData, setFeedData] = useState<FeedData | null>(null);
 	const [isVisible, setIsVisible] = useState(false);
@@ -199,6 +230,20 @@ function Feed() {
 								Show Feed
 							</button>
 						)}
+						{selectedPosts.length === 3 && (
+							<button
+								className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+								onClick={() => {
+									setPhase("end");
+									setData((state: object) => ({
+										...state,
+										selectedPosts: selectedPosts,
+									}));
+								}}
+							>
+								Complete Selection
+							</button>
+						)}
 					</div>
 
 					{isVisible && (
@@ -210,6 +255,7 @@ function Feed() {
 								fileName={FEED_IMAGE}
 								// Use the last post's y and height to set the image height.
 								height={feedData[9].y + feedData[9].height}
+								feedData={feedData}
 							/>
 							<FeedButtons
 								feedData={feedData}
@@ -225,11 +271,14 @@ function Feed() {
 }
 
 function App() {
-	const [data, setData] = useState<object>({});
+	const [data, setData] = useState({});
+	const [phase, setPhase] = useState("start");
 
 	return (
-		<SurveyContext.Provider value={{ data, setData }}>
-			<Feed />
+		<SurveyContext.Provider value={{ data, setData, phase, setPhase }}>
+			{phase === "start" && <Intro />}
+			{phase === "feed" && <Feed />}
+			{phase === "end" && <Goodbye />}
 		</SurveyContext.Provider>
 	);
 }
