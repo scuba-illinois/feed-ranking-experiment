@@ -5,9 +5,11 @@ import { formatTime } from "./utils";
 import Goodbye from "./pages/Goodbye";
 import Intro from "./pages/Intro";
 import { FeedData, Logs } from "./types";
+import React from "react";
 
 const snapshots = ["2025-04-01T19:30:19Z"];
 
+// TODO: Move this inside the Feed component.
 function FeedButtons({
 	feedData,
 	selectedPosts,
@@ -21,7 +23,7 @@ function FeedButtons({
 }) {
 	const [showLimitMsg, setShowLimitMsg] = useState<string | null>(null);
 
-	function FlagButton({
+	const FlagButton = ({
 		uuid,
 		height,
 		y,
@@ -29,7 +31,7 @@ function FeedButtons({
 		uuid: string;
 		height: number;
 		y: number;
-	}) {
+	}) => {
 		const handleClick = () => {
 			if (selectedPosts.length < 3) {
 				setSelectedPosts((state) => [...state, uuid]);
@@ -43,7 +45,6 @@ function FeedButtons({
 				]);
 				setShowLimitMsg(null);
 			} else {
-				console.log(uuid);
 				setShowLimitMsg(uuid);
 				setTimeout(() => {
 					setShowLimitMsg((current) => (current === uuid ? null : current));
@@ -51,7 +52,7 @@ function FeedButtons({
 			}
 		};
 
-		function TooManySelected() {
+		const TooManySelected = () => {
 			return (
 				<div
 					className="px-2 py-1 rounded-md bg-white text-black border-3 text-sm"
@@ -66,14 +67,14 @@ function FeedButtons({
 					Too many posts selected.
 				</div>
 			);
-		}
+		};
 
 		return (
 			<div
 				style={{
 					position: "absolute",
 					left: "485px", // MAGIC NUMBER
-					top: `${height / 2 + y - 20}px`,
+					top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 				}}
 			>
 				{showLimitMsg === uuid && <TooManySelected />}
@@ -85,9 +86,9 @@ function FeedButtons({
 				</button>
 			</div>
 		);
-	}
+	};
 
-	function UnflagButton({
+	const UnflagButton = ({
 		uuid,
 		height,
 		y,
@@ -95,7 +96,7 @@ function FeedButtons({
 		uuid: string;
 		height: number;
 		y: number;
-	}) {
+	}) => {
 		const handleClick = () => {
 			setSelectedPosts((state) => state.filter((_uuid) => _uuid !== uuid));
 			setLogs((state) => [
@@ -122,7 +123,7 @@ function FeedButtons({
 				Deselect
 			</button>
 		);
-	}
+	};
 
 	return feedData.map(({ y, height, uuid }) => {
 		if (!selectedPosts.includes(uuid)) {
@@ -148,27 +149,6 @@ function FeedView({
 		>
 			<img src={fileName} className="w-[500px]" />
 		</div>
-	);
-}
-
-function Directions() {
-	return (
-		<>
-			<Header>Directions</Header>
-			<Body>
-				Here, you will be shown a screenshot of Reddit's r/popular feed
-				containing 10 posts. You will have 2 minutes to browse and select at
-				most 3 posts from this feed that you would like to read more about.
-			</Body>
-			<Body>
-				Next to each post on the screenshot of the feed, there is a "Flag"
-				button to denote that you would like to read more about this post.
-			</Body>
-			<Body>
-				To start, press the "Show Feed" button. The timer and feed will appear
-				below once to press the button.
-			</Body>
-		</>
 	);
 }
 
@@ -219,7 +199,28 @@ function Feed() {
 		return () => clearInterval(timer);
 	}, [isVisible, timeLeft]);
 
-	function ShowFeedButton() {
+	const Directions = () => {
+		return (
+			<>
+				<Header>Directions</Header>
+				<Body>
+					Here, you will be shown a screenshot of Reddit's r/popular feed
+					containing 10 posts. You will have 2 minutes to browse and select at
+					most 3 posts from this feed that you would like to read more about.
+				</Body>
+				<Body>
+					Next to each post on the screenshot of the feed, there is a "Flag"
+					button to denote that you would like to read more about this post.
+				</Body>
+				<Body>
+					To start, press the "Show Feed" button. The timer and feed will appear
+					below once to press the button.
+				</Body>
+			</>
+		);
+	};
+
+	const ShowFeedButton = () => {
 		return (
 			<button
 				className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
@@ -239,9 +240,9 @@ function Feed() {
 				Show Feed
 			</button>
 		);
-	}
+	};
 
-	function CompleteSelectionButton() {
+	const CompleteSelectionButton = () => {
 		return (
 			<button
 				className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
@@ -264,9 +265,9 @@ function Feed() {
 				Complete Selection
 			</button>
 		);
-	}
+	};
 
-	function SelectionInfo() {
+	const SelectionInfo = () => {
 		return (
 			<div className="flex justify-between items-center w-full">
 				<Body>
@@ -281,7 +282,7 @@ function Feed() {
 				</Body>
 			</div>
 		);
-	}
+	};
 
 	if (!feedData) {
 		return <Header>Loading Feed...</Header>;
@@ -321,14 +322,309 @@ function Feed() {
 	);
 }
 
+const FeedRate = () => {
+	const FEED_IMAGE = `${snapshots[0]}/rotation-${0}.png`;
+
+	const { data, setData, setPhase } = useContext(SurveyContext);
+
+	const [feedData, setFeedData] = useState<FeedData | null>(null);
+	const [selectedPost, setSelectedPost] = useState<string | null>(null);
+	const [ratings, setRatings] = useState<Record<string, object>>({});
+
+	useEffect(() => {
+		fetch(`${snapshots[0]}/rotation-${0}.json`, {
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+		})
+			.then((response) => response.json())
+			.then((data: FeedData) => {
+				setFeedData(data);
+			});
+	}, []);
+
+	const Directions = () => {
+		return (
+			<>
+				<Header>Directions</Header>
+				<Body>TODO.</Body>
+			</>
+		);
+	};
+
+	const RateButtons = ({
+		feedData,
+		selectedPosts,
+		selectedPost,
+		setSelectedPost,
+		ratings,
+		setRatings,
+	}: {
+		feedData: FeedData;
+		selectedPosts: string[];
+		selectedPost: string | null;
+		setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
+		ratings: Record<string, object>;
+		setRatings: React.Dispatch<React.SetStateAction<Record<string, object>>>;
+	}) => {
+		const postInfo = feedData.filter(({ uuid }) =>
+			selectedPosts.includes(uuid)
+		);
+
+		return postInfo.map(({ uuid, y, height }) => {
+			if (ratings.hasOwnProperty(uuid)) {
+				return;
+			}
+
+			return (
+				<div
+					key={uuid}
+					className="absolute"
+					style={{ top: `${height / 2 + y - 20}px`, left: "490px" }}
+				>
+					<button
+						className="py-2 px-3 shadow-lg rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+						onClick={() => {
+							setSelectedPost(uuid);
+						}}
+					>
+						Rate
+					</button>
+				</div>
+			);
+		});
+	};
+
+	const RatePopup = ({
+		selectedPost,
+		setSelectedPost,
+		ratings,
+		setRatings,
+	}: {
+		selectedPost: string;
+		setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
+		ratings: Record<string, object>;
+		setRatings: React.Dispatch<React.SetStateAction<Record<string, object>>>;
+	}) => {
+		const questions = [
+			"This post is relevant to me.",
+			"This post is trustworthy.",
+			"This post is high quality.",
+		];
+
+		const [answers, setAnswers] = useState<Record<string, number | null>>({
+			"This post is relevant to me.": null,
+			"This post is trustworthy.": null,
+			"This post is high quality.": null,
+		});
+
+		const isValid = () =>
+			Object.values(answers).every((value) => value !== null);
+
+		const Question = ({
+			index,
+			question,
+		}: {
+			index: number;
+			question: string;
+		}) => (
+			<div key={index}>
+				<p>{question}</p>
+				<div className="flex flex-row gap-4 my-2 mx-4">
+					<span className="mr-4">Low</span>
+					{[1, 2, 3, 4, 5, 6, 7].map((value) => (
+						<React.Fragment key={value}>
+							{/* Using a fragment to avoid wrapping label in a div */}
+							<label>
+								<input
+									type="radio"
+									name={question}
+									value={value}
+									checked={answers[question] === value}
+									onChange={() => {
+										setAnswers((state) => ({
+											...state,
+											[question]: value,
+										}));
+									}}
+								/>
+							</label>
+							<span>{value}</span>
+						</React.Fragment>
+					))}
+					<span className="ml-4">High</span>
+				</div>
+			</div>
+		);
+
+		const PostPreview = ({ fileName }: { fileName: string }) => (
+			<img
+				style={{ maxHeight: "300px", display: "block" }}
+				src={fileName}
+				className="my-4 mx-auto border-2"
+			/>
+		);
+
+		const SubmitButton = () => {
+			return (
+				<button
+					className={
+						"mt-4 py-2 px-4 " +
+						(isValid()
+							? "bg-blue-400 rounded hover:bg-blue-500"
+							: "bg-gray-200 rounded cursor-not-allowed")
+					}
+					onClick={() => {
+						setRatings((state) => ({
+							...state,
+							[selectedPost]: {
+								...answers,
+								timestamp: new Date().toISOString(),
+							},
+						}));
+						setSelectedPost(null);
+					}}
+					disabled={!isValid()}
+				>
+					Submit
+				</button>
+			);
+		};
+
+		const CloseButton = () => {
+			return (
+				<button
+					className="mt-4 py-2 px-4 bg-red-400 rounded hover:bg-red-500"
+					onClick={() => setSelectedPost(null)}
+				>
+					Close
+				</button>
+			);
+		};
+
+		return (
+			<>
+				<div
+					style={{
+						position: "fixed",
+						top: 0,
+						left: 0,
+						width: "100vw",
+						height: "100vh",
+						background: "rgba(0,0,0,0.5)",
+						zIndex: 100,
+						display: "flex",
+						alignItems: "center",
+						justifyContent: "center",
+						direction: "ltr",
+					}}
+					// onClick={() => setRatePost(null)} // BUG: Clicking inside the form also closes the popup.
+				>
+					<div
+						style={{
+							background: "white",
+							padding: "2rem",
+							borderRadius: "8px",
+							boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
+							zIndex: 1_000,
+							width: "600px",
+							textAlign: "left",
+						}}
+					>
+						<Header>Selected Post</Header>
+						<PostPreview fileName={`${snapshots[0]}/${selectedPost}.png`} />
+						<div>
+							{questions.map((question, index) => (
+								<Question key={index} index={index} question={question} />
+							))}
+						</div>
+						<div className="flex flex-row gap-2">
+							<SubmitButton />
+							<CloseButton />
+						</div>
+					</div>
+				</div>
+			</>
+		);
+	};
+
+	if (!feedData) {
+		return <Header>Loading Feed...</Header>;
+	}
+
+	return (
+		<div className="flex justify-center h-[100vh] gap-2 p-4">
+			<div className="flex flex-col w-[560px]">
+				<div className="flex flex-col gap-2 mb-4">
+					<Directions />
+					<Body>
+						<b className="text-black">Posts Rated:</b>{" "}
+						{Object.keys(ratings).length}
+					</Body>
+					{Object.keys(ratings).length === 3 && (
+						<button
+							className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+							onClick={() => {
+								setData((state: object) => ({
+									...state,
+									ratings: ratings,
+								}));
+								setPhase("end");
+							}}
+						>
+							Continue
+						</button>
+					)}
+				</div>
+
+				<div
+					className="overflow-y-scroll relative w-[580px] grid justify-items-end pl-4" // Why does grid work?
+					style={{ direction: "rtl" }}
+				>
+					<FeedView
+						fileName={FEED_IMAGE}
+						// Use the last post's y and height to set the image height.
+						height={feedData[9].y + feedData[9].height}
+						feedData={feedData}
+					/>
+					<RateButtons
+						feedData={feedData}
+						selectedPosts={(data as { selectedPosts: string[] }).selectedPosts}
+						selectedPost={selectedPost}
+						setSelectedPost={setSelectedPost}
+						ratings={ratings}
+						setRatings={setRatings}
+					/>
+					{selectedPost && (
+						<RatePopup
+							selectedPost={selectedPost}
+							setSelectedPost={setSelectedPost}
+							ratings={ratings}
+							setRatings={setRatings}
+						/>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+};
+
 function App() {
-	const [data, setData] = useState({});
-	const [phase, setPhase] = useState("start");
+	const [data, setData] = useState<object>({
+		selectedPosts: [
+			"873780dc-c9fd-4d1b-8351-10c0ba00c2e3",
+			"95b8c6a0-f06a-4681-86c2-17c7e7b198f8",
+			"b9b82735-4b59-4f12-b1cc-c4ecc955419a",
+		],
+	});
+	const [phase, setPhase] = useState("rate");
 
 	return (
 		<SurveyContext.Provider value={{ data, setData, phase, setPhase }}>
 			{phase === "start" && <Intro />}
 			{phase === "feed" && <Feed />}
+			{phase === "rate" && <FeedRate />}
 			{phase === "end" && <Goodbye />}
 		</SurveyContext.Provider>
 	);
