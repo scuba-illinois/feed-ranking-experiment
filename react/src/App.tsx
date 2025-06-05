@@ -155,7 +155,7 @@ function FeedView({
 function Feed() {
 	// TODO: Randomize this, right now you're just using one rotation/snapshot.
 	const FEED_IMAGE = `${snapshots[0]}/rotation-${0}.png`;
-	const TIMER_SETTING = 1200000;
+	const TIMER_SETTING = 120;
 
 	const { setData, setPhase } = useContext(SurveyContext);
 
@@ -223,7 +223,9 @@ function Feed() {
 	const ShowFeedButton = () => {
 		return (
 			<button
-				className="py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+				className={
+					"py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+				}
 				onClick={() => {
 					setIsVisible(true);
 					setTimeLeft(TIMER_SETTING);
@@ -245,9 +247,12 @@ function Feed() {
 	const CompleteSelectionButton = () => {
 		return (
 			<button
-				className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+				className={
+					"py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors" +
+					(selectedPosts.length < 3 ? " opacity-50 cursor-not-allowed" : "")
+				}
 				onClick={() => {
-					setPhase("end");
+					setPhase("rate");
 					setData((state: object) => ({
 						...state,
 						selectedPosts: selectedPosts,
@@ -261,8 +266,9 @@ function Feed() {
 						],
 					}));
 				}}
+				disabled={selectedPosts.length < 3}
 			>
-				Complete Selection
+				Continue
 			</button>
 		);
 	};
@@ -294,8 +300,8 @@ function Feed() {
 				<div className="flex flex-col gap-2 mb-4">
 					<Directions />
 					{isVisible && <SelectionInfo />}
+					{isVisible && <CompleteSelectionButton />}
 					{!isVisible && <ShowFeedButton />}
-					{selectedPosts.length === 3 && <CompleteSelectionButton />}
 				</div>
 
 				{isVisible && (
@@ -562,20 +568,24 @@ const FeedRate = () => {
 						<b className="text-black">Posts Rated:</b>{" "}
 						{Object.keys(ratings).length}
 					</Body>
-					{Object.keys(ratings).length === 3 && (
-						<button
-							className="py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-							onClick={() => {
-								setData((state: object) => ({
-									...state,
-									ratings: ratings,
-								}));
-								setPhase("end");
-							}}
-						>
-							Continue
-						</button>
-					)}
+					<button
+						className={
+							"py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors" +
+							(Object.keys(ratings).length < 3
+								? " opacity-50 cursor-not-allowed"
+								: "")
+						}
+						onClick={() => {
+							setData((state: object) => ({
+								...state,
+								ratings: ratings,
+							}));
+							setPhase("end");
+						}}
+						disabled={Object.keys(ratings).length < 3}
+					>
+						Continue
+					</button>
 				</div>
 
 				<div
@@ -611,14 +621,8 @@ const FeedRate = () => {
 };
 
 function App() {
-	const [data, setData] = useState<object>({
-		selectedPosts: [
-			"873780dc-c9fd-4d1b-8351-10c0ba00c2e3",
-			"95b8c6a0-f06a-4681-86c2-17c7e7b198f8",
-			"b9b82735-4b59-4f12-b1cc-c4ecc955419a",
-		],
-	});
-	const [phase, setPhase] = useState("rate");
+	const [data, setData] = useState<object>({});
+	const [phase, setPhase] = useState("start");
 
 	return (
 		<SurveyContext.Provider value={{ data, setData, phase, setPhase }}>
