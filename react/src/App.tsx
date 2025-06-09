@@ -446,7 +446,7 @@ const FeedRate = () => {
 			<div key={index}>
 				<p>{question}</p>
 				<div className="flex flex-row gap-4 my-2 mx-4">
-					<span className="mr-4">Low</span>
+					<span className="mr-4">Disagree</span>
 					{[1, 2, 3, 4, 5, 6, 7].map((value) => (
 						<React.Fragment key={value}>
 							{/* Using a fragment to avoid wrapping label in a div */}
@@ -467,7 +467,7 @@ const FeedRate = () => {
 							<span>{value}</span>
 						</React.Fragment>
 					))}
-					<span className="ml-4">High</span>
+					<span className="ml-4">Agree</span>
 				</div>
 			</div>
 		);
@@ -547,6 +547,10 @@ const FeedRate = () => {
 						}}
 					>
 						<Header>Selected Post</Header>
+						<Body>
+							We see that you selected this post from the feed and want to
+							understand what you think about the post based on its preview.
+						</Body>
 						<PostPreview fileName={`${snapshots[0]}/${selectedPost}.png`} />
 						<div>
 							{questions.map((question, index) => (

@@ -27,6 +27,10 @@ To deploy locally, run `npm run dev` in the `./react/` directory. That should st
 
 ---
 
+## Notes
+
+- The interface sucks for mobile and people who have their web browser really zoomed in.
+
 ## TODO
 
 - [ ] Screener questions.
@@ -36,3 +40,9 @@ To deploy locally, run `npm run dev` in the `./react/` directory. That should st
 - [ ] Another stage that has them rate posts that didn't select.
 - [ ] Have them rate multiple feeds.
 - [ ] Add directions on how to run this React project.
+
+### Minor
+
+- [ ] There needs some bottom margin on the Consent Form.
+- [ ] Right now, they need to pick 3 posts, but it should "at most" 3 posts---i.e., be able to move on with less than 3 posts selected.
+- [ ] All participants to edit reviews.
