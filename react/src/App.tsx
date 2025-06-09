@@ -354,7 +354,15 @@ const FeedRate = () => {
 		return (
 			<>
 				<Header>Directions</Header>
-				<Body>TODO.</Body>
+				<Body>
+					Please go through each post you selected previously and rate them. You
+					can rate each post by clicking the "Rate" button next to each post you
+					selected.
+				</Body>
+				<Body>
+					There is no time limit for this phase. To move forward, you have to
+					rate each post you selected.
+				</Body>
 			</>
 		);
 	};
@@ -566,7 +574,7 @@ const FeedRate = () => {
 					<Directions />
 					<Body>
 						<b className="text-black">Posts Rated:</b>{" "}
-						{Object.keys(ratings).length}
+						{Object.keys(ratings).length} / 3
 					</Body>
 					<button
 						className={

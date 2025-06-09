@@ -25,4 +25,4 @@ dist-ssr
 
 # Jackie's
 **/data/
-**/public/
+# **/public/
