@@ -362,11 +362,11 @@ const FeedRate = () => {
 	const RateButtons = ({
 		feedData,
 		selectedPosts,
-		selectedPost,
+		// selectedPost,
 		setSelectedPost,
 		ratings,
-		setRatings,
-	}: {
+	}: // setRatings,
+	{
 		feedData: FeedData;
 		selectedPosts: string[];
 		selectedPost: string | null;
@@ -405,7 +405,7 @@ const FeedRate = () => {
 	const RatePopup = ({
 		selectedPost,
 		setSelectedPost,
-		ratings,
+		// ratings,
 		setRatings,
 	}: {
 		selectedPost: string;
