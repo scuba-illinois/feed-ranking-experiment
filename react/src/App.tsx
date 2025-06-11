@@ -23,7 +23,7 @@ function FeedButtons({
 }) {
 	const [showLimitMsg, setShowLimitMsg] = useState<string | null>(null);
 
-	const FlagButton = ({
+	const SelectButton = ({
 		uuid,
 		height,
 		y,
@@ -88,7 +88,7 @@ function FeedButtons({
 		);
 	};
 
-	const UnflagButton = ({
+	const UnselectButton = ({
 		uuid,
 		height,
 		y,
@@ -127,9 +127,9 @@ function FeedButtons({
 
 	return feedData.map(({ y, height, uuid }) => {
 		if (!selectedPosts.includes(uuid)) {
-			return <FlagButton key={uuid} uuid={uuid} height={height} y={y} />;
+			return <SelectButton key={uuid} uuid={uuid} height={height} y={y} />;
 		} else {
-			return <UnflagButton key={uuid} uuid={uuid} height={height} y={y} />;
+			return <UnselectButton key={uuid} uuid={uuid} height={height} y={y} />;
 		}
 	});
 }
@@ -209,7 +209,7 @@ function Feed() {
 					most 3 posts from this feed that you would like to read more about.
 				</Body>
 				<Body>
-					Next to each post on the screenshot of the feed, there is a "Flag"
+					Next to each post on the screenshot of the feed, there is a "Select"
 					button to denote that you would like to read more about this post.
 				</Body>
 				<Body>
