@@ -9,6 +9,12 @@ import React from "react";
 
 const snapshots = ["2025-04-01T19:30:19Z"];
 
+const QUESTIONS = [
+	"This post is relevant to me.",
+	"This post is trustworthy.",
+	"This post is high quality.",
+];
+
 // TODO: Move this inside the Feed component.
 function FeedButtons({
 	feedData,
@@ -267,22 +273,20 @@ function Feed() {
 		</button>
 	);
 
-	const SelectionInfo = () => {
-		return (
-			<div className="flex justify-between items-center w-full">
-				<Body>
-					<b className="text-black">Time Remaining: </b>
-					{formatTime(timeLeft)}
-				</Body>
-				<Body>
-					<span>
-						<b className="text-black">Posts Selected:</b>{" "}
-						{selectedPosts.length.toLocaleString()}
-					</span>
-				</Body>
-			</div>
-		);
-	};
+	const SelectionInfo = () => (
+		<div className="flex justify-between items-center w-full">
+			<Body>
+				<b className="text-black">Time Remaining: </b>
+				{formatTime(timeLeft)}
+			</Body>
+			<Body>
+				<span>
+					<b className="text-black">Posts Selected:</b>{" "}
+					{selectedPosts.length.toLocaleString()}
+				</span>
+			</Body>
+		</div>
+	);
 
 	if (!feedData) {
 		return <Header>Loading Feed...</Header>;
@@ -364,11 +368,9 @@ const FeedRate = () => {
 	const RateButtons = ({
 		feedData,
 		selectedPosts,
-		// selectedPost,
 		setSelectedPost,
 		ratings,
-	}: // setRatings,
-	{
+	}: {
 		feedData: FeedData;
 		selectedPosts: string[];
 		selectedPost: string | null;
@@ -382,7 +384,22 @@ const FeedRate = () => {
 
 		return postInfo.map(({ uuid, y, height }) => {
 			if (ratings.hasOwnProperty(uuid)) {
-				return;
+				return (
+					<div
+						key={uuid}
+						className="absolute"
+						style={{ top: `${height / 2 + y - 20}px`, left: "492px" }}
+					>
+						<button
+							className="py-2 px-3 shadow-lg rounded-md text-sm bg-green-500 text-white hover:bg-green-600 transition-colors"
+							onClick={() => {
+								setSelectedPost(uuid);
+							}}
+						>
+							Edit
+						</button>
+					</div>
+				);
 			}
 
 			return (
@@ -407,7 +424,6 @@ const FeedRate = () => {
 	const RatePopup = ({
 		selectedPost,
 		setSelectedPost,
-		// ratings,
 		setRatings,
 	}: {
 		selectedPost: string;
@@ -415,16 +431,20 @@ const FeedRate = () => {
 		ratings: Record<string, object>;
 		setRatings: React.Dispatch<React.SetStateAction<Record<string, object>>>;
 	}) => {
-		const questions = [
-			"This post is relevant to me.",
-			"This post is trustworthy.",
-			"This post is high quality.",
-		];
+		const previousAnswers = ratings[selectedPost] as
+			| Record<string, number | null>
+			| undefined;
 
 		const [answers, setAnswers] = useState<Record<string, number | null>>({
-			"This post is relevant to me.": null,
-			"This post is trustworthy.": null,
-			"This post is high quality.": null,
+			"This post is relevant to me.": previousAnswers
+				? previousAnswers["This post is relevant to me."]
+				: null,
+			"This post is trustworthy.": previousAnswers
+				? previousAnswers["This post is trustworthy."]
+				: null,
+			"This post is high quality.": previousAnswers
+				? previousAnswers["This post is high quality."]
+				: null,
 		});
 
 		const isValid = () =>
@@ -439,29 +459,26 @@ const FeedRate = () => {
 		}) => (
 			<div key={index}>
 				<p>{question}</p>
-				<div className="flex flex-row gap-4 my-2 mx-4">
-					<span className="mr-4">Disagree</span>
+				<div className="flex flex-row gap-6 my-2 mx-4 items-start">
+					<span>Disagree</span>
 					{[1, 2, 3, 4, 5, 6, 7].map((value) => (
-						<React.Fragment key={value}>
-							{/* Using a fragment to avoid wrapping label in a div */}
-							<label>
-								<input
-									type="radio"
-									name={question}
-									value={value}
-									checked={answers[question] === value}
-									onChange={() => {
-										setAnswers((state) => ({
-											...state,
-											[question]: value,
-										}));
-									}}
-								/>
-							</label>
-							<span>{value}</span>
-						</React.Fragment>
+						<div key={value} className="flex items-center flex-col gap-2">
+							<input
+								type="radio"
+								name={question}
+								value={value}
+								checked={answers[question] === value}
+								onChange={() => {
+									setAnswers((state) => ({
+										...state,
+										[question]: value,
+									}));
+								}}
+							/>
+							<label>{value}</label>
+						</div>
 					))}
-					<span className="ml-4">Agree</span>
+					<span>Agree</span>
 				</div>
 			</div>
 		);
@@ -474,42 +491,38 @@ const FeedRate = () => {
 			/>
 		);
 
-		const SubmitButton = () => {
-			return (
-				<button
-					className={
-						"mt-4 py-2 px-4 " +
-						(isValid()
-							? "bg-blue-400 rounded hover:bg-blue-500"
-							: "bg-gray-200 rounded cursor-not-allowed")
-					}
-					onClick={() => {
-						setRatings((state) => ({
-							...state,
-							[selectedPost]: {
-								...answers,
-								timestamp: new Date().toISOString(),
-							},
-						}));
-						setSelectedPost(null);
-					}}
-					disabled={!isValid()}
-				>
-					Submit
-				</button>
-			);
-		};
+		const SubmitButton = () => (
+			<button
+				className={
+					"mt-4 py-2 px-4 " +
+					(isValid()
+						? "bg-blue-400 rounded hover:bg-blue-500"
+						: "bg-gray-200 rounded cursor-not-allowed")
+				}
+				onClick={() => {
+					setRatings((state) => ({
+						...state,
+						[selectedPost]: {
+							...answers,
+							timestamp: new Date().toISOString(),
+						},
+					}));
+					setSelectedPost(null);
+				}}
+				disabled={!isValid()}
+			>
+				Submit
+			</button>
+		);
 
-		const CloseButton = () => {
-			return (
-				<button
-					className="mt-4 py-2 px-4 bg-red-400 rounded hover:bg-red-500"
-					onClick={() => setSelectedPost(null)}
-				>
-					Close
-				</button>
-			);
-		};
+		const CloseButton = () => (
+			<button
+				className="mt-4 py-2 px-4 bg-red-400 rounded hover:bg-red-500"
+				onClick={() => setSelectedPost(null)}
+			>
+				Close
+			</button>
+		);
 
 		return (
 			<>
@@ -547,7 +560,7 @@ const FeedRate = () => {
 						</Body>
 						<PostPreview fileName={`${snapshots[0]}/${selectedPost}.png`} />
 						<div>
-							{questions.map((question, index) => (
+							{QUESTIONS.map((question, index) => (
 								<Question key={index} index={index} question={question} />
 							))}
 						</div>
