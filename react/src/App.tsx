@@ -199,79 +199,73 @@ function Feed() {
 		return () => clearInterval(timer);
 	}, [isVisible, timeLeft]);
 
-	const Directions = () => {
-		return (
-			<>
-				<Header>Directions</Header>
-				<Body>
-					Here, you will be shown a screenshot of Reddit's r/popular feed
-					containing 10 posts. You will have 2 minutes to browse and select at
-					most 3 posts from this feed that you would like to read more about.
-				</Body>
-				<Body>
-					Next to each post on the screenshot of the feed, there is a "Select"
-					button to denote that you would like to read more about this post.
-				</Body>
-				<Body>
-					To start, press the "Show Feed" button. The timer and feed will appear
-					below once to press the button.
-				</Body>
-			</>
-		);
-	};
+	const Directions = () => (
+		<>
+			<Header>Directions</Header>
+			<Body>
+				Here, you will be shown a screenshot of Reddit's r/popular feed
+				containing 10 posts. You will have 2 minutes to browse and select at
+				most 3 posts from this feed that you would like to read more about.
+			</Body>
+			<Body>
+				Next to each post on the screenshot of the feed, there is a "Select"
+				button to denote that you would like to read more about this post.
+			</Body>
+			<Body>
+				To start, press the "Show Feed" button. The timer and feed will appear
+				below once to press the button.
+			</Body>
+		</>
+	);
 
-	const ShowFeedButton = () => {
-		return (
-			<button
-				className={
-					"py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
-				}
-				onClick={() => {
-					setIsVisible(true);
-					setTimeLeft(TIMER_SETTING);
-					setLogs((state) => [
-						...state,
+	const ShowFeedButton = () => (
+		<button
+			className={
+				"py-2 px-3 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors"
+			}
+			onClick={() => {
+				setIsVisible(true);
+				setTimeLeft(TIMER_SETTING);
+				setLogs((state) => [
+					...state,
+					{
+						timestamp: new Date().toISOString(),
+						action: "START",
+						uuid: "",
+					},
+				]);
+			}}
+		>
+			Show Feed
+		</button>
+	);
+
+	const CompleteSelectionButton = () => (
+		<button
+			className={
+				"py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors" +
+				(selectedPosts.length < 1 ? " opacity-50 cursor-not-allowed" : "")
+			}
+			onClick={() => {
+				setPhase("rate");
+				setData((state: object) => ({
+					...state,
+					selectedPosts: selectedPosts,
+					logs: [
+						...logs,
 						{
 							timestamp: new Date().toISOString(),
-							action: "START",
+							action: "END",
 							uuid: "",
 						},
-					]);
-				}}
-			>
-				Show Feed
-			</button>
-		);
-	};
-
-	const CompleteSelectionButton = () => {
-		return (
-			<button
-				className={
-					"py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors" +
-					(selectedPosts.length < 3 ? " opacity-50 cursor-not-allowed" : "")
-				}
-				onClick={() => {
-					setPhase("rate");
-					setData((state: object) => ({
-						...state,
-						selectedPosts: selectedPosts,
-						logs: [
-							...logs,
-							{
-								timestamp: new Date().toISOString(),
-								action: "END",
-								uuid: "",
-							},
-						],
-					}));
-				}}
-				disabled={selectedPosts.length < 3}
-			>
-				Continue
-			</button>
-		);
-	};
+					],
+				}));
+			}}
+			disabled={selectedPosts.length < 1}
+		>
+			Continue
+		</button>
+	);
 
 	const SelectionInfo = () => {
 		return (
@@ -578,12 +572,14 @@ const FeedRate = () => {
 					<Directions />
 					<Body>
 						<b className="text-black">Posts Rated:</b>{" "}
-						{Object.keys(ratings).length} / 3
+						{Object.keys(ratings).length} /{" "}
+						{(data as { selectedPosts: string[] }).selectedPosts.length}
 					</Body>
 					<button
 						className={
 							"py-2 px-3 mt-4 shadow-lg rounded-md text-[10pt] bg-blue-500 text-white hover:bg-blue-600 transition-colors" +
-							(Object.keys(ratings).length < 3
+							(Object.keys(ratings).length <
+							(data as { selectedPosts: string[] }).selectedPosts.length
 								? " opacity-50 cursor-not-allowed"
 								: "")
 						}
@@ -594,7 +590,10 @@ const FeedRate = () => {
 							}));
 							setPhase("end");
 						}}
-						disabled={Object.keys(ratings).length < 3}
+						disabled={
+							Object.keys(ratings).length <
+							(data as { selectedPosts: string[] }).selectedPosts.length
+						}
 					>
 						Continue
 					</button>
