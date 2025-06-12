@@ -211,7 +211,8 @@ function Feed() {
 			<Body>
 				Here, you will be shown a screenshot of Reddit's r/popular feed
 				containing 10 posts. You will have 2 minutes to browse and select at
-				most 3 posts from this feed that you would like to read more about.
+				most 3 posts from this feed that you would like to read more about if
+				you had the chance.
 			</Body>
 			<Body>
 				Next to each post on the screenshot of the feed, there is a "Select"
@@ -219,7 +220,11 @@ function Feed() {
 			</Body>
 			<Body>
 				To start, press the "Show Feed" button. The timer and feed will appear
-				below once to press the button.
+				below once you press the button.
+			</Body>
+			<Body>
+				Once you have selected the posts you are interested in, please hit
+				'Continue'.
 			</Body>
 		</>
 	);
@@ -540,7 +545,6 @@ const FeedRate = () => {
 						justifyContent: "center",
 						direction: "ltr",
 					}}
-					// onClick={() => setRatePost(null)} // BUG: Clicking inside the form also closes the popup.
 				>
 					<div
 						style={{
@@ -555,7 +559,7 @@ const FeedRate = () => {
 					>
 						<Header>Selected Post</Header>
 						<Body>
-							We see that you selected this post from the feed and want to
+							We see that you selected this post from the feed and wanted to
 							understand what you think about the post based on its preview.
 						</Body>
 						<PostPreview fileName={`${snapshots[0]}/${selectedPost}.png`} />
@@ -647,9 +651,22 @@ const FeedRate = () => {
 function App() {
 	const [data, setData] = useState<object>({});
 	const [phase, setPhase] = useState("start");
+	const [participantID, setParticipantID] = useState<string | null>(null);
+	const [consentTimestamp, setConsentTimestamp] = useState<string | null>(null);
 
 	return (
-		<SurveyContext.Provider value={{ data, setData, phase, setPhase }}>
+		<SurveyContext.Provider
+			value={{
+				data,
+				setData,
+				phase,
+				setPhase,
+				participantID,
+				setParticipantID,
+				consentTimestamp,
+				setConsentTimestamp,
+			}}
+		>
 			{phase === "start" && <Intro />}
 			{phase === "feed" && <Feed />}
 			{phase === "rate" && <FeedRate />}

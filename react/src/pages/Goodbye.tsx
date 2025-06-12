@@ -3,7 +3,13 @@ import { SurveyContext } from "../contexts";
 import { Body, Header } from "../components/general";
 
 export default function Goodbye() {
-	const { data } = useContext(SurveyContext);
+	const { participantID, consentTimestamp, data } = useContext(SurveyContext);
+
+	const jsonData = {
+		participantID: participantID,
+		consentTimestamp: consentTimestamp,
+		...data,
+	};
 
 	return (
 		<div className="p-4 flex flex-col items-center justify-center min-h-screen">
@@ -17,13 +23,13 @@ export default function Goodbye() {
 				<div className="relative">
 					<textarea
 						className="h-50 w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
-						value={JSON.stringify(data, null, 2)}
+						value={JSON.stringify(jsonData, null, 2)}
 						readOnly
 					/>
 					<button
 						className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
 						onClick={() =>
-							navigator.clipboard.writeText(JSON.stringify(data, null, 2))
+							navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2))
 						}
 					>
 						Copy
