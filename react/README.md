@@ -19,7 +19,7 @@ These just get the version numbers for each.
 
 ### Installing Dependencies
 
-Go to the `./react/` directory and run `npm run install`. Running this command should react a `./react/node_modules/` directory that has all the dependencies required to run this project locally.
+Go to the `./react/` directory and run `npm install`. Running this command should react a `./react/node_modules/` directory that has all the dependencies required to run this project locally.
 
 ### Deploy Locally
 
