@@ -224,7 +224,7 @@ export default function Intro() {
 
 						setConsentTimestamp(new Date().toISOString());
 
-						setPhase("feed");
+						setPhase("FEED");
 					}}
 				>
 					<input

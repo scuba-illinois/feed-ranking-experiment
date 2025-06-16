@@ -3,12 +3,15 @@ import { SurveyContext } from "../contexts";
 import { Body, Header } from "../components/general";
 
 export default function Goodbye() {
-	const { participantID, consentTimestamp, data } = useContext(SurveyContext);
+	const { participantID, consentTimestamp, answers, feeds, rotations } =
+		useContext(SurveyContext);
 
 	const jsonData = {
 		participantID: participantID,
+		feeds: feeds,
+		rotations: rotations,
 		consentTimestamp: consentTimestamp,
-		...data,
+		answers: answers,
 	};
 
 	return (

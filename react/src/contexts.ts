@@ -1,22 +1,32 @@
 import { createContext } from "react";
+import { Answers, Phase } from "./types";
 
 export const SurveyContext = createContext<{
 	data: object;
-	setData: (data: object) => void;
+	setData: React.Dispatch<React.SetStateAction<object>>;
 
-	phase: string;
-	setPhase: (phase: string) => void;
+	phase: Phase;
+	setPhase: React.Dispatch<React.SetStateAction<Phase>>;
 
 	participantID: string | null;
-	setParticipantID: (id: string | null) => void;
+	setParticipantID: React.Dispatch<React.SetStateAction<string | null>>;
 
 	consentTimestamp: string | null;
-	setConsentTimestamp: (timestamp: string | null) => void;
+	setConsentTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
+
+	feeds: string[];
+	setFeeds: React.Dispatch<React.SetStateAction<string[]>>;
+
+	rotations: number[];
+	setRotations: React.Dispatch<React.SetStateAction<number[]>>;
+
+	answers: Answers;
+	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
 }>({
 	data: {},
 	setData: () => {},
 
-	phase: "start",
+	phase: "CONSENT",
 	setPhase: () => {},
 
 	participantID: null,
@@ -24,4 +34,13 @@ export const SurveyContext = createContext<{
 
 	consentTimestamp: null,
 	setConsentTimestamp: () => {},
+
+	feeds: [],
+	setFeeds: () => {},
+
+	rotations: [],
+	setRotations: () => {},
+
+	answers: {},
+	setAnswers: () => {},
 });

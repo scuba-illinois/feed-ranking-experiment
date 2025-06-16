@@ -1,85 +1,15 @@
-export const phases = [
-	"intro",
-	"instructions",
-	"phase1",
-	"instructions-2",
-	"phase2",
-	"transition",
-	"phase3",
-	"exit-questionnaire",
-	"exit",
-] as const;
+export type Phase =
+	| "CONSENT"
+	| "SCREENERS"
+	| "FEED"
+	| "FEEDRATING"
+	| "EXITQUESTIONNAIRE"
+	| "GOODBYE";
 
-export type Phases = (typeof phases)[number];
-
-export const actions = [
-	"share",
-	"like",
-	"comment",
-	"read more",
-	"ignore",
-] as const;
-
-export type Actions = (typeof actions)[number];
-
-export const likertQuestions = [
-	"This post is relevant to me.",
-	"This post is trustworthy.",
-	"This post is high quality.",
-];
-
-export type LikertQuestion = (typeof likertQuestions)[number];
-
-// export const likertOptions = [
-// 	"Strongly Disagree",
-// 	"Disagree",
-// 	"Somewhat Disagree",
-// 	"Neutral",
-// 	"Somewhat Agree",
-// 	"Agree",
-// 	"Strongly Agree",
-// ] as const
-//
-export const likertOptions = [1, 2, 3, 4, 5, 6, 7] as const;
-
-export type LikertOption = (typeof likertOptions)[number];
-
-export type Post = {
-	uuid: string;
-	rank: number;
-	source: string;
-	type: "text" | "image" | "video" | "link";
-	subreddit: string;
-	title: string;
-	author: string;
-	upvotes: number;
-	comments: number;
-	body?: string;
-	images?: string[];
-	videoLink?: string;
-	link?: string;
-	linkThumbnail?: string;
-};
-
-export type Response = {
-	actions: string[];
-	likert: Record<LikertQuestion, LikertOption>;
-	overallQuality: 1 | 2 | 3 | 4 | 5 | 6 | 7 | null;
-};
-
-export type InitialPhase = {
-	responses: Partial<Record<1 | 2 | 3 | 4 | 5, Response>>;
-} | null;
-
-export type FeedPhase = {
-	responses: Partial<Record<1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10, Response>>;
-} | null;
-
-export type Survey = {
-	participant: string;
-	Phase1: InitialPhase;
-	Phase2: FeedPhase;
-	Phase3: FeedPhase;
+export type QuestionAnswers = {
+	"This post is relevant to me": number;
+	"This post is interesting": number;
+	"This post is informative": number;
 };
 
 export type FeedData = {
@@ -90,8 +20,27 @@ export type FeedData = {
 	y: number;
 }[];
 
-export type Logs = {
+export type SelectionLogs = {
 	timestamp: string;
 	action: "START" | "SELECT" | "DESELECT" | "END";
 	uuid: string;
 }[];
+
+export type RatingLogs = {
+	timestamp: string;
+	action: "RATE" | "SUBMIT" | "OPEN" | "EDIT";
+	uuid: string;
+	question?: string;
+	rating?: number;
+}[];
+
+export type Answers = Record<
+	string,
+	{
+		selectedPosts?: string[];
+		nonSelectedPosts?: string[]; // The posts that were not selected by the participant, but still rated.
+		selectionLogs?: SelectionLogs;
+		ratings?: Record<string, QuestionAnswers>;
+		ratingLogs?: RatingLogs;
+	}
+>;
