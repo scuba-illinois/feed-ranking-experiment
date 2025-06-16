@@ -138,7 +138,7 @@ const RateButtons = ({
 				<Button
 					key={uuid}
 					uuid={uuid}
-					color="green"
+					color="blue"
 					label="Edit"
 					top={height / 2 + y - 20}
 					left={492}
