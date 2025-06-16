@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { SurveyContext } from "./contexts";
 import Goodbye from "./pages/Goodbye";
 import Intro from "./pages/Intro";
