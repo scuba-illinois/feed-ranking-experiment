@@ -108,7 +108,7 @@ const RateButtons = ({
 		left,
 	}: {
 		uuid: string;
-		color: string;
+		color: "blue" | "green";
 		label: string;
 		top: number;
 		left: number;
@@ -121,12 +121,22 @@ const RateButtons = ({
 					left: `${left}px`,
 				}}
 			>
-				<button
-					className={`py-2 px-3 shadow-lg rounded-md text-sm bg-${color}-500 text-white hover:bg-${color}-600 transition-colors`}
-					onClick={() => setSelectedPost(uuid)}
-				>
-					{label}
-				</button>
+				{color === "blue" && (
+					<button
+						className="py-2 px-3 shadow-lg rounded-md text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+						onClick={() => setSelectedPost(uuid)}
+					>
+						{label}
+					</button>
+				)}
+				{color === "green" && (
+					<button
+						className="py-2 px-3 shadow-lg rounded-md text-sm text-white bg-green-500 hover:bg-green-600 transition-colors"
+						onClick={() => setSelectedPost(uuid)}
+					>
+						{label}
+					</button>
+				)}
 			</div>
 		);
 	};
@@ -138,7 +148,7 @@ const RateButtons = ({
 				<Button
 					key={uuid}
 					uuid={uuid}
-					color="blue"
+					color="green"
 					label="Edit"
 					top={height / 2 + y - 20}
 					left={492}
