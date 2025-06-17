@@ -242,7 +242,11 @@ const ContinueButton = ({
 	logs: SelectionLogs;
 	timeExpired: boolean;
 }) => {
-	const { setPhase, setAnswers, feeds } = useContext(SurveyContext);
+	const { setPhase, setAnswers, feeds, completedFeeds } =
+		useContext(SurveyContext);
+
+	// Figure out which feed you're on so you can save the answers correctly.
+	const feedUUID = feeds[completedFeeds.length];
 
 	const isDisabled = selectedPosts.length < 1 && !timeExpired;
 
@@ -251,7 +255,7 @@ const ContinueButton = ({
 
 		setAnswers((state) => ({
 			...state,
-			[feeds[0]]: {
+			[feedUUID]: {
 				selectedPosts: selectedPosts,
 				selectionLogs: logs,
 			},
@@ -273,11 +277,14 @@ const ContinueButton = ({
 };
 
 export const FeedSelect = () => {
-	const { feeds, rotations } = useContext(SurveyContext);
+	const { feeds, rotations, completedFeeds } = useContext(SurveyContext);
 
-	const fileName = `${feeds[0]}/rotation-${rotations[0]}.png`;
+	const feedUUID = feeds[completedFeeds.length];
+	const rotation = rotations[completedFeeds.length];
 
-	const TIMER_SETTING = 10; // Number of seconds.
+	const fileName = `${feedUUID}/rotation-${rotation}.png`;
+
+	const TIMER_SETTING = 120; // Number of seconds.
 
 	const [isVisible, setIsVisible] = useState(false);
 	const [timeLeft, setTimeLeft] = useState(0);
@@ -288,7 +295,7 @@ export const FeedSelect = () => {
 
 	// Retrieve the JSON describing the image.
 	useEffect(() => {
-		fetch(`${feeds[0]}/rotation-${rotations[0]}.json`, {
+		fetch(`${feedUUID}/rotation-${rotation}.json`, {
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",

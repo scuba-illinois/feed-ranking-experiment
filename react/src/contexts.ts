@@ -22,6 +22,8 @@ export const SurveyContext = createContext<{
 
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
+
+	// TODO: Add a completion timestamp.
 }>({
 	phase: "CONSENT",
 	setPhase: () => {},

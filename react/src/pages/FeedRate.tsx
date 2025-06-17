@@ -55,10 +55,19 @@ const ContinueButton = ({
 	ratings: Record<string, QuestionAnswers>;
 	logs: RatingLogs;
 }) => {
-	const { setPhase, answers, setAnswers, feeds } = useContext(SurveyContext);
+	const {
+		setPhase,
+		answers,
+		setAnswers,
+		feeds,
+		completedFeeds,
+		setCompletedFeeds,
+	} = useContext(SurveyContext);
 
-	const numSelected = answers[feeds[0]]?.selectedPosts?.length || 0;
-	const numNonSelected = answers[feeds[0]]?.nonSelectedPosts?.length || 0;
+	const feedUUID = feeds[completedFeeds.length];
+
+	const numSelected = answers[feedUUID]?.selectedPosts?.length || 0;
+	const numNonSelected = answers[feedUUID]?.nonSelectedPosts?.length || 0;
 
 	const disabled = Object.keys(ratings).length !== numSelected + numNonSelected;
 
@@ -71,15 +80,23 @@ const ContinueButton = ({
 			onClick={() => {
 				setAnswers((state) => ({
 					...state,
-					[feeds[0]]: {
-						...state[feeds[0]],
+					[feedUUID]: {
+						...state[feedUUID],
 						ratings: ratings,
 						ratingLogs: logs,
 					},
 				}));
 
-				// TODO: Implement exit questionnaire phase.
-				setPhase("GOODBYE");
+				// Add the feed UUID to the completed list of feeds.
+				setCompletedFeeds((state) => [...state, feedUUID]);
+
+				// If there are no more feeds to rate, conclude the survey.
+				if (feeds.length !== completedFeeds.length + 1) {
+					// TODO: Change to exit questionnaire.
+					setPhase("FEED");
+				} else {
+					setPhase("GOODBYE");
+				}
 			}}
 			disabled={disabled}
 		>
@@ -102,27 +119,30 @@ const RateButtons = ({
 	setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 }) => {
-	const { answers, setAnswers, feeds } = useContext(SurveyContext);
+	const { answers, setAnswers, feeds, completedFeeds } =
+		useContext(SurveyContext);
+
+	const feedUUID = feeds[completedFeeds.length];
 
 	const selectedPostData = feedData.filter((post) =>
-		answers[feeds[0]].selectedPosts?.includes(post.uuid)
+		answers[feedUUID].selectedPosts?.includes(post.uuid)
 	);
-	const nonSelectedPosts = answers[feeds[0]].nonSelectedPosts || [];
+	const nonSelectedPosts = answers[feedUUID].nonSelectedPosts || [];
 	const nonSelectedPostsData = feedData.filter(({ uuid }) =>
 		nonSelectedPosts.includes(uuid)
 	);
 
 	useEffect(() => {
 		const allNonSelectedPosts = feedData
-			.filter(({ uuid }) => !answers[feeds[0]].selectedPosts?.includes(uuid))
+			.filter(({ uuid }) => !answers[feedUUID].selectedPosts?.includes(uuid))
 			.map(({ uuid }) => uuid);
 
-		const nonSelectedPosts = pickRandomItems(allNonSelectedPosts, 3);
+		const nonSelectedPosts = pickRandomItems(allNonSelectedPosts, 0); // TODO: Change this back to three.
 
 		setAnswers((state) => ({
 			...state,
-			[feeds[0]]: {
-				...state[feeds[0]],
+			[feedUUID]: {
+				...state[feedUUID],
 				nonSelectedPosts: nonSelectedPosts,
 			},
 		}));
@@ -235,7 +255,9 @@ const RatingPopup = ({
 	>;
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 }) => {
-	const { feeds } = useContext(SurveyContext);
+	const { feeds, completedFeeds } = useContext(SurveyContext);
+
+	const feedUUID = feeds[completedFeeds.length];
 
 	const previousAnswers = ratings[selectedPost];
 
@@ -295,34 +317,36 @@ const RatingPopup = ({
 		/>
 	);
 
-	const SubmitButton = () => (
-		<button
-			className={
-				"mt-4 py-2 px-4 rounded " +
-				(isValid()
-					? "bg-blue-400 hover:bg-blue-500"
-					: "bg-gray-200 cursor-not-allowed")
-			}
-			disabled={!isValid()}
-			onClick={() => {
-				setRatings((state) => ({
-					...state,
-					[selectedPost]: { ...answers },
-				}));
-				setSelectedPost(null);
-				setLogs((state) => [
-					...state,
-					{
-						timestamp: new Date().toISOString(),
-						action: "SUBMIT",
-						uuid: selectedPost,
-					},
-				]);
-			}}
-		>
-			Submit
-		</button>
-	);
+	const SubmitButton = () => {
+		return (
+			<button
+				className={
+					"mt-4 py-2 px-4 rounded " +
+					(isValid()
+						? "bg-blue-400 hover:bg-blue-500"
+						: "bg-gray-200 cursor-not-allowed")
+				}
+				disabled={!isValid()}
+				onClick={() => {
+					setRatings((state) => ({
+						...state,
+						[selectedPost]: { ...answers },
+					}));
+					setSelectedPost(null);
+					setLogs((state) => [
+						...state,
+						{
+							timestamp: new Date().toISOString(),
+							action: "SUBMIT",
+							uuid: selectedPost,
+						},
+					]);
+				}}
+			>
+				Submit
+			</button>
+		);
+	};
 
 	const CloseButton = () => (
 		<button
@@ -375,7 +399,7 @@ const RatingPopup = ({
 					We see that you selected this post from the feed and wanted to
 					understand what you think about the post based on its preview.
 				</Body>
-				<PostPreview fileName={`${feeds[0]}/${selectedPost}.png`} />
+				<PostPreview fileName={`${feedUUID}/${selectedPost}.png`} />
 				<div>
 					{(Object.keys(answers) as Array<keyof QuestionAnswers>).map(
 						(question) => (
@@ -393,7 +417,13 @@ const RatingPopup = ({
 };
 
 export const FeedRate = () => {
-	const { feeds, rotations } = useContext(SurveyContext);
+	const { feeds, rotations, completedFeeds } = useContext(SurveyContext);
+
+	// Figure out which feed and rotation we are currently on.
+	const feedUUID = feeds[completedFeeds.length];
+	const rotation = rotations[completedFeeds.length];
+
+	// Used for the boundaries of the post.
 	const [feedData, setFeedData] = useState<FeedData | null>(null);
 
 	// Local rating state, once all questions are answered, it will be saved to the context.
@@ -403,10 +433,10 @@ export const FeedRate = () => {
 	// Used to track which post is being rated.
 	const [_selectedPost, _setSelectedPost] = useState<string | null>(null);
 
-	const fileName = `${feeds[0]}/rotation-${rotations[0]}.png`;
+	const fileName = `${feedUUID}/rotation-${rotation}.png`;
 
 	useEffect(() => {
-		fetch(`${feeds[0]}/rotation-${rotations[0]}.json`, {
+		fetch(`${feedUUID}/rotation-${rotation}.json`, {
 			headers: {
 				"Content-Type": "application/json",
 				Accept: "application/json",

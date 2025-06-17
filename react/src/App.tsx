@@ -14,9 +14,10 @@ function App() {
 	const [consentTimestamp, setConsentTimestamp] = useState<string | null>(null);
 	const [feeds, setFeeds] = useState<string[]>([
 		"5c18c574-32db-4028-b4ea-40e949ff81ba",
+		"36a937d7-4fc4-4cbf-8705-83776c112078",
 	]);
 	const [completedFeeds, setCompletedFeeds] = useState<string[]>([]);
-	const [rotations, setRotations] = useState<number[]>([7]);
+	const [rotations, setRotations] = useState<number[]>([7, 2]);
 	const [answers, setAnswers] = useState<Answers>({});
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
