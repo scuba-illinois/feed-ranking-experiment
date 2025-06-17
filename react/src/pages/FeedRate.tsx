@@ -312,7 +312,7 @@ const RatingPopup = ({
 	);
 };
 
-export const FeeedRate = () => {
+export const FeedRate = () => {
 	// @ts-ignore
 	const { feeds, rotations, setPhase } = useContext(SurveyContext);
 	const [feedData, setFeedData] = useState<FeedData | null>(null);

@@ -6,7 +6,7 @@ import { Phase, Answers } from "./types";
 import { Screeners } from "./pages/Screeners";
 import { ExitQuestionnaire } from "./pages/ExitQuestionnaire";
 import { FeedSelect } from "./pages/FeedSelect";
-import { FeeedRate } from "./pages/FeedRate";
+import { FeedRate } from "./pages/FeedRate";
 
 function App() {
 	const [data, setData] = useState<object>({});
@@ -44,9 +44,7 @@ function App() {
 			{phase === "CONSENT" && <Intro />}
 			{phase === "SCREENERS" && <Screeners />}
 			{phase === "FEED" && <FeedSelect />}
-			{/* {phase === "FEEDRATING" && <FeedRate />} */}
-			{/* TODO: Rename this later. */}
-			{phase === "FEEDRATING" && <FeeedRate />}
+			{phase === "FEEDRATING" && <FeedRate />}
 			{phase === "EXITQUESTIONNAIRE" && <ExitQuestionnaire />}
 			{phase === "GOODBYE" && <Goodbye />}
 		</SurveyContext.Provider>
