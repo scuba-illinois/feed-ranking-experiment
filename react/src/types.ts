@@ -22,7 +22,7 @@ export type FeedData = {
 
 export type SelectionLogs = {
 	timestamp: string;
-	action: "START" | "SELECT" | "DESELECT" | "END";
+	action: "START" | "SELECT" | "UNSELECT" | "END";
 	uuid: string;
 }[];
 

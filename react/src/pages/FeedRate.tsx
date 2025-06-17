@@ -220,7 +220,7 @@ const RateButtons = ({
 						color="green"
 						label="Edit"
 						top={height / 2 + y - 20}
-						left={492}
+						left={495}
 					/>
 				);
 			}
@@ -233,7 +233,7 @@ const RateButtons = ({
 					color="blue"
 					label="Rate"
 					top={height / 2 + y - 20}
-					left={490}
+					left={492}
 				/>
 			);
 		}

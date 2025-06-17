@@ -4,29 +4,36 @@ import { FeedData, SelectionLogs } from "../types";
 import { Body, Header } from "../components/general";
 import { formatTime } from "../utils";
 
-const Directions = () => (
-	<div className="flex flex-col gap-2 mb-2">
-		<Header>Directions</Header>
-		<Body>
-			Here, you will be shown a screenshot of Reddit's r/popular feed containing
-			10 posts. You will have 2 minutes to browse and select at most 3 posts
-			from this feed that you would like to read more about if you had the
-			chance.
-		</Body>
-		<Body>
-			Next to each post on the screenshot of the feed, there is a "Select"
-			button to denote that you would like to read more about this post.
-		</Body>
-		<Body>
-			To start, press the "Show Feed" button. The timer and feed will appear
-			below once you press the button.
-		</Body>
-		<Body>
-			Once you have selected the posts you are interested in, please hit
-			'Continue'.
-		</Body>
-	</div>
-);
+const Directions = () => {
+	const { feeds, completedFeeds } = useContext(SurveyContext);
+
+	return (
+		<div className="flex flex-col gap-2 mb-2">
+			<Header>
+				Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+				{feeds.length.toLocaleString()})
+			</Header>
+			<Body>
+				Here, you will be shown a screenshot of Reddit's r/popular feed
+				containing 10 posts. You will have 2 minutes to browse and select at
+				most 3 posts from this feed that you would like to read more about if
+				you had the chance.
+			</Body>
+			<Body>
+				Next to each post on the screenshot of the feed, there is a "Select"
+				button to denote that you would like to read more about this post.
+			</Body>
+			<Body>
+				To start, press the "Show Feed" button. The timer and feed will appear
+				below once you press the button.
+			</Body>
+			<Body>
+				Once you have selected the posts you are interested in, please hit
+				'Continue'.
+			</Body>
+		</div>
+	);
+};
 
 const ShowFeedButton = ({
 	setIsVisible,
@@ -38,7 +45,7 @@ const ShowFeedButton = ({
 	TIMER_SETTING: number;
 }) => (
 	<button
-		className="py-2 px-3 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+		className="py-2 px-3 mt-1 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
 		onClick={() => {
 			setIsVisible(true);
 			setTimeLeft(TIMER_SETTING);
@@ -105,7 +112,7 @@ const SelectButton = ({
 		<div
 			style={{
 				position: "absolute",
-				left: `${485 + 55}px`, // MAGIC NUMBER
+				left: `${485}px`, // MAGIC NUMBER
 				top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 			}}
 		>
@@ -152,7 +159,7 @@ const UnselectButton = ({
 			...state,
 			{
 				timestamp: new Date().toISOString(),
-				action: "DESELECT",
+				action: "UNSELECT",
 				uuid: uuid,
 			},
 		]);
@@ -163,7 +170,7 @@ const UnselectButton = ({
 			className="py-2 px-3 shadow-lg rounded-md text-[10pt] text-white bg-red-500 hover:bg-red-600 transition-colors"
 			style={{
 				position: "absolute",
-				left: `${485 + 55}px`, // MAGIC NUMBER
+				left: `${477}px`, // MAGIC NUMBER
 				top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 			}}
 			onClick={handleUnselect}
