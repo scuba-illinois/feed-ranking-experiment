@@ -3,6 +3,7 @@ import { SurveyContext } from "../contexts";
 import { FeedData, QuestionAnswers } from "../types";
 import { Body, Header } from "../components/general";
 import { FeedView } from "./FeedSelect";
+import { pickRandomItems } from "../utils";
 
 const Directions = () => {
 	return (
@@ -36,12 +37,13 @@ const Status = ({
 	const { answers, feeds } = useContext(SurveyContext);
 
 	const selectedPosts = answers[feeds[0]]?.selectedPosts || [];
+	const nonSelectedPosts = answers[feeds[0]]?.nonSelectedPosts || [];
 
 	return (
 		<Body>
 			<b className="text-black">Posts Rated: </b>{" "}
 			{Object.keys(ratings).length.toLocaleString()} /{" "}
-			{selectedPosts.length.toLocaleString()}
+			{(selectedPosts.length + nonSelectedPosts.length).toLocaleString()}
 		</Body>
 	);
 };
@@ -54,8 +56,9 @@ const ContinueButton = ({
 	const { setPhase, answers, setAnswers, feeds } = useContext(SurveyContext);
 
 	const numSelected = answers[feeds[0]]?.selectedPosts?.length || 0;
+	const numNonSelected = answers[feeds[0]]?.nonSelectedPosts?.length || 0;
 
-	const disabled = Object.keys(ratings).length !== numSelected;
+	const disabled = Object.keys(ratings).length !== numSelected + numNonSelected;
 
 	return (
 		<button
@@ -94,11 +97,31 @@ const RateButtons = ({
 	>;
 	setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
 }) => {
-	const { answers, feeds } = useContext(SurveyContext);
+	const { answers, setAnswers, feeds } = useContext(SurveyContext);
 
 	const selectedPostData = feedData.filter((post) =>
 		answers[feeds[0]].selectedPosts?.includes(post.uuid)
 	);
+	const nonSelectedPosts = answers[feeds[0]].nonSelectedPosts || [];
+	const nonSelectedPostsData = feedData.filter(({ uuid }) =>
+		nonSelectedPosts.includes(uuid)
+	);
+
+	useEffect(() => {
+		const allNonSelectedPosts = feedData
+			.filter(({ uuid }) => !answers[feeds[0]].selectedPosts?.includes(uuid))
+			.map(({ uuid }) => uuid);
+
+		const nonSelectedPosts = pickRandomItems(allNonSelectedPosts, 3);
+
+		setAnswers((state) => ({
+			...state,
+			[feeds[0]]: {
+				...state[feeds[0]],
+				nonSelectedPosts: nonSelectedPosts,
+			},
+		}));
+	}, []);
 
 	const Button = ({
 		uuid,
@@ -141,33 +164,35 @@ const RateButtons = ({
 		);
 	};
 
-	return selectedPostData.map(({ uuid, y, height }) => {
-		// Check if the post has already been rated. If so, render an edit button.
-		if (ratings.hasOwnProperty(uuid)) {
+	return [...selectedPostData, ...nonSelectedPostsData].map(
+		({ uuid, y, height }) => {
+			// Check if the post has already been rated. If so, render an edit button.
+			if (ratings.hasOwnProperty(uuid)) {
+				return (
+					<Button
+						key={uuid}
+						uuid={uuid}
+						color="green"
+						label="Edit"
+						top={height / 2 + y - 20}
+						left={492}
+					/>
+				);
+			}
+
+			// If the post has not been rated yet, render a rate button.
 			return (
 				<Button
 					key={uuid}
 					uuid={uuid}
-					color="green"
-					label="Edit"
+					color="blue"
+					label="Rate"
 					top={height / 2 + y - 20}
-					left={492}
+					left={490}
 				/>
 			);
 		}
-
-		// If the post has not been rated yet, render a rate button.
-		return (
-			<Button
-				key={uuid}
-				uuid={uuid}
-				color="blue"
-				label="Rate"
-				top={height / 2 + y - 20}
-				left={490}
-			/>
-		);
-	});
+	);
 };
 
 const RatingPopup = ({
@@ -200,9 +225,9 @@ const RatingPopup = ({
 
 	const Question = ({ question }: { question: keyof QuestionAnswers }) => (
 		<div>
-			<p>{question}</p>
+			<Body>{question}</Body>
 			<div className="flex flex-row gap-6 my-2 mx-4 items-start">
-				<span>Disagree</span>
+				<Body>Disagree</Body>
 				{[1, 2, 3, 4, 5, 6, 7].map((value) => (
 					<div key={value} className="flex items-center flex-col gap-2">
 						<input
@@ -217,10 +242,10 @@ const RatingPopup = ({
 								}))
 							}
 						/>
-						<label>{value}</label>
+						<Body>{value}</Body>
 					</div>
 				))}
-				<span>Agree</span>
+				<Body>Agree</Body>
 			</div>
 		</div>
 	);
@@ -313,8 +338,7 @@ const RatingPopup = ({
 };
 
 export const FeedRate = () => {
-	// @ts-ignore
-	const { feeds, rotations, setPhase } = useContext(SurveyContext);
+	const { feeds, rotations, setAnswers } = useContext(SurveyContext);
 	const [feedData, setFeedData] = useState<FeedData | null>(null);
 
 	// Local rating state, once all questions are answered, it will be saved to the context.

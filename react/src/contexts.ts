@@ -2,9 +2,6 @@ import { createContext } from "react";
 import { Answers, Phase } from "./types";
 
 export const SurveyContext = createContext<{
-	data: object;
-	setData: React.Dispatch<React.SetStateAction<object>>;
-
 	phase: Phase;
 	setPhase: React.Dispatch<React.SetStateAction<Phase>>;
 
@@ -17,15 +14,15 @@ export const SurveyContext = createContext<{
 	feeds: string[];
 	setFeeds: React.Dispatch<React.SetStateAction<string[]>>;
 
+	completedFeeds: string[];
+	setCompletedFeeds: React.Dispatch<React.SetStateAction<string[]>>;
+
 	rotations: number[];
 	setRotations: React.Dispatch<React.SetStateAction<number[]>>;
 
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
 }>({
-	data: {},
-	setData: () => {},
-
 	phase: "CONSENT",
 	setPhase: () => {},
 
@@ -37,6 +34,9 @@ export const SurveyContext = createContext<{
 
 	feeds: [],
 	setFeeds: () => {},
+
+	completedFeeds: [],
+	setCompletedFeeds: () => {},
 
 	rotations: [],
 	setRotations: () => {},

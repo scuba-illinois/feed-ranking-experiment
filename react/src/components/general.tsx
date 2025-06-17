@@ -4,8 +4,14 @@ export function Header({ children }: { children: ReactNode }) {
 	return <h2 className="font-bold text-[12pt]">{children}</h2>;
 }
 
-export function Body({ children }: { children: ReactNode }) {
-	return <p className="text-gray-600 text-[10pt]">{children}</p>;
+export function Body({
+	children,
+	className,
+}: {
+	children: ReactNode;
+	className?: string;
+}) {
+	return <p className={`text-gray-600 text-[10pt] ${className}`}>{children}</p>;
 }
 
 export function Button({

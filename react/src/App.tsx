@@ -9,12 +9,14 @@ import { FeedSelect } from "./pages/FeedSelect";
 import { FeedRate } from "./pages/FeedRate";
 
 function App() {
-	const [data, setData] = useState<object>({});
 	const [phase, setPhase] = useState<Phase>("CONSENT");
 	const [participantID, setParticipantID] = useState<string | null>(null);
 	const [consentTimestamp, setConsentTimestamp] = useState<string | null>(null);
-	const [feeds, setFeeds] = useState<string[]>(["2025-04-01T19:30:19Z"]);
-	const [rotations, setRotations] = useState<number[]>([1]);
+	const [feeds, setFeeds] = useState<string[]>([
+		"5c18c574-32db-4028-b4ea-40e949ff81ba",
+	]);
+	const [completedFeeds, setCompletedFeeds] = useState<string[]>([]);
+	const [rotations, setRotations] = useState<number[]>([7]);
 	const [answers, setAnswers] = useState<Answers>({});
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
@@ -25,8 +27,6 @@ function App() {
 	return (
 		<SurveyContext.Provider
 			value={{
-				data,
-				setData,
 				phase,
 				setPhase,
 				participantID,
@@ -35,6 +35,8 @@ function App() {
 				setConsentTimestamp,
 				feeds,
 				setFeeds,
+				completedFeeds,
+				setCompletedFeeds,
 				rotations,
 				setRotations,
 				answers,

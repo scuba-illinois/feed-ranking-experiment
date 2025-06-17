@@ -236,13 +236,15 @@ const Status = ({
 const ContinueButton = ({
 	selectedPosts,
 	logs,
+	timeExpired,
 }: {
 	selectedPosts: string[];
 	logs: SelectionLogs;
+	timeExpired: boolean;
 }) => {
 	const { setPhase, setAnswers, feeds } = useContext(SurveyContext);
 
-	const isDisabled = selectedPosts.length < 1;
+	const isDisabled = selectedPosts.length < 1 && !timeExpired;
 
 	const onClick = () => {
 		setPhase("FEEDRATING");
@@ -275,10 +277,11 @@ export const FeedSelect = () => {
 
 	const fileName = `${feeds[0]}/rotation-${rotations[0]}.png`;
 
-	const TIMER_SETTING = 120; // Number of seconds.
+	const TIMER_SETTING = 10; // Number of seconds.
 
 	const [isVisible, setIsVisible] = useState(false);
 	const [timeLeft, setTimeLeft] = useState(0);
+	const [timeExpired, setTimeExpired] = useState(false);
 	const [feedData, setFeedData] = useState<FeedData | null>(null); // TODO: Have this read in earlier.
 	const [_selectedPosts, _setSelectedPosts] = useState<string[]>([]);
 	const [_logs, _setLogs] = useState<SelectionLogs>([]);
@@ -307,6 +310,7 @@ export const FeedSelect = () => {
 			setTimeLeft((prev) => {
 				if (prev <= 1) {
 					clearInterval(timer);
+					setTimeExpired(true);
 					return 0;
 				}
 				return prev - 1;
@@ -336,11 +340,20 @@ export const FeedSelect = () => {
 				{isVisible && (
 					<Status timeLeft={timeLeft} selectedPosts={_selectedPosts} />
 				)}
+				{timeExpired && (
+					<Body className="mb-2">
+						Time has expired, please continue on with the study.
+					</Body>
+				)}
 				{isVisible && (
-					<ContinueButton selectedPosts={_selectedPosts} logs={_logs} />
+					<ContinueButton
+						selectedPosts={_selectedPosts}
+						logs={_logs}
+						timeExpired={timeExpired}
+					/>
 				)}
 
-				{isVisible && (
+				{isVisible && !timeExpired && (
 					<div
 						className="overflow-y-scroll relative w-[650px] grid justify-items-end pl-4"
 						style={{ direction: "rtl" }}

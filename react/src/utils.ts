@@ -11,3 +11,11 @@ export const formatTime = (seconds: number): string => {
 	const secs = (seconds % 60).toString().padStart(2, "0");
 	return `${mins}:${secs}`;
 };
+
+export const pickRandomItems = <T extends unknown>(
+	arr: T[],
+	n: number
+): T[] => {
+	const shuffled = arr.sort(() => 0.5 - Math.random());
+	return shuffled.slice(0, n);
+};
