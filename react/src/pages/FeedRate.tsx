@@ -338,7 +338,7 @@ const RatingPopup = ({
 };
 
 export const FeedRate = () => {
-	const { feeds, rotations, setAnswers } = useContext(SurveyContext);
+	const { feeds, rotations } = useContext(SurveyContext);
 	const [feedData, setFeedData] = useState<FeedData | null>(null);
 
 	// Local rating state, once all questions are answered, it will be saved to the context.
