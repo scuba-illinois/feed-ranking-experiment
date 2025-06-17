@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { SurveyContext } from "../contexts";
-import { FeedData, QuestionAnswers } from "../types";
+import { FeedData, QuestionAnswers, RatingLogs } from "../types";
 import { Body, Header } from "../components/general";
 import { FeedView } from "./FeedSelect";
 import { pickRandomItems } from "../utils";
@@ -50,8 +50,10 @@ const Status = ({
 
 const ContinueButton = ({
 	ratings,
+	logs,
 }: {
 	ratings: Record<string, QuestionAnswers>;
+	logs: RatingLogs;
 }) => {
 	const { setPhase, answers, setAnswers, feeds } = useContext(SurveyContext);
 
@@ -72,6 +74,7 @@ const ContinueButton = ({
 					[feeds[0]]: {
 						...state[feeds[0]],
 						ratings: ratings,
+						ratingLogs: logs,
 					},
 				}));
 
@@ -89,6 +92,7 @@ const RateButtons = ({
 	feedData,
 	ratings,
 	setSelectedPost,
+	setLogs,
 }: {
 	feedData: FeedData;
 	ratings: Record<string, QuestionAnswers>;
@@ -96,6 +100,7 @@ const RateButtons = ({
 		React.SetStateAction<Record<string, QuestionAnswers>>
 	>;
 	setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
+	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 }) => {
 	const { answers, setAnswers, feeds } = useContext(SurveyContext);
 
@@ -147,7 +152,17 @@ const RateButtons = ({
 				{color === "blue" && (
 					<button
 						className="py-2 px-3 shadow-lg rounded-md text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
-						onClick={() => setSelectedPost(uuid)}
+						onClick={() => {
+							setSelectedPost(uuid);
+							setLogs((state) => [
+								...state,
+								{
+									timestamp: new Date().toISOString(),
+									action: "OPEN",
+									uuid: uuid,
+								},
+							]);
+						}}
 					>
 						{label}
 					</button>
@@ -155,7 +170,17 @@ const RateButtons = ({
 				{color === "green" && (
 					<button
 						className="py-2 px-3 shadow-lg rounded-md text-sm text-white bg-green-500 hover:bg-green-600 transition-colors"
-						onClick={() => setSelectedPost(uuid)}
+						onClick={() => {
+							setSelectedPost(uuid);
+							setLogs((state) => [
+								...state,
+								{
+									timestamp: new Date().toISOString(),
+									action: "EDIT",
+									uuid: uuid,
+								},
+							]);
+						}}
 					>
 						{label}
 					</button>
@@ -200,6 +225,7 @@ const RatingPopup = ({
 	setSelectedPost,
 	ratings,
 	setRatings,
+	setLogs,
 }: {
 	selectedPost: string;
 	setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
@@ -207,6 +233,7 @@ const RatingPopup = ({
 	setRatings: React.Dispatch<
 		React.SetStateAction<Record<string, QuestionAnswers>>
 	>;
+	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 }) => {
 	const { feeds } = useContext(SurveyContext);
 
@@ -235,12 +262,22 @@ const RatingPopup = ({
 							name={question}
 							value={value}
 							checked={answers[question] === value}
-							onChange={() =>
+							onChange={() => {
 								setAnswers((state) => ({
 									...state,
 									[question]: value,
-								}))
-							}
+								}));
+								setLogs((state) => [
+									...state,
+									{
+										timestamp: new Date().toISOString(),
+										action: "RATE",
+										uuid: selectedPost,
+										question: question,
+										rating: value,
+									},
+								]);
+							}}
 						/>
 						<Body>{value}</Body>
 					</div>
@@ -273,6 +310,14 @@ const RatingPopup = ({
 					[selectedPost]: { ...answers },
 				}));
 				setSelectedPost(null);
+				setLogs((state) => [
+					...state,
+					{
+						timestamp: new Date().toISOString(),
+						action: "SUBMIT",
+						uuid: selectedPost,
+					},
+				]);
 			}}
 		>
 			Submit
@@ -282,7 +327,17 @@ const RatingPopup = ({
 	const CloseButton = () => (
 		<button
 			className="rounded mt-4 py-2 px-4 bg-red-400 hover:bg-red-500"
-			onClick={() => setSelectedPost(null)}
+			onClick={() => {
+				setSelectedPost(null);
+				setLogs((state) => [
+					...state,
+					{
+						timestamp: new Date().toISOString(),
+						action: "CLOSE",
+						uuid: selectedPost,
+					},
+				]);
+			}}
 		>
 			Close
 		</button>
@@ -343,6 +398,7 @@ export const FeedRate = () => {
 
 	// Local rating state, once all questions are answered, it will be saved to the context.
 	const [_ratings, _setRatings] = useState<Record<string, QuestionAnswers>>({});
+	const [_logs, _setLogs] = useState<RatingLogs>([]);
 
 	// Used to track which post is being rated.
 	const [_selectedPost, _setSelectedPost] = useState<string | null>(null);
@@ -371,7 +427,7 @@ export const FeedRate = () => {
 			<div className="flex flex-col w-[560px]">
 				<Directions />
 				<Status ratings={_ratings} />
-				<ContinueButton ratings={_ratings} />
+				<ContinueButton ratings={_ratings} logs={_logs} />
 				<div
 					className="overflow-y-scroll relative w-[650px] grid justify-items-end pl-4"
 					style={{ direction: "rtl" }}
@@ -385,6 +441,7 @@ export const FeedRate = () => {
 						ratings={_ratings}
 						setRatings={_setRatings}
 						setSelectedPost={_setSelectedPost}
+						setLogs={_setLogs}
 					/>
 					{_selectedPost && (
 						<RatingPopup
@@ -392,6 +449,7 @@ export const FeedRate = () => {
 							setSelectedPost={_setSelectedPost}
 							ratings={_ratings}
 							setRatings={_setRatings}
+							setLogs={_setLogs}
 						/>
 					)}
 				</div>

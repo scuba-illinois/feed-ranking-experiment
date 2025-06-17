@@ -28,7 +28,7 @@ export type SelectionLogs = {
 
 export type RatingLogs = {
 	timestamp: string;
-	action: "RATE" | "SUBMIT" | "OPEN" | "EDIT";
+	action: "RATE" | "SUBMIT" | "OPEN" | "EDIT" | "CLOSE";
 	uuid: string;
 	question?: string;
 	rating?: number;
