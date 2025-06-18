@@ -3,13 +3,13 @@ export type Phase =
 	| "SCREENER"
 	| "FEED"
 	| "FEEDRATING"
-	| "EXITQUESTIONNAIRE"
+	| "EXIT"
 	| "GOODBYE";
 
 export type QuestionAnswers = {
-	"This post is relevant to me": number;
-	"This post is interesting": number;
-	"This post is informative": number;
+	relevance: number;
+	trust: number;
+	quality: number;
 };
 
 export type FeedData = {
@@ -35,7 +35,7 @@ export type RatingLogs = {
 }[];
 
 export type Answers = Record<
-	string,
+	string, // snapshotUUID
 	{
 		selectedPosts?: string[];
 		nonSelectedPosts?: string[]; // The posts that were not selected by the participant, but still rated.

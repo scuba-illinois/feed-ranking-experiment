@@ -5,6 +5,12 @@ import { Body, Header } from "../components/general";
 import { FeedView } from "./FeedSelect";
 import { pickRandomItems } from "../utils";
 
+const QuestionWordings = {
+	quality: "This post is of high quality.",
+	relevance: "This post is relevant to me.",
+	trust: "This post is trustworthy.",
+};
+
 const Directions = () => {
 	return (
 		<div className="flex flex-col gap-2 mb-2">
@@ -22,18 +28,7 @@ const Directions = () => {
 	);
 };
 
-const Status = ({
-	ratings,
-}: {
-	ratings: Record<
-		string,
-		{
-			"This post is relevant to me": number;
-			"This post is interesting": number;
-			"This post is informative": number;
-		}
-	>;
-}) => {
+const Status = ({ ratings }: { ratings: Record<string, QuestionAnswers> }) => {
 	const { answers, feeds } = useContext(SurveyContext);
 
 	const selectedPosts = answers[feeds[0]]?.selectedPosts || [];
@@ -92,10 +87,9 @@ const ContinueButton = ({
 
 				// If there are no more feeds to rate, conclude the survey.
 				if (feeds.length !== completedFeeds.length + 1) {
-					// TODO: Change to exit questionnaire.
 					setPhase("FEED");
 				} else {
-					setPhase("GOODBYE");
+					setPhase("EXIT");
 				}
 			}}
 			disabled={disabled}
@@ -137,7 +131,7 @@ const RateButtons = ({
 			.filter(({ uuid }) => !answers[feedUUID].selectedPosts?.includes(uuid))
 			.map(({ uuid }) => uuid);
 
-		const nonSelectedPosts = pickRandomItems(allNonSelectedPosts, 0); // TODO: Change this back to three.
+		const nonSelectedPosts = pickRandomItems(allNonSelectedPosts, 3);
 
 		setAnswers((state) => ({
 			...state,
@@ -262,19 +256,16 @@ const RatingPopup = ({
 	const previousAnswers = ratings[selectedPost];
 
 	const [answers, setAnswers] = useState<QuestionAnswers>({
-		"This post is relevant to me":
-			previousAnswers?.["This post is relevant to me"] || 0,
-		"This post is interesting":
-			previousAnswers?.["This post is interesting"] || 0,
-		"This post is informative":
-			previousAnswers?.["This post is informative"] || 0,
+		relevance: previousAnswers?.relevance || 0,
+		trust: previousAnswers?.trust || 0,
+		quality: previousAnswers?.quality || 0,
 	});
 
 	const isValid = () => Object.values(answers).every((value) => value > 0);
 
 	const Question = ({ question }: { question: keyof QuestionAnswers }) => (
 		<div>
-			<Body>{question}</Body>
+			<Body>{QuestionWordings[question]}</Body>
 			<div className="flex flex-row gap-6 my-2 mx-4 items-start">
 				<Body>Disagree</Body>
 				{[1, 2, 3, 4, 5, 6, 7].map((value) => (

@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 
+export const RedAsterisk = () => <span className="text-red-600">*</span>;
+
 export function Header({ children }: { children: ReactNode }) {
 	return <h2 className="font-bold text-[12pt]">{children}</h2>;
 }

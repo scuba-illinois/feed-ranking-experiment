@@ -10,36 +10,42 @@ export default function Goodbye() {
 		feeds,
 		rotations,
 		screenerAnswers,
+		screenerTimestamp,
+		exitAnswers,
+		exitTimestamp,
 	} = useContext(SurveyContext);
 
 	const jsonData = {
 		participantID: participantID,
 		feeds: feeds,
 		screenerAnswers: screenerAnswers,
+		screenerTimestamp: screenerTimestamp,
+		exitAnswers: exitAnswers,
+		exitTimestamp: exitTimestamp,
 		rotations: rotations,
 		consentTimestamp: consentTimestamp,
 		answers: answers,
 	};
 
 	return (
-		<div className="p-4 flex flex-col items-center justify-center min-h-screen">
-			<div className="text-left max-w-sm flex flex-col gap-4">
+		<div className="flex justify-center h-[100vh] gap-2 p-4">
+			<div className="flex flex-col w-[560px] gap-2 items-start">
 				<Header>Thank you for participating!</Header>
 				<Body>
 					Your responses have been recorded. If you have any questions or need
 					further information, please feel free to reach out.
 				</Body>
 				<Body>Have a great day!</Body>
-				<div className="relative">
+				<div className="relative w-full">
 					<textarea
-						className="h-50 w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
-						value={JSON.stringify(jsonData, null, 2)}
+						className="h-[500px] w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
+						value={JSON.stringify(jsonData, null, 4)}
 						readOnly
 					/>
 					<button
-						className="absolute top-2 right-2 px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+						className="absolute top-2 right-6 px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
 						onClick={() =>
-							navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2))
+							navigator.clipboard.writeText(JSON.stringify(jsonData, null, 4))
 						}
 					>
 						Copy

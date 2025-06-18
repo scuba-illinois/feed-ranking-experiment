@@ -26,6 +26,12 @@ export const SurveyContext = createContext<{
 	screenerTimestamp: string | null;
 	setScreenerTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
 
+	exitAnswers?: Record<string, any>;
+	setExitAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+
+	exitTimestamp: string | null;
+	setExitTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
+
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
 
@@ -54,6 +60,12 @@ export const SurveyContext = createContext<{
 
 	screenerTimestamp: null,
 	setScreenerTimestamp: () => {},
+
+	exitAnswers: {},
+	setExitAnswers: () => {},
+
+	exitTimestamp: null,
+	setExitTimestamp: () => {},
 
 	answers: {},
 	setAnswers: () => {},

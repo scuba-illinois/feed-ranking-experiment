@@ -1,8 +1,6 @@
 import { JSX, useContext, useState } from "react";
-import { Body, Header } from "../components/general";
+import { Body, Header, RedAsterisk } from "../components/general";
 import { SurveyContext } from "../contexts";
-
-const RedAsterisk = () => <span className="text-red-600">*</span>;
 
 const removeDuplicatesAndSort = (arr: string[]): string[] => {
 	const uniqueArr = Array.from(new Set(arr));
@@ -86,7 +84,7 @@ const RedditUsage = ({
 		onChange={(e) => setAnswers({ ...answers, redditUsage: e.target.value })}
 		className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt] text-gray-600"
 	>
-		<option hidden disabled selected value="">
+		<option hidden disabled value="">
 			Select an option
 		</option>
 		<option value="never">Never</option>
@@ -167,6 +165,7 @@ const Interests = ({
 	return (
 		<div className="flex flex-col gap-2">
 			{[
+				// TODO: Replace with: https://www.reddit.com/ sidebar.
 				"Technology",
 				"Gaming",
 				"Sports",
@@ -175,7 +174,7 @@ const Interests = ({
 				"Books",
 				"Art",
 			].map((interest) => (
-				<div className="flex flex-row gap-2">
+				<div key={interest} className="flex flex-row gap-2">
 					<input
 						key={interest}
 						type="checkbox"
@@ -203,7 +202,8 @@ const Interests = ({
 
 export const Screeners = () => {
 	// @ts-ignore
-	const { setPhase, setScreenerAnswers } = useContext(SurveyContext);
+	const { setPhase, setScreenerAnswers, setScreenerTimestamp } =
+		useContext(SurveyContext);
 
 	const [_answers, _setAnswers] = useState<Record<string, any>>({});
 
@@ -221,7 +221,7 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
-					"Are you 18 years or older?"
+					Are you 18 years or older?
 					<RedAsterisk />
 				</>
 			),
@@ -230,7 +230,7 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
-					"Are you currently based in the United States?"
+					Are you currently based in the United States?
 					<RedAsterisk />
 				</>
 			),
@@ -239,7 +239,7 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
-					"How many times have you used Reddit in the previous month?"
+					How many times have you used Reddit in the previous month?
 					<RedAsterisk />
 				</>
 			),
@@ -293,6 +293,8 @@ export const Screeners = () => {
 					disabled={!isValid}
 					onClick={() => {
 						setScreenerAnswers(_answers);
+						setScreenerTimestamp(new Date().toISOString());
+
 						if (
 							_answers.age === "no" ||
 							_answers.inUSA === "no" ||

@@ -26,6 +26,8 @@ function App() {
 	const [screenerTimestamp, setScreenerTimestamp] = useState<string | null>(
 		null
 	);
+	const [exitAnswers, setExitAnswers] = useState<Record<string, any>>({});
+	const [exitTimestamp, setExitTimestamp] = useState<string | null>(null);
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
 	useEffect(() => {
@@ -53,13 +55,17 @@ function App() {
 				setScreenerAnswers,
 				screenerTimestamp,
 				setScreenerTimestamp,
+				exitAnswers,
+				setExitAnswers,
+				exitTimestamp,
+				setExitTimestamp,
 			}}
 		>
 			{phase === "CONSENT" && <Intro />}
 			{phase === "SCREENER" && <Screeners />}
 			{phase === "FEED" && <FeedSelect />}
 			{phase === "FEEDRATING" && <FeedRate />}
-			{phase === "EXITQUESTIONNAIRE" && <ExitQuestionnaire />}
+			{phase === "EXIT" && <ExitQuestionnaire />}
 			{phase === "GOODBYE" && <Goodbye />}
 		</SurveyContext.Provider>
 	);
