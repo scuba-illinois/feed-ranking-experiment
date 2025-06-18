@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { Button, Header } from "../components/general";
+import { Body, Button, Header } from "../components/general";
 import { SurveyContext } from "../contexts";
 
 export const Screeners = () => {
@@ -8,6 +8,9 @@ export const Screeners = () => {
 	return (
 		<>
 			<Header>Screener Questions</Header>
+			<Body>
+				Please answer the following questions before partaking in this study.
+			</Body>
 			<Button onClick={() => setPhase("FEED")} children="Continue" />
 		</>
 	);
