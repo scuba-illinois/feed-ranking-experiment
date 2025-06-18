@@ -20,6 +20,12 @@ export const SurveyContext = createContext<{
 	rotations: number[];
 	setRotations: React.Dispatch<React.SetStateAction<number[]>>;
 
+	screenerAnswers?: Record<string, any>;
+	setScreenerAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+
+	screenerTimestamp: string | null;
+	setScreenerTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
+
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
 
@@ -42,6 +48,12 @@ export const SurveyContext = createContext<{
 
 	rotations: [],
 	setRotations: () => {},
+
+	screenerAnswers: {},
+	setScreenerAnswers: () => {},
+
+	screenerTimestamp: null,
+	setScreenerTimestamp: () => {},
 
 	answers: {},
 	setAnswers: () => {},

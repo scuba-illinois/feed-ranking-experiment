@@ -1,6 +1,6 @@
 export type Phase =
 	| "CONSENT"
-	| "SCREENERS"
+	| "SCREENER"
 	| "FEED"
 	| "FEEDRATING"
 	| "EXITQUESTIONNAIRE"

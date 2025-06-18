@@ -15,10 +15,17 @@ function App() {
 	const [feeds, setFeeds] = useState<string[]>([
 		"5c18c574-32db-4028-b4ea-40e949ff81ba",
 		"36a937d7-4fc4-4cbf-8705-83776c112078",
+		"b28ae34e-0e6c-4a69-be52-75de4144e426",
 	]);
 	const [completedFeeds, setCompletedFeeds] = useState<string[]>([]);
-	const [rotations, setRotations] = useState<number[]>([7, 2]);
+	const [rotations, setRotations] = useState<number[]>([7, 2, 5]);
 	const [answers, setAnswers] = useState<Answers>({});
+	const [screenerAnswers, setScreenerAnswers] = useState<Record<string, any>>(
+		{}
+	);
+	const [screenerTimestamp, setScreenerTimestamp] = useState<string | null>(
+		null
+	);
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
 	useEffect(() => {
@@ -42,10 +49,14 @@ function App() {
 				setRotations,
 				answers,
 				setAnswers,
+				screenerAnswers,
+				setScreenerAnswers,
+				screenerTimestamp,
+				setScreenerTimestamp,
 			}}
 		>
 			{phase === "CONSENT" && <Intro />}
-			{phase === "SCREENERS" && <Screeners />}
+			{phase === "SCREENER" && <Screeners />}
 			{phase === "FEED" && <FeedSelect />}
 			{phase === "FEEDRATING" && <FeedRate />}
 			{phase === "EXITQUESTIONNAIRE" && <ExitQuestionnaire />}

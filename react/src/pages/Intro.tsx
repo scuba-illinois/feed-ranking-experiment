@@ -224,7 +224,7 @@ export default function Intro() {
 
 						setConsentTimestamp(new Date().toISOString());
 
-						setPhase("FEED");
+						setPhase("SCREENER");
 					}}
 				>
 					<input
@@ -237,6 +237,8 @@ export default function Intro() {
 					<Button type="submit" disabled={!participantID}>
 						Submit
 					</Button>
+					{/* FIXME: Hacky solution. */}
+					<div className="mb-2"></div>
 				</form>
 			</div>
 		</div>
