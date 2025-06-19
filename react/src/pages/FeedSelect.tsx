@@ -373,7 +373,7 @@ export const FeedSelect = () => {
 
 				{isVisible && (!timeExpired || _selectedPosts.length < 1) && (
 					<div
-						className="overflow-y-scroll relative grid justify-items-end pl-1"
+						className="overflow-y-scroll relative grid justify-items-end pl-1 w-[600px]"
 						style={{ direction: "rtl" }}
 					>
 						<FeedView
