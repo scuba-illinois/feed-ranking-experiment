@@ -1,10 +1,6 @@
 import { useContext } from "react";
 import { SurveyContext } from "../contexts";
-import { Body, Button, Header } from "../components/general";
-
-const Email = ({ children }: { children: string }) => (
-	<span className="text-blue-600">{children}</span>
-);
+import { Body, Button, Header, Email } from "../components/general";
 
 const BelowHeader = () => (
 	<Body className="flex flex-col gap-2">

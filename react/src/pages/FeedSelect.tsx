@@ -9,6 +9,8 @@ const TIMER_SETTING = 120;
 const Directions = () => {
 	const { feeds, completedFeeds } = useContext(SurveyContext);
 
+	const feed = ["first", "second", "third and final"][completedFeeds.length];
+
 	return (
 		<div className="flex flex-col gap-2 mb-2">
 			<Header>
@@ -16,7 +18,10 @@ const Directions = () => {
 				{feeds.length.toLocaleString()})
 			</Header>
 			<Body>
-				You'll be shown a screenshot of Reddit's r/popular feed with 10 posts.
+				You'll be shown three screenshots of Reddit's r/popular feed, each
+				containing 10 posts. <i>This is your {feed} feed.</i>
+			</Body>
+			<Body>
 				You have 2 minutes to select <i>up to 3 posts</i> you'd want to read
 				more about by clicking the "Select" button next to each post.
 			</Body>
@@ -110,7 +115,7 @@ const SelectButton = ({
 		<div
 			style={{
 				position: "absolute",
-				left: `${473}px`, // MAGIC NUMBER
+				left: `${473 + 22}px`, // MAGIC NUMBER
 				top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 			}}
 		>
@@ -168,7 +173,7 @@ const UnselectButton = ({
 			className="py-2 px-3 rounded-md shadow-lg text-[10pt] text-white bg-red-500 hover:bg-red-600 transition-colors"
 			style={{
 				position: "absolute",
-				left: `${464}px`, // MAGIC NUMBER
+				left: `${464 + 22}px`, // MAGIC NUMBER
 				top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 			}}
 			onClick={handleUnselect}
@@ -364,7 +369,10 @@ export const FeedSelect = () => {
 				)}
 				{timeExpired && (
 					<Body className="mb-2">
-						Time has expired. Select at least one post to move on.
+						Time has expired.{" "}
+						{_selectedPosts.length < 1
+							? "Select at least one post to move on."
+							: 'Please click "Continue" to proceed.'}
 					</Body>
 				)}
 				{isVisible && (
@@ -373,7 +381,7 @@ export const FeedSelect = () => {
 
 				{isVisible && (!timeExpired || _selectedPosts.length < 1) && (
 					<div
-						className="overflow-y-scroll relative grid justify-items-end pl-1 w-[600px]"
+						className="overflow-y-scroll relative grid justify-items-end pl-6 w-[600px]"
 						style={{ direction: "rtl" }}
 					>
 						<FeedView

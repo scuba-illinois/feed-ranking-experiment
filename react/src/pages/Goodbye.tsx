@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { SurveyContext } from "../contexts";
-import { Body, Header } from "../components/general";
+import { Body, Email, Header } from "../components/general";
 
 export default function Goodbye() {
 	const {
@@ -33,7 +33,8 @@ export default function Goodbye() {
 				<Header>Thank you for participating!</Header>
 				<Body>
 					Your responses have been recorded. If you have any questions or need
-					further information, please feel free to reach out.
+					further information, please email Jackie Chan (
+					<Email>jackiec3@illinois.edu</Email>).
 				</Body>
 				<Body>Have a great day!</Body>
 				<div className="relative w-full">

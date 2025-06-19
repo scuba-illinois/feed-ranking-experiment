@@ -22,6 +22,10 @@ export function Body({
 	return <p className={`text-gray-600 text-[10pt] ${className}`}>{children}</p>;
 }
 
+export const Email = ({ children }: { children: string }) => (
+	<span className="text-blue-600">{children}</span>
+);
+
 export function Button({
 	type = "button", // Default to "button" if not provided
 	onClick = () => {}, // Default to an empty function if not provided

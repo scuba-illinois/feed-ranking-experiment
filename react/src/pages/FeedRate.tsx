@@ -23,14 +23,14 @@ const Directions = () => {
 				{feeds.length.toLocaleString()})
 			</Header>
 			<Body>
-				Click the "Rate" button next to each post to evaluate its relevance,
-				trustworthiness, and content quality. A popup will appear for each
-				rating.
+				You'll now rate posts from the previous feed. The "Rate" button next to
+				each post will allow you to evaluate its relevance, trustworthiness, and
+				content quality.
 			</Body>
 
 			<Body>
 				Posts that you selected in the previous step will be marked with a star
-				icon (⭐️) near the top right corner of each selected post.
+				icon (⭐️) near the top-right corner.
 			</Body>
 			<Body>There's no time limit. You must rate every post to continue.</Body>
 		</div>
@@ -232,7 +232,7 @@ const RateButtons = ({
 					color={ratings.hasOwnProperty(uuid) ? "green" : "blue"}
 					label={ratings.hasOwnProperty(uuid) ? "Edit" : "Rate"}
 					top={height / 2 + y - 20}
-					left={ratings.hasOwnProperty(uuid) ? 482 : 480}
+					left={ratings.hasOwnProperty(uuid) ? 482 + 20 : 480 + 20}
 				/>
 			);
 		}
@@ -468,7 +468,7 @@ export const FeedRate = () => {
 				<Status ratings={_ratings} />
 				<ContinueButton ratings={_ratings} logs={_logs} />
 				<div
-					className="overflow-y-scroll relative w-[600px] grid justify-items-end pl-1"
+					className="overflow-y-scroll relative w-[600px] grid justify-items-end pl-6"
 					style={{ direction: "rtl" }}
 				>
 					<FeedView
@@ -505,7 +505,7 @@ export const FeedRate = () => {
 								return (
 									<span
 										key={uuid}
-										style={{ top: y + 5, left: 520 }}
+										style={{ top: y + 5, left: 520 + 20 }}
 										className="absolute text-3xl"
 									>
 										⭐️
