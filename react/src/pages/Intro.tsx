@@ -2,16 +2,24 @@ import { useContext } from "react";
 import { SurveyContext } from "../contexts";
 import { Body, Button, Header } from "../components/general";
 
+const Email = ({ children }: { children: string }) => (
+	<span className="text-blue-600">{children}</span>
+);
+
 const BelowHeader = () => (
-	<Body>
-		<b className="text-black">Principal Investigator (PI) & Title:</b> Dr.
-		Eshwar Chandrasekharan, Assistant Professor
-		<br />
-		<b className="text-black">Department & Institution:</b> University of
-		Illinois Urbana-Champaign, Siebel School of Computing and Data Science
-		<br />
-		<b className="text-black">Contact Information:</b> (217) 224-8872 or
-		eshwar@illinois.edu
+	<Body className="flex flex-col gap-2">
+		<span>
+			<b className="text-black">Principal Investigator (PI) & Title:</b> Dr.
+			Eshwar Chandrasekharan, Assistant Professor
+		</span>
+		<span>
+			<b className="text-black">Department & Institution:</b> University of
+			Illinois Urbana-Champaign, Siebel School of Computing and Data Science
+		</span>
+		<span>
+			<b className="text-black">Contact Information:</b> (217) 224-8872 or{" "}
+			<Email>eshwar@illinois.edu</Email>
+		</span>
 	</Body>
 );
 
@@ -156,10 +164,8 @@ const ContactInfo = () => (
 		<Header>Contact Information</Header>
 		<Body>
 			If you have questions, complaints, or concerns about this study, you can
-			contact the researchers Jackie Chan (
-			<span className="text-blue-600">jackiec3@illinois.edu</span>) or Dr.
-			Eshwar Chandrasekharan (
-			<span className="text-blue-600">eshwar@illinois.edu</span>).
+			contact the researchers Jackie Chan (<Email>jackiec3@illinois.edu</Email>)
+			or Dr. Eshwar Chandrasekharan (<Email>eshwar@illinois.edu</Email>).
 		</Body>
 	</>
 );
@@ -196,8 +202,8 @@ export default function Intro() {
 		useContext(SurveyContext);
 
 	return (
-		<div className="flex justify-center h-[100vh] gap-2 p-4">
-			<div className="flex flex-col w-[530px] gap-2">
+		<div className="flex justify-center my-6">
+			<div className="flex flex-col w-[560px] gap-2">
 				<h1 className="text-2xl font-bold">Welcome!</h1>
 				<Body>
 					Please take the time to read the consent document before
@@ -218,7 +224,7 @@ export default function Intro() {
 				<Consent />
 
 				<form
-					className="flex flex-col gap-4 mt-4"
+					className="flex flex-col gap-4 mt-2"
 					onSubmit={(e) => {
 						e.preventDefault();
 
@@ -237,8 +243,6 @@ export default function Intro() {
 					<Button type="submit" disabled={!participantID}>
 						Submit
 					</Button>
-					{/* FIXME: Hacky solution. */}
-					<div className="mb-2"></div>
 				</form>
 			</div>
 		</div>

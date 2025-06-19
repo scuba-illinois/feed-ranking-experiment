@@ -5,6 +5,8 @@ import { Body, Header } from "../components/general";
 import { FeedView } from "./FeedSelect";
 import { pickRandomItems } from "../utils";
 
+const NUM_NON_SELECTED = 3;
+
 const QuestionWordings = {
 	quality: "This post is of high quality.",
 	relevance: "This post is relevant to me.",
@@ -12,27 +14,36 @@ const QuestionWordings = {
 };
 
 const Directions = () => {
+	const { feeds, completedFeeds } = useContext(SurveyContext);
+
 	return (
 		<div className="flex flex-col gap-2 mb-2">
-			<Header>Directions</Header>
+			<Header>
+				Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+				{feeds.length.toLocaleString()})
+			</Header>
 			<Body>
-				Please go through each post you selected previously and rate them. You
-				can rate each post by clicking the "Rate" button next to each post you
-				selected.
+				Click the "Rate" button next to each post to evaluate its relevance,
+				trustworthiness, and content quality. A popup will appear for each
+				rating.
 			</Body>
+
 			<Body>
-				There is no time limit for this phase. To move forward, you have to rate
-				each post you selected.
+				Posts that you selected in the previous step will be marked with a star
+				icon (⭐️) near the top right corner of each selected post.
 			</Body>
+			<Body>There's no time limit. You must rate every post to continue.</Body>
 		</div>
 	);
 };
 
 const Status = ({ ratings }: { ratings: Record<string, QuestionAnswers> }) => {
-	const { answers, feeds } = useContext(SurveyContext);
+	const { answers, feeds, completedFeeds } = useContext(SurveyContext);
 
-	const selectedPosts = answers[feeds[0]]?.selectedPosts || [];
-	const nonSelectedPosts = answers[feeds[0]]?.nonSelectedPosts || [];
+	const feedUUID = feeds[completedFeeds.length];
+
+	const selectedPosts = answers[feedUUID]?.selectedPosts || [];
+	const nonSelectedPosts = answers[feedUUID]?.nonSelectedPosts || [];
 
 	return (
 		<Body>
@@ -69,7 +80,7 @@ const ContinueButton = ({
 	return (
 		<button
 			className={
-				"px-3 py-2 my-4 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors " +
+				"px-3 py-2 my-4 rounded-md shadow-lg text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors " +
 				(disabled ? "opacity-50 cursor-not-allowed" : "")
 			}
 			onClick={() => {
@@ -78,7 +89,13 @@ const ContinueButton = ({
 					[feedUUID]: {
 						...state[feedUUID],
 						ratings: ratings,
-						ratingLogs: logs,
+						ratingLogs: [
+							...logs,
+							{
+								timestamp: new Date().toISOString(),
+								action: "END",
+							},
+						],
 					},
 				}));
 
@@ -131,7 +148,10 @@ const RateButtons = ({
 			.filter(({ uuid }) => !answers[feedUUID].selectedPosts?.includes(uuid))
 			.map(({ uuid }) => uuid);
 
-		const nonSelectedPosts = pickRandomItems(allNonSelectedPosts, 3);
+		const nonSelectedPosts = pickRandomItems(
+			allNonSelectedPosts,
+			NUM_NON_SELECTED
+		);
 
 		setAnswers((state) => ({
 			...state,
@@ -165,7 +185,7 @@ const RateButtons = ({
 			>
 				{color === "blue" && (
 					<button
-						className="py-2 px-3 shadow-lg rounded-md text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+						className="py-2 px-3 rounded-md text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
 						onClick={() => {
 							setSelectedPost(uuid);
 							setLogs((state) => [
@@ -183,7 +203,7 @@ const RateButtons = ({
 				)}
 				{color === "green" && (
 					<button
-						className="py-2 px-3 shadow-lg rounded-md text-sm text-white bg-green-500 hover:bg-green-600 transition-colors"
+						className="py-2 px-3 rounded-md text-sm text-white bg-green-500 hover:bg-green-600 transition-colors"
 						onClick={() => {
 							setSelectedPost(uuid);
 							setLogs((state) => [
@@ -205,29 +225,14 @@ const RateButtons = ({
 
 	return [...selectedPostData, ...nonSelectedPostsData].map(
 		({ uuid, y, height }) => {
-			// Check if the post has already been rated. If so, render an edit button.
-			if (ratings.hasOwnProperty(uuid)) {
-				return (
-					<Button
-						key={uuid}
-						uuid={uuid}
-						color="green"
-						label="Edit"
-						top={height / 2 + y - 20}
-						left={495}
-					/>
-				);
-			}
-
-			// If the post has not been rated yet, render a rate button.
 			return (
 				<Button
 					key={uuid}
 					uuid={uuid}
-					color="blue"
-					label="Rate"
+					color={ratings.hasOwnProperty(uuid) ? "green" : "blue"}
+					label={ratings.hasOwnProperty(uuid) ? "Edit" : "Rate"}
 					top={height / 2 + y - 20}
-					left={492}
+					left={ratings.hasOwnProperty(uuid) ? 482 : 480}
 				/>
 			);
 		}
@@ -240,6 +245,7 @@ const RatingPopup = ({
 	ratings,
 	setRatings,
 	setLogs,
+	selected,
 }: {
 	selectedPost: string;
 	setSelectedPost: React.Dispatch<React.SetStateAction<string | null>>;
@@ -248,6 +254,7 @@ const RatingPopup = ({
 		React.SetStateAction<Record<string, QuestionAnswers>>
 	>;
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
+	selected: boolean;
 }) => {
 	const { feeds, completedFeeds } = useContext(SurveyContext);
 
@@ -266,7 +273,7 @@ const RatingPopup = ({
 	const Question = ({ question }: { question: keyof QuestionAnswers }) => (
 		<div>
 			<Body>{QuestionWordings[question]}</Body>
-			<div className="flex flex-row gap-6 my-2 mx-4 items-start">
+			<div className="flex flex-row gap-6 mt-4 mb-2 mx-4 items-start w-full justify-center">
 				<Body>Disagree</Body>
 				{[1, 2, 3, 4, 5, 6, 7].map((value) => (
 					<div key={value} className="flex items-center flex-col gap-2">
@@ -312,9 +319,9 @@ const RatingPopup = ({
 		return (
 			<button
 				className={
-					"mt-4 py-2 px-4 rounded " +
+					"mt-4 py-2 px-4 rounded text-white " +
 					(isValid()
-						? "bg-blue-400 hover:bg-blue-500"
+						? "bg-blue-500 hover:bg-blue-600"
 						: "bg-gray-200 cursor-not-allowed")
 				}
 				disabled={!isValid()}
@@ -341,7 +348,7 @@ const RatingPopup = ({
 
 	const CloseButton = () => (
 		<button
-			className="rounded mt-4 py-2 px-4 bg-red-400 hover:bg-red-500"
+			className="rounded text-white mt-4 py-2 px-4 bg-red-500 hover:bg-red-600"
 			onClick={() => {
 				setSelectedPost(null);
 				setLogs((state) => [
@@ -381,15 +388,25 @@ const RatingPopup = ({
 					borderRadius: "8px",
 					boxShadow: "0 2px 10px rgba(0,0,0,0.2)",
 					zIndex: 1_000,
-					width: "600px",
+					width: "580px",
 					textAlign: "left",
 				}}
 			>
-				<Header>Selected Post</Header>
-				<Body>
-					We see that you selected this post from the feed and wanted to
-					understand what you think about the post based on its preview.
-				</Body>
+				<>
+					<Header className="mb-2">Rate This Post</Header>
+					<Body>
+						{selected ? (
+							"You selected"
+						) : (
+							<>
+								You did <i>not</i> select
+							</>
+						)}{" "}
+						this post. Please rate its relevance, trustworthiness, and content
+						quality based on the preview.
+					</Body>
+				</>
+
 				<PostPreview fileName={`${feedUUID}/${selectedPost}.png`} />
 				<div>
 					{(Object.keys(answers) as Array<keyof QuestionAnswers>).map(
@@ -408,7 +425,8 @@ const RatingPopup = ({
 };
 
 export const FeedRate = () => {
-	const { feeds, rotations, completedFeeds } = useContext(SurveyContext);
+	const { feeds, rotations, completedFeeds, answers } =
+		useContext(SurveyContext);
 
 	// Figure out which feed and rotation we are currently on.
 	const feedUUID = feeds[completedFeeds.length];
@@ -444,13 +462,13 @@ export const FeedRate = () => {
 	}
 
 	return (
-		<div className="flex justify-center h-[100vh] gap-2 p-4">
+		<div className="flex justify-center h-[100vh] gap-2 py-4">
 			<div className="flex flex-col w-[560px]">
 				<Directions />
 				<Status ratings={_ratings} />
 				<ContinueButton ratings={_ratings} logs={_logs} />
 				<div
-					className="overflow-y-scroll relative w-[650px] grid justify-items-end pl-4"
+					className="overflow-y-scroll relative w-[650px] grid justify-items-end pl-1"
 					style={{ direction: "rtl" }}
 				>
 					<FeedView
@@ -471,8 +489,29 @@ export const FeedRate = () => {
 							ratings={_ratings}
 							setRatings={_setRatings}
 							setLogs={_setLogs}
+							selected={answers[feedUUID]!.selectedPosts!.includes(
+								_selectedPost
+							)} // FIXME: Terrible ! usage.
 						/>
 					)}
+
+					{/* Some marker for selected posts. */}
+					{feedData &&
+						feedData
+							.filter(({ uuid }) =>
+								answers[feedUUID]!.selectedPosts!.includes(uuid)
+							)
+							.map(({ uuid, y }) => {
+								return (
+									<span
+										key={uuid}
+										style={{ top: y + 5, left: 520 }}
+										className="absolute text-3xl"
+									>
+										⭐️
+									</span>
+								);
+							})}
 				</div>
 			</div>
 		</div>

@@ -163,16 +163,32 @@ const Interests = ({
 	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 }) => {
 	return (
-		<div className="flex flex-col gap-2">
+		<div className="flex flex-wrap gap-y-3 gap-x-4">
 			{[
-				// TODO: Replace with: https://www.reddit.com/ sidebar.
+				"Internet Culture",
+				"Games",
+				"Q&As",
 				"Technology",
-				"Gaming",
-				"Sports",
+				"Pop Culture",
+				"Movies & TV",
+				"Anime",
+				"Arts",
+				"Business",
+				"Collectibles & Other Hobbies",
+				"Education & Career",
+				"Fashion & Beauty",
+				"Food & Drink",
+				"Home & Garden",
+				"Humanities & Law",
 				"Music",
-				"Movies",
-				"Books",
-				"Art",
+				"Nature & Outdoors",
+				"News & Politics",
+				"Places & Travel",
+				"Science",
+				"Sports",
+				"Spooky",
+				"Vehicles",
+				"Wellness",
 			].map((interest) => (
 				<div key={interest} className="flex flex-row gap-2">
 					<input
@@ -201,7 +217,6 @@ const Interests = ({
 };
 
 export const Screeners = () => {
-	// @ts-ignore
 	const { setPhase, setScreenerAnswers, setScreenerTimestamp } =
 		useContext(SurveyContext);
 
@@ -267,14 +282,13 @@ export const Screeners = () => {
 	];
 
 	return (
-		<div className="flex justify-center h-[100vh] gap-2 p-4">
-			<div className="flex flex-col w-[560px] gap-2 items-start">
+		<div className="flex justify-center my-6">
+			<div className="flex flex-col w-[560px] gap-2">
 				<Header>Screener Questions</Header>
 				<Body>
 					Please answer the following questions before partaking in this study.
 					Questions marked with <RedAsterisk /> are required.
 				</Body>
-				{/* <Button onClick={() => setPhase("FEED")} children="Continue" /> */}
 				<div className="flex flex-col gap-4 mt-1">
 					{questions.map(({ question, component }, index) => (
 						<div key={index} className="flex flex-col gap-2">

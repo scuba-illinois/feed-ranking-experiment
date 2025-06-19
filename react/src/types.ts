@@ -20,20 +20,23 @@ export type FeedData = {
 	y: number;
 }[];
 
+// TODO: Union discriminator types.
 export type SelectionLogs = {
 	timestamp: string;
-	action: "START" | "SELECT" | "UNSELECT" | "END";
-	uuid: string;
+	action: "START" | "SELECT" | "UNSELECT" | "END" | "TIME_EXPIRED";
+	uuid?: string;
 }[];
 
 export type RatingLogs = {
 	timestamp: string;
-	action: "RATE" | "SUBMIT" | "OPEN" | "EDIT" | "CLOSE";
-	uuid: string;
+	action: "RATE" | "SUBMIT" | "OPEN" | "EDIT" | "CLOSE" | "END";
+	uuid?: string;
 	question?: string;
 	rating?: number;
 }[];
 
+// There should be 3 keys. Each attribute in the value should be filled out
+// throughout the experiment and shouldn't be empty at the end.
 export type Answers = Record<
 	string, // snapshotUUID
 	{

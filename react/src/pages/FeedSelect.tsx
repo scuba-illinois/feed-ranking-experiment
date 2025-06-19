@@ -4,6 +4,8 @@ import { FeedData, SelectionLogs } from "../types";
 import { Body, Header } from "../components/general";
 import { formatTime } from "../utils";
 
+const TIMER_SETTING = 120;
+
 const Directions = () => {
 	const { feeds, completedFeeds } = useContext(SurveyContext);
 
@@ -14,23 +16,12 @@ const Directions = () => {
 				{feeds.length.toLocaleString()})
 			</Header>
 			<Body>
-				Here, you will be shown a screenshot of Reddit's r/popular feed
-				containing 10 posts. You will have 2 minutes to browse and select at
-				most 3 posts from this feed that you would like to read more about if
-				you had the chance.
+				You'll be shown a screenshot of Reddit's r/popular feed with 10 posts.
+				You have 2 minutes to select <i>up to 3 posts</i> you'd want to read
+				more about by clicking the "Select" button next to each post.
 			</Body>
-			<Body>
-				Next to each post on the screenshot of the feed, there is a "Select"
-				button to denote that you would like to read more about this post.
-			</Body>
-			<Body>
-				To start, press the "Show Feed" button. The timer and feed will appear
-				below once you press the button.
-			</Body>
-			<Body>
-				Once you have selected the posts you are interested in, please hit
-				'Continue'.
-			</Body>
+			<Body>Click "Show Feed" to begin. A timer will appear below.</Body>
+			<Body>When you're done, click "Continue".</Body>
 		</div>
 	);
 };
@@ -38,17 +29,24 @@ const Directions = () => {
 const ShowFeedButton = ({
 	setIsVisible,
 	setTimeLeft,
-	TIMER_SETTING = 120,
+	setLogs,
 }: {
 	setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
-	TIMER_SETTING: number;
+	setLogs: React.Dispatch<React.SetStateAction<SelectionLogs>>;
 }) => (
 	<button
 		className="py-2 px-3 mt-1 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
 		onClick={() => {
 			setIsVisible(true);
 			setTimeLeft(TIMER_SETTING);
+			setLogs((state) => [
+				...state,
+				{
+					timestamp: new Date().toISOString(),
+					action: "START",
+				},
+			]);
 		}}
 	>
 		Show Feed
@@ -112,7 +110,7 @@ const SelectButton = ({
 		<div
 			style={{
 				position: "absolute",
-				left: `${485}px`, // MAGIC NUMBER
+				left: `${473}px`, // MAGIC NUMBER
 				top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 			}}
 		>
@@ -131,7 +129,7 @@ const SelectButton = ({
 				</div>
 			)}
 			<button
-				className="py-2 px-3 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+				className="py-2 px-3 rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
 				onClick={handleSelect}
 			>
 				Select
@@ -167,10 +165,10 @@ const UnselectButton = ({
 
 	return (
 		<button
-			className="py-2 px-3 shadow-lg rounded-md text-[10pt] text-white bg-red-500 hover:bg-red-600 transition-colors"
+			className="py-2 px-3 rounded-md text-[10pt] text-white bg-red-500 hover:bg-red-600 transition-colors"
 			style={{
 				position: "absolute",
-				left: `${477}px`, // MAGIC NUMBER
+				left: `${464}px`, // MAGIC NUMBER
 				top: `${height / 2 + y - 20}px`, // MAGIC NUMBER
 			}}
 			onClick={handleUnselect}
@@ -243,11 +241,9 @@ const Status = ({
 const ContinueButton = ({
 	selectedPosts,
 	logs,
-	timeExpired,
 }: {
 	selectedPosts: string[];
 	logs: SelectionLogs;
-	timeExpired: boolean;
 }) => {
 	const { setPhase, setAnswers, feeds, completedFeeds } =
 		useContext(SurveyContext);
@@ -255,7 +251,7 @@ const ContinueButton = ({
 	// Figure out which feed you're on so you can save the answers correctly.
 	const feedUUID = feeds[completedFeeds.length];
 
-	const isDisabled = selectedPosts.length < 1 && !timeExpired;
+	const isDisabled = selectedPosts.length < 1;
 
 	const onClick = () => {
 		setPhase("FEEDRATING");
@@ -264,7 +260,13 @@ const ContinueButton = ({
 			...state,
 			[feedUUID]: {
 				selectedPosts: selectedPosts,
-				selectionLogs: logs,
+				selectionLogs: [
+					...logs,
+					{
+						timestamp: new Date().toISOString(),
+						action: "END",
+					},
+				],
 			},
 		}));
 	};
@@ -290,8 +292,6 @@ export const FeedSelect = () => {
 	const rotation = rotations[completedFeeds.length];
 
 	const fileName = `${feedUUID}/rotation-${rotation}.png`;
-
-	const TIMER_SETTING = 120; // Number of seconds.
 
 	const [isVisible, setIsVisible] = useState(false);
 	const [timeLeft, setTimeLeft] = useState(0);
@@ -325,6 +325,14 @@ export const FeedSelect = () => {
 				if (prev <= 1) {
 					clearInterval(timer);
 					setTimeExpired(true);
+					_setLogs((state) => [
+						...state,
+						{
+							timestamp: new Date().toISOString(),
+							action: "TIME_EXPIRED",
+							uuid: feedUUID,
+						},
+					]);
 					return 0;
 				}
 				return prev - 1;
@@ -339,7 +347,7 @@ export const FeedSelect = () => {
 	}
 
 	return (
-		<div className="flex justify-center h-[100vh] gap-2 p-4">
+		<div className="flex justify-center h-[100vh] gap-2 py-4">
 			<div className="flex flex-col w-[560px]">
 				<Directions />
 
@@ -347,7 +355,7 @@ export const FeedSelect = () => {
 					<ShowFeedButton
 						setIsVisible={setIsVisible}
 						setTimeLeft={setTimeLeft}
-						TIMER_SETTING={TIMER_SETTING}
+						setLogs={_setLogs}
 					/>
 				)}
 
@@ -356,20 +364,16 @@ export const FeedSelect = () => {
 				)}
 				{timeExpired && (
 					<Body className="mb-2">
-						Time has expired, please continue on with the study.
+						Time has expired. Select at least one post to move on.
 					</Body>
 				)}
 				{isVisible && (
-					<ContinueButton
-						selectedPosts={_selectedPosts}
-						logs={_logs}
-						timeExpired={timeExpired}
-					/>
+					<ContinueButton selectedPosts={_selectedPosts} logs={_logs} />
 				)}
 
-				{isVisible && !timeExpired && (
+				{isVisible && (!timeExpired || _selectedPosts.length < 1) && (
 					<div
-						className="overflow-y-scroll relative w-[650px] grid justify-items-end pl-4"
+						className="overflow-y-scroll relative grid justify-items-end pl-1"
 						style={{ direction: "rtl" }}
 					>
 						<FeedView

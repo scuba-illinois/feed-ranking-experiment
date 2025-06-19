@@ -17,13 +17,13 @@ export default function Goodbye() {
 
 	const jsonData = {
 		participantID: participantID,
+		consentTimestamp: consentTimestamp,
 		feeds: feeds,
 		screenerAnswers: screenerAnswers,
 		screenerTimestamp: screenerTimestamp,
 		exitAnswers: exitAnswers,
 		exitTimestamp: exitTimestamp,
 		rotations: rotations,
-		consentTimestamp: consentTimestamp,
 		answers: answers,
 	};
 

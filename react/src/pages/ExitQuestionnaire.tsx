@@ -279,6 +279,7 @@ export const ExitQuestionnaire = () => {
 
 	const [_answers, _setAnswers] = useState<Record<string, any>>({});
 
+	// These contain the full path to the post images, e.g. "snapshotUUID/postUUID.png".
 	const selectedPosts = getSelectedPosts(answers);
 	const nonSelectedPosts = getNonSelectedPosts(answers);
 
@@ -297,9 +298,10 @@ export const ExitQuestionnaire = () => {
 		)[0];
 		const _ratingSnapshotUUID = _ratingFileName.split("/")[0];
 		const _ratingPostUUID = _ratingFileName.split("/")[1].replace(".png", "");
+		const _nonSelectedPostFileName = pickRandomItems(nonSelectedPosts, 1)[0];
 
 		setSelectedPostFileName(_selectedPostFileName);
-		setNonSelectedPostFileName(pickRandomItems(nonSelectedPosts, 1)[0]);
+		setNonSelectedPostFileName(_nonSelectedPostFileName);
 		setRatingFileName(_ratingFileName);
 		setRatings(answers[_ratingSnapshotUUID]?.ratings?.[_ratingPostUUID] ?? {});
 
@@ -309,8 +311,9 @@ export const ExitQuestionnaire = () => {
 			selectedPostExamplePostUUID: _selectedPostFileName
 				.split("/")[1]
 				.replace(".png", ""),
-			nonSelectedPostExampleSnapshotUUID: nonSelectedPostFileName.split("/")[0],
-			nonSelectedPostExamplePostUUID: nonSelectedPostFileName
+			nonSelectedPostExampleSnapshotUUID:
+				_nonSelectedPostFileName.split("/")[0],
+			nonSelectedPostExamplePostUUID: _nonSelectedPostFileName
 				.split("/")[1]
 				.replace(".png", ""),
 			ratingSnapshotUUID: _ratingSnapshotUUID,
@@ -393,7 +396,7 @@ export const ExitQuestionnaire = () => {
 	];
 
 	return (
-		<div className="flex justify-center h-[100vh] gap-2 p-4">
+		<div className="flex justify-center h-[100vh] py-4">
 			<div className="flex flex-col w-[560px] gap-2 items-start">
 				<Header>Exit Questionnaire</Header>
 				<Body>
