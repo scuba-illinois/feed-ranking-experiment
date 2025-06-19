@@ -468,7 +468,7 @@ export const FeedRate = () => {
 				<Status ratings={_ratings} />
 				<ContinueButton ratings={_ratings} logs={_logs} />
 				<div
-					className="overflow-y-scroll relative w-[650px] grid justify-items-end pl-1"
+					className="overflow-y-scroll relative w-[600px] grid justify-items-end pl-1"
 					style={{ direction: "rtl" }}
 				>
 					<FeedView

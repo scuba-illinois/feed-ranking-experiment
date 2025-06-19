@@ -116,7 +116,7 @@ const SelectButton = ({
 		>
 			{showTooMany && (
 				<div
-					className="px-2 py-1 rounded-md bg-white text-black border-3 text-sm"
+					className="px-2 py-1 shadow-lg rounded-md bg-white text-black border-3 text-sm"
 					style={{
 						position: "absolute",
 						direction: "ltr",
@@ -129,7 +129,7 @@ const SelectButton = ({
 				</div>
 			)}
 			<button
-				className="py-2 px-3 rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+				className="py-2 px-3 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
 				onClick={handleSelect}
 			>
 				Select
@@ -165,7 +165,7 @@ const UnselectButton = ({
 
 	return (
 		<button
-			className="py-2 px-3 rounded-md text-[10pt] text-white bg-red-500 hover:bg-red-600 transition-colors"
+			className="py-2 px-3 rounded-md shadow-lg text-[10pt] text-white bg-red-500 hover:bg-red-600 transition-colors"
 			style={{
 				position: "absolute",
 				left: `${464}px`, // MAGIC NUMBER
