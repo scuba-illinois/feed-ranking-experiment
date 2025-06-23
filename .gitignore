@@ -26,3 +26,11 @@ dist-ssr
 # Jackie's
 **/data/
 # **/public/
+
+**/__pycache__
+**/bin
+**/lib
+**/share
+**/pyvenv.cfg
+**/include
+fastapi/workspace.ipynb
