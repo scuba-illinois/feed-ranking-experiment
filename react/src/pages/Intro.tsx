@@ -121,14 +121,13 @@ const ProtectInfo = () => (
 		<Header>How Will The Researchers Protect My Information?</Header>
 		<Body>
 			All personal data, including your name and any identifiable details, will
-			be anonymized and replaced with unique participant codes. Data, including
-			recordings and interview transcripts, will be stored securely on encrypted
-			devices and accessible only to authorized research team members. In any
-			report that we publish, we will not include any information that will make
-			it possible to identify a subject. To comply with federal regulations, we
-			will retain all records for at least five years from the date of this
-			study. Afterward, we will destroy the records once the research is
-			complete.
+			be anonymized and replaced with unique participant codes. Data will be
+			stored securely on encrypted devices and accessible only to authorized
+			research team members. In any report that we publish, we will not include
+			any information that will make it possible to identify a subject. To
+			comply with federal regulations, we will retain all records for at least
+			five years from the date of this study. Afterward, we will destroy the
+			records once the research is complete.
 		</Body>
 	</>
 );
