@@ -2,5 +2,6 @@ fastapi
 pandas
 uvicorn
 boto3
-dotenv
+python-dotenv
+motor
 pymongo
