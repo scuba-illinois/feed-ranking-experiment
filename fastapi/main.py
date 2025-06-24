@@ -9,7 +9,6 @@ import json
 s3 = boto3.client("s3")
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -22,25 +21,25 @@ app.add_middleware(
 )
 
 
-def get_feed(key: str, bucket: str = "trending-feeds", expires_in: int = 3_600):
-    return s3.generate_presigned_url(
-        "get_object",
-        Params={
-            "Bucket": bucket,
-            "Key": key,
-        },
-        ExpiresIn=expires_in,
-    )
+# def get_feed(key: str, bucket: str = "trending-feeds", expires_in: int = 3_600):
+#     return s3.generate_presigned_url(
+#         "get_object",
+#         Params={
+#             "Bucket": bucket,
+#             "Key": key,
+#         },
+#         ExpiresIn=expires_in,
+#     )
 
 
-def get_feed_data(key: str, bucket: str = "trending-feeds"):
-    response = s3.get_object(Bucket=bucket, Key=key)
-    return json.load(response["Body"])
+# def get_feed_data(key: str, bucket: str = "trending-feeds"):
+#     response = s3.get_object(Bucket=bucket, Key=key)
+#     return json.load(response["Body"])
 
 
-def get_meta(uuid: str, bucket: str = "trending-feeds"):
-    response = s3.get_object(Bucket=bucket, Key=f"public/{uuid}/meta.json")
-    return json.load(response["Body"])
+# def get_meta(uuid: str, bucket: str = "trending-feeds"):
+#     response = s3.get_object(Bucket=bucket, Key=f"public/{uuid}/meta.json")
+#     return json.load(response["Body"])
 
 
 @app.get("/")
