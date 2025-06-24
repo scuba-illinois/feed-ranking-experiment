@@ -1,4 +1,4 @@
-import { isValidElement, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { SurveyContext } from "../contexts";
 import { Body, Button, Header, Email } from "../components/general";
 
@@ -245,6 +245,9 @@ export default function Intro() {
 							}
 						).then((response) => {
 							response.json().then((data) => {
+								// TODO: Some verification that the data returned is correct.
+								// Otherwise, blow up.
+
 								if (data.valid) {
 									setPhase("SCREENER");
 									setFeeds(data.feeds);
