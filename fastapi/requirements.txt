@@ -2,3 +2,5 @@ fastapi
 pandas
 uvicorn
 boto3
+dotenv
+pymongo
