@@ -4,4 +4,3 @@ uvicorn
 boto3
 python-dotenv
 motor
-pymongo
