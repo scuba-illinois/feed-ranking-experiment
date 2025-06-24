@@ -5,13 +5,13 @@ import pandas as pd
 import boto3
 import json
 from dotenv import load_dotenv
-from pymongo import MongoClient
 import os
+from motor.motor_asyncio import AsyncIOMotorClient
 
 
 load_dotenv()
 
-client = MongoClient(
+client = AsyncIOMotorClient(
     f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
 )
 
@@ -57,7 +57,7 @@ async def root():
 
 
 @app.get("/validate/{participant_id}")
-def validate_participant(participant_id: str):
+async def validate_participant(participant_id: str):
     """
     Given a participant ID, gives back a list of feed URLs assigned to them.
 
@@ -124,13 +124,13 @@ def validate_participant(participant_id: str):
 
 
 @app.post("/submit/")
-def submit_response(response: dict):
+async def submit_response(response: dict):
 
     try:
 
         collection = client.get_database("trending-feeds").get_collection("responses")
 
-        collection.insert_one(response)
+        await collection.insert_one(response)
 
         client.close()
 
