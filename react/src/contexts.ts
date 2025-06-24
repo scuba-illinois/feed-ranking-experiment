@@ -14,6 +14,21 @@ export const SurveyContext = createContext<{
 	feeds: string[];
 	setFeeds: React.Dispatch<React.SetStateAction<string[]>>;
 
+	feedURLs: string[];
+	setFeedURLs: React.Dispatch<React.SetStateAction<string[]>>;
+
+	feedData: Record<string, { uuid: string; y: number; height: number }[]>;
+	setFeedData: React.Dispatch<
+		React.SetStateAction<
+			Record<string, { uuid: string; y: number; height: number }[]>
+		>
+	>;
+
+	postURLs: Record<string, Record<string, string>>;
+	setPostURLs: React.Dispatch<
+		React.SetStateAction<Record<string, Record<string, string>>>
+	>;
+
 	completedFeeds: string[];
 	setCompletedFeeds: React.Dispatch<React.SetStateAction<string[]>>;
 
@@ -48,6 +63,15 @@ export const SurveyContext = createContext<{
 
 	feeds: [],
 	setFeeds: () => {},
+
+	feedURLs: [],
+	setFeedURLs: () => {},
+
+	postURLs: {},
+	setPostURLs: () => {},
+
+	feedData: {},
+	setFeedData: () => {},
 
 	completedFeeds: [],
 	setCompletedFeeds: () => {},

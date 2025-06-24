@@ -1,8 +1,26 @@
 import React, { JSX, useContext, useEffect, useState } from "react";
 import { SurveyContext } from "../contexts";
 import { Body, Header, RedAsterisk } from "../components/general";
-import { Answers, QuestionAnswers } from "../types";
+import { Answers, ExitQuestionnaireAnswers } from "../types";
 import { pickRandomItems } from "../utils";
+
+type Examples = {
+	selectedPost: {
+		feedUUID: string;
+		postUUID: string;
+	};
+	ratedPost: {
+		feedUUID: string;
+		postUUID: string;
+		relevance: number;
+		trust: number;
+		quality: number;
+	};
+	nonSelectedPost: {
+		feedUUID: string;
+		postUUID: string;
+	};
+};
 
 const TextArea = ({
 	value,
@@ -22,24 +40,18 @@ const TextArea = ({
 	/>
 );
 
-const ContinueButton = ({ answers }: { answers: Record<string, any> }) => {
+const ContinueButton = ({ answers }: { answers: ExitQuestionnaireAnswers }) => {
 	const { setPhase, setExitAnswers, setExitTimestamp } =
 		useContext(SurveyContext);
 
 	const isValid =
-		Object.keys(answers).includes("postSelection") &&
-		answers.postSelection.trim() !== "" &&
-		Object.keys(answers).includes("selectedPostExample") &&
-		answers.selectedPostExample.trim() !== "" &&
-		Object.keys(answers).includes("nonSelectedPostExample") &&
-		answers.nonSelectedPostExample.trim() !== "" &&
-		Object.keys(answers).includes("relevanceExplained") &&
+		answers.postSelectionExplained.trim() !== "" &&
+		answers.selectedPostExplained.trim() !== "" &&
+		answers.nonSelectedPostExplained.trim() !== "" &&
 		answers.relevanceExplained.trim() !== "" &&
-		Object.keys(answers).includes("trustworthinessExplained") &&
-		answers.trustworthinessExplained.trim() !== "" &&
-		Object.keys(answers).includes("contentQualityExplained") &&
-		answers.contentQualityExplained.trim() !== "" &&
-		Object.keys(answers).includes("postLikelihood");
+		answers.trustExplained.trim() !== "" &&
+		answers.qualityExplained.trim() !== "" &&
+		answers.postLikelihood > 0;
 
 	return (
 		<button
@@ -63,15 +75,15 @@ const PostSelection = ({
 	answers,
 	setAnswers,
 }: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
 }) => {
 	return (
 		<div className="flex flex-col gap-2">
 			<TextArea
-				value={answers.postSelection || ""}
+				value={answers.postSelectionExplained || ""}
 				onChange={(e) =>
-					setAnswers({ ...answers, postSelection: e.target.value })
+					setAnswers({ ...answers, postSelectionExplained: e.target.value })
 				}
 			/>
 		</div>
@@ -81,25 +93,31 @@ const PostSelection = ({
 const SelectedPostExample = ({
 	answers,
 	setAnswers,
-	fileName,
+	post,
 }: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-	fileName: string;
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+	post: { feedUUID: string; postUUID: string } | undefined;
 }) => {
+	if (!post) {
+		return <></>;
+	}
+
+	const { postURLs } = useContext(SurveyContext);
+
 	return (
 		<div>
 			<div className="w-full flex justify-center">
 				<img
-					src={fileName !== "" ? fileName : undefined}
+					src={postURLs[post.feedUUID][post.postUUID]}
 					style={{ maxHeight: "300px" }}
 					className="border-2 mt-2 mb-1"
 				/>
 			</div>
 			<TextArea
-				value={answers.selectedPostExample || ""}
+				value={answers.selectedPostExplained || ""}
 				onChange={(e) =>
-					setAnswers({ ...answers, selectedPostExample: e.target.value })
+					setAnswers({ ...answers, selectedPostExplained: e.target.value })
 				}
 			/>
 		</div>
@@ -109,25 +127,31 @@ const SelectedPostExample = ({
 const NonSelectedPostExample = ({
 	answers,
 	setAnswers,
-	fileName,
+	post,
 }: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-	fileName: string;
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+	post: { feedUUID: string; postUUID: string } | undefined;
 }) => {
+	if (!post) {
+		return <></>;
+	}
+
+	const { postURLs } = useContext(SurveyContext);
+
 	return (
 		<div>
 			<div className="w-full flex justify-center">
 				<img
-					src={fileName !== "" ? fileName : undefined}
+					src={postURLs[post.feedUUID][post.postUUID]}
 					style={{ maxHeight: "300px" }}
 					className="border-2 mt-2 mb-1"
 				/>
 			</div>
 			<TextArea
-				value={answers.nonSelectedPostExample || ""}
+				value={answers.nonSelectedPostExplained || ""}
 				onChange={(e) =>
-					setAnswers({ ...answers, nonSelectedPostExample: e.target.value })
+					setAnswers({ ...answers, nonSelectedPostExplained: e.target.value })
 				}
 			/>
 		</div>
@@ -137,23 +161,31 @@ const NonSelectedPostExample = ({
 const RatingExplanations = ({
 	answers,
 	setAnswers,
-	fileName,
-	ratings,
+	post,
 }: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-	fileName: string;
-	ratings: QuestionAnswers | {};
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+	post:
+		| {
+				feedUUID: string;
+				postUUID: string;
+				relevance: number;
+				trust: number;
+				quality: number;
+		  }
+		| undefined;
 }) => {
-	if (Object.keys(ratings).length === 0) {
-		<></>;
+	if (!post) {
+		return <></>;
 	}
+
+	const { postURLs } = useContext(SurveyContext);
 
 	return (
 		<div>
 			<div className="w-full flex justify-center">
 				<img
-					src={fileName !== "" ? fileName : undefined}
+					src={postURLs[post.feedUUID][post.postUUID]}
 					style={{ maxHeight: "300px" }}
 					className="border-2 mt-2 mb-1"
 				/>
@@ -162,8 +194,8 @@ const RatingExplanations = ({
 				<div>
 					<Body>
 						(4a) For relevance, you gave this post a{" "}
-						{(ratings as QuestionAnswers).relevance} out of 7. How did you
-						evaluate the relevance of this post?
+						{post.relevance.toLocaleString()} out of 7. How did you evaluate the
+						relevance of this post?
 						<RedAsterisk />
 					</Body>
 					<TextArea
@@ -177,16 +209,16 @@ const RatingExplanations = ({
 				<div>
 					<Body>
 						(4b) For trustworthiness, you gave this post a{" "}
-						{(ratings as QuestionAnswers).trust} out of 7. How did you evaluate
-						the trustworthiness of this post?
+						{post.trust.toLocaleString()} out of 7. How did you evaluate the
+						trustworthiness of this post?
 						<RedAsterisk />
 					</Body>
 					<TextArea
-						value={answers.trustworthinessExplained || ""}
+						value={answers.trustExplained || ""}
 						onChange={(e) =>
 							setAnswers({
 								...answers,
-								trustworthinessExplained: e.target.value,
+								trustExplained: e.target.value,
 							})
 						}
 						rows={2}
@@ -195,16 +227,16 @@ const RatingExplanations = ({
 				<div>
 					<Body>
 						(4c) For content quality, you gave this post a{" "}
-						{(ratings as QuestionAnswers).quality} out of 7. How did you
-						evaluate the content quality of this post?
+						{post.quality.toLocaleString()} out of 7. How did you evaluate the
+						content quality of this post?
 						<RedAsterisk />
 					</Body>
 					<TextArea
-						value={answers.contentQualityExplained || ""}
+						value={answers.qualityExplained || ""}
 						onChange={(e) =>
 							setAnswers({
 								...answers,
-								contentQualityExplained: e.target.value,
+								qualityExplained: e.target.value,
 							})
 						}
 						rows={2}
@@ -219,8 +251,8 @@ const PostLikelihood = ({
 	answers,
 	setAnswers,
 }: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
 }) => {
 	return (
 		<div className="flex flex-row items-start w-full justify-center gap-6 my-2">
@@ -242,32 +274,38 @@ const PostLikelihood = ({
 	);
 };
 
-const getSelectedPosts = (answers: Answers) => {
-	let selectedPosts: string[] = [];
+const getSelectedPosts = (
+	answers: Answers
+): { feedUUID: string; postUUID: string }[] => {
+	let selectedPosts: { feedUUID: string; postUUID: string }[] = [];
 
-	for (const [snapshotUUID, value] of Object.entries(answers)) {
+	for (const [feedUUID, value] of Object.entries(answers)) {
 		// For each feed snapshot, pull out the selected posts prefixed with the snapshot UUID.
 		selectedPosts = [
 			...selectedPosts,
-			...(value.selectedPosts!.map(
-				(postUUID) => `${snapshotUUID}/${postUUID}.png`
-			) || []),
+			...(value.selectedPosts!.map((postUUID) => ({
+				feedUUID: feedUUID,
+				postUUID: postUUID,
+			})) || []),
 		];
 	}
 
 	return selectedPosts;
 };
 
-const getNonSelectedPosts = (answers: Answers) => {
-	let nonSelectedPosts: string[] = [];
+const getNonSelectedPosts = (
+	answers: Answers
+): { feedUUID: string; postUUID: string }[] => {
+	let nonSelectedPosts: { feedUUID: string; postUUID: string }[] = [];
 
-	for (const [snapshotUUID, value] of Object.entries(answers)) {
+	for (const [feedUUID, value] of Object.entries(answers)) {
 		// For each feed snapshot, pull out the non-selected posts prefixed with the snapshot UUID.
 		nonSelectedPosts = [
 			...nonSelectedPosts,
-			...(value.nonSelectedPosts!.map(
-				(postUUID) => `${snapshotUUID}/${postUUID}.png`
-			) || []),
+			...(value.nonSelectedPosts!.map((postUUID) => ({
+				feedUUID: feedUUID,
+				postUUID: postUUID,
+			})) || []),
 		];
 	}
 
@@ -277,48 +315,66 @@ const getNonSelectedPosts = (answers: Answers) => {
 export const ExitQuestionnaire = () => {
 	const { answers } = useContext(SurveyContext);
 
-	const [_answers, _setAnswers] = useState<Record<string, any>>({});
+	const [_answers, _setAnswers] = useState<ExitQuestionnaireAnswers>({
+		postSelectionExplained: "",
+		selectedPostExplained: "",
+		nonSelectedPostExplained: "",
+		relevanceExplained: "",
+		trustExplained: "",
+		qualityExplained: "",
+		postLikelihood: 0,
+		selectedPostExample: { feedUUID: "", postUUID: "" },
+		nonSelectedPostExample: { feedUUID: "", postUUID: "" },
+		ratedPostExample: { feedUUID: "", postUUID: "" },
+	});
 
-	// These contain the full path to the post images, e.g. "snapshotUUID/postUUID.png".
-	const selectedPosts = getSelectedPosts(answers);
-	const nonSelectedPosts = getNonSelectedPosts(answers);
-
-	const [selectedPostFileName, setSelectedPostFileName] = useState<string>("");
-	const [nonSelectedPostFileName, setNonSelectedPostFileName] =
-		useState<string>("");
-
-	const [ratingFileName, setRatingFileName] = useState<string>("");
-	const [ratings, setRatings] = useState<QuestionAnswers | {}>({});
+	const [examples, setExamples] = useState<Examples | null>(null);
 
 	useEffect(() => {
-		const _selectedPostFileName = pickRandomItems(selectedPosts, 1)[0];
-		const _ratingFileName = pickRandomItems(
-			selectedPosts.filter((post) => post !== _selectedPostFileName),
+		// Gets all selected and non-selected posts from the answers,
+		// formats it into a list of dicts in the form of:
+		// { feedUUID: string, postUUID: string }.
+		const selectedPosts = getSelectedPosts(answers);
+		const nonSelectedPosts = getNonSelectedPosts(answers);
+
+		const _selectedPostExample = pickRandomItems(selectedPosts, 1)[0];
+		const _ratedPostExample = pickRandomItems(
+			selectedPosts.filter(
+				(post) =>
+					post.feedUUID !== _selectedPostExample.feedUUID &&
+					post.postUUID !== _selectedPostExample.postUUID
+			),
 			1
 		)[0];
-		const _ratingSnapshotUUID = _ratingFileName.split("/")[0];
-		const _ratingPostUUID = _ratingFileName.split("/")[1].replace(".png", "");
-		const _nonSelectedPostFileName = pickRandomItems(nonSelectedPosts, 1)[0];
+		const _nonSelectedPostExample = pickRandomItems(nonSelectedPosts, 1)[0];
 
-		setSelectedPostFileName(_selectedPostFileName);
-		setNonSelectedPostFileName(_nonSelectedPostFileName);
-		setRatingFileName(_ratingFileName);
-		setRatings(answers[_ratingSnapshotUUID]?.ratings?.[_ratingPostUUID] ?? {});
+		setExamples({
+			selectedPost: _selectedPostExample,
+			ratedPost: {
+				..._ratedPostExample,
+				relevance:
+					answers[_ratedPostExample.feedUUID]!.ratings![
+						_ratedPostExample.postUUID
+					].relevance,
+				trust:
+					answers[_ratedPostExample.feedUUID]!.ratings![
+						_ratedPostExample.postUUID
+					].trust,
+				quality:
+					answers[_ratedPostExample.feedUUID]!.ratings![
+						_ratedPostExample.postUUID
+					].quality,
+			},
+			nonSelectedPost: _nonSelectedPostExample,
+		});
 
 		// Remember which examples you showed in the exit questionnaire.
-		_setAnswers({
-			selectedPostExampleSnapshotUUID: _selectedPostFileName.split("/")[0],
-			selectedPostExamplePostUUID: _selectedPostFileName
-				.split("/")[1]
-				.replace(".png", ""),
-			nonSelectedPostExampleSnapshotUUID:
-				_nonSelectedPostFileName.split("/")[0],
-			nonSelectedPostExamplePostUUID: _nonSelectedPostFileName
-				.split("/")[1]
-				.replace(".png", ""),
-			ratingSnapshotUUID: _ratingSnapshotUUID,
-			ratingPostUUID: _ratingPostUUID,
-		});
+		_setAnswers((state) => ({
+			...state,
+			selectedPostExample: _selectedPostExample,
+			nonSelectedPostExample: _nonSelectedPostExample,
+			ratedPostExample: _ratedPostExample,
+		}));
 	}, []);
 
 	const questions: {
@@ -346,7 +402,7 @@ export const ExitQuestionnaire = () => {
 				<SelectedPostExample
 					answers={_answers}
 					setAnswers={_setAnswers}
-					fileName={selectedPostFileName}
+					post={examples?.selectedPost}
 				/>
 			),
 		},
@@ -362,7 +418,7 @@ export const ExitQuestionnaire = () => {
 				<NonSelectedPostExample
 					answers={_answers}
 					setAnswers={_setAnswers}
-					fileName={nonSelectedPostFileName}
+					post={examples?.nonSelectedPost}
 				/>
 			),
 		},
@@ -378,8 +434,7 @@ export const ExitQuestionnaire = () => {
 				<RatingExplanations
 					answers={_answers}
 					setAnswers={_setAnswers}
-					fileName={ratingFileName}
-					ratings={ratings}
+					post={examples?.ratedPost}
 				/>
 			),
 		},

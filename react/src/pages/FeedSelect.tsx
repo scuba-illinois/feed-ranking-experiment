@@ -291,33 +291,17 @@ const ContinueButton = ({
 };
 
 export const FeedSelect = () => {
-	const { feeds, rotations, completedFeeds } = useContext(SurveyContext);
+	const { feeds, completedFeeds, feedURLs, feedData } =
+		useContext(SurveyContext);
 
 	const feedUUID = feeds[completedFeeds.length];
-	const rotation = rotations[completedFeeds.length];
-
-	const fileName = `${feedUUID}/rotation-${rotation}.png`;
+	const fileName = feedURLs[completedFeeds.length];
 
 	const [isVisible, setIsVisible] = useState(false);
 	const [timeLeft, setTimeLeft] = useState(0);
 	const [timeExpired, setTimeExpired] = useState(false);
-	const [feedData, setFeedData] = useState<FeedData | null>(null); // TODO: Have this read in earlier.
 	const [_selectedPosts, _setSelectedPosts] = useState<string[]>([]);
 	const [_logs, _setLogs] = useState<SelectionLogs>([]);
-
-	// Retrieve the JSON describing the image.
-	useEffect(() => {
-		fetch(`${feedUUID}/rotation-${rotation}.json`, {
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-			},
-		}).then((response) =>
-			response.json().then((data: FeedData) => {
-				setFeedData(data);
-			})
-		);
-	}, []);
 
 	// Handling timer.
 	useEffect(() => {
@@ -346,10 +330,6 @@ export const FeedSelect = () => {
 
 		return () => clearInterval(timer);
 	}, [isVisible, timeLeft]);
-
-	if (!feedData) {
-		return <Header>Loading Feed...</Header>;
-	}
 
 	return (
 		<div className="flex justify-center h-[100vh] gap-2 py-4">
@@ -386,10 +366,10 @@ export const FeedSelect = () => {
 					>
 						<FeedView
 							fileName={fileName}
-							height={feedData[9].y + feedData[9].height}
+							height={feedData[feedUUID][9].y + feedData[feedUUID][9].height}
 						/>
 						<FeedButtons
-							feedData={feedData}
+							feedData={feedData[feedUUID] as FeedData}
 							selectedPosts={_selectedPosts}
 							setSelectedPosts={_setSelectedPosts}
 							setLogs={_setLogs}

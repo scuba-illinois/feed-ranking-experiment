@@ -47,3 +47,25 @@ export type Answers = Record<
 		ratingLogs?: RatingLogs;
 	}
 >;
+
+export type ExitQuestionnaireAnswers = {
+	postSelectionExplained: string;
+	selectedPostExplained: string;
+	nonSelectedPostExplained: string;
+	relevanceExplained: string;
+	trustExplained: string;
+	qualityExplained: string;
+	postLikelihood: number;
+	selectedPostExample: {
+		feedUUID: string;
+		postUUID: string;
+	};
+	nonSelectedPostExample: {
+		feedUUID: string;
+		postUUID: string;
+	};
+	ratedPostExample: {
+		feedUUID: string;
+		postUUID: string;
+	};
+};

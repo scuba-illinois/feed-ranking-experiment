@@ -256,7 +256,7 @@ const RatingPopup = ({
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 	selected: boolean;
 }) => {
-	const { feeds, completedFeeds } = useContext(SurveyContext);
+	const { feeds, completedFeeds, postURLs } = useContext(SurveyContext);
 
 	const feedUUID = feeds[completedFeeds.length];
 
@@ -406,8 +406,7 @@ const RatingPopup = ({
 						quality based on the preview.
 					</Body>
 				</>
-
-				<PostPreview fileName={`${feedUUID}/${selectedPost}.png`} />
+				<PostPreview fileName={postURLs[feedUUID][selectedPost]} />
 				<div>
 					{(Object.keys(answers) as Array<keyof QuestionAnswers>).map(
 						(question) => (
@@ -425,15 +424,12 @@ const RatingPopup = ({
 };
 
 export const FeedRate = () => {
-	const { feeds, rotations, completedFeeds, answers } =
+	const { feeds, feedURLs, feedData, completedFeeds, answers } =
 		useContext(SurveyContext);
 
 	// Figure out which feed and rotation we are currently on.
 	const feedUUID = feeds[completedFeeds.length];
-	const rotation = rotations[completedFeeds.length];
-
-	// Used for the boundaries of the post.
-	const [feedData, setFeedData] = useState<FeedData | null>(null);
+	const fileName = feedURLs[completedFeeds.length];
 
 	// Local rating state, once all questions are answered, it will be saved to the context.
 	const [_ratings, _setRatings] = useState<Record<string, QuestionAnswers>>({});
@@ -441,25 +437,6 @@ export const FeedRate = () => {
 
 	// Used to track which post is being rated.
 	const [_selectedPost, _setSelectedPost] = useState<string | null>(null);
-
-	const fileName = `${feedUUID}/rotation-${rotation}.png`;
-
-	useEffect(() => {
-		fetch(`${feedUUID}/rotation-${rotation}.json`, {
-			headers: {
-				"Content-Type": "application/json",
-				Accept: "application/json",
-			},
-		}).then((response) =>
-			response.json().then((data: FeedData) => {
-				setFeedData(data);
-			})
-		);
-	}, []);
-
-	if (!feedData) {
-		return <Header>Loading Feed...</Header>;
-	}
 
 	return (
 		<div className="flex justify-center h-[100vh] gap-2 py-4">
@@ -473,10 +450,10 @@ export const FeedRate = () => {
 				>
 					<FeedView
 						fileName={fileName}
-						height={feedData[9].y + feedData[9].height}
+						height={feedData[feedUUID][9].y + feedData[feedUUID][9].height}
 					/>
 					<RateButtons
-						feedData={feedData}
+						feedData={feedData[feedUUID] as FeedData}
 						ratings={_ratings}
 						setRatings={_setRatings}
 						setSelectedPost={_setSelectedPost}
@@ -496,8 +473,8 @@ export const FeedRate = () => {
 					)}
 
 					{/* Some marker for selected posts. */}
-					{feedData &&
-						feedData
+					{feedData[feedUUID] &&
+						feedData[feedUUID]
 							.filter(({ uuid }) =>
 								answers[feedUUID]!.selectedPosts!.includes(uuid)
 							)

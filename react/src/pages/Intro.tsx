@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { isValidElement, useContext, useState } from "react";
 import { SurveyContext } from "../contexts";
 import { Body, Button, Header, Email } from "../components/general";
 
@@ -193,8 +193,18 @@ const Consent = () => (
 );
 
 export default function Intro() {
-	const { setPhase, participantID, setParticipantID, setConsentTimestamp } =
-		useContext(SurveyContext);
+	const {
+		setPhase,
+		participantID,
+		setParticipantID,
+		setConsentTimestamp,
+		setFeeds,
+		setFeedURLs,
+		setFeedData,
+		setPostURLs,
+	} = useContext(SurveyContext);
+
+	const [isInvalid, setIsInvalid] = useState<string | null>(null);
 
 	return (
 		<div className="flex justify-center my-6">
@@ -225,9 +235,34 @@ export default function Intro() {
 
 						setConsentTimestamp(new Date().toISOString());
 
-						setPhase("SCREENER");
+						fetch(
+							`https://trending-backend.vercel.app/validate/${participantID}`,
+							{
+								headers: {
+									"Content-Type": "application/json",
+									Accept: "application/json",
+								},
+							}
+						).then((response) => {
+							response.json().then((data) => {
+								if (data.valid) {
+									setPhase("SCREENER");
+									setFeeds(data.feeds);
+									setFeedURLs(data.feedURLs);
+									setFeedData(data.feedData);
+									setPostURLs(data.postURLs);
+								} else {
+									setIsInvalid(participantID);
+								}
+							});
+						});
 					}}
 				>
+					{isInvalid && (
+						<Body className="text-red-600 mt-[-5px]">
+							{isInvalid} is not a valid participant ID.
+						</Body>
+					)}
 					<input
 						type="text"
 						placeholder="Enter Participant ID"
