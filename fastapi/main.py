@@ -11,10 +11,6 @@ import os
 
 load_dotenv()
 
-client = MongoClient(
-    f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
-)
-
 s3 = boto3.client("s3")
 
 app = FastAPI()
@@ -125,6 +121,10 @@ def validate_participant(participant_id: str):
 
 @app.post("/submit/")
 def submit_response(response: dict):
+
+    client = MongoClient(
+        f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
+    )
 
     try:
 
