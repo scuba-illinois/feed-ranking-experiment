@@ -4,7 +4,16 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import boto3
 import json
+from dotenv import load_dotenv
+from pymongo import MongoClient
+import os
 
+
+load_dotenv()
+
+client = MongoClient(
+    f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
+)
 
 s3 = boto3.client("s3")
 
@@ -112,3 +121,21 @@ def validate_participant(participant_id: str):
             for feed_uuid in feeds
         },
     }
+
+
+@app.post("/submit/")
+def submit_response(response: dict):
+
+    try:
+
+        collection = client.get_database("trending-feeds").get_collection("responses")
+
+        collection.insert_one(response)
+
+        client.close()
+
+        return {"status": "success"}
+
+    except Exception as e:
+
+        return {"status": "error", "message": str(e)}
