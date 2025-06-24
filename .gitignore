@@ -34,3 +34,4 @@ dist-ssr
 **/pyvenv.cfg
 **/include
 fastapi/workspace.ipynb
+**/.env
