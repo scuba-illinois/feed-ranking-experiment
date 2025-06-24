@@ -11,10 +11,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv()
 
-client = AsyncIOMotorClient(
-    f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
-)
-
 s3 = boto3.client("s3")
 
 app = FastAPI()
@@ -127,6 +123,10 @@ async def validate_participant(participant_id: str):
 async def submit_response(response: dict):
 
     try:
+
+        client = AsyncIOMotorClient(
+            f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
+        )
 
         collection = client.get_database("trending-feeds").get_collection("responses")
 
