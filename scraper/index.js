@@ -3,6 +3,18 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { v4 as uuid } from "uuid";
 
+const toggleProof = async (page, disable = true) => {
+	await page.evaluate((disable) => {
+		document
+			.querySelectorAll("shreddit-feed > article > shreddit-post")
+			.forEach((article) => {
+				article.shadowRoot.querySelector(
+					"div.shreddit-post-container"
+				).style.display = disable ? "none" : "";
+			});
+	}, disable);
+};
+
 const snapshotUUID = String(uuid());
 let uuids = Array.from({ length: 10 }, () => uuid());
 const originalOrdering = [...uuids];
@@ -35,7 +47,7 @@ await page.evaluate(() => {
 		});
 });
 
-// Screenshot of individual articles/
+// Screenshot of individual articles
 for (let i = 1; i < 11; i++) {
 	const article = await page.waitForSelector(
 		`shreddit-feed > :nth-child(${i} of article)`
@@ -47,10 +59,26 @@ for (let i = 1; i < 11; i++) {
 	});
 }
 
-// Screenshots of rotations/
+await toggleProof(page, true);
+
+// Screenshot of individual articles
+for (let i = 1; i < 11; i++) {
+	const article = await page.waitForSelector(
+		`shreddit-feed > :nth-child(${i} of article)`
+	);
+
+	// Using the UUIDs, name the individual posts appropriately.
+	await article.screenshot({
+		path: path.join(outDir, `${uuids[i - 1]}-no-proof.jpg`),
+	});
+}
+
+await toggleProof(page, false);
+
+// Screenshots of rotations
 for (let i = 0; i < 10; i++) {
 	// Get bounds of each article.
-	const articleBounds = [];
+	let articleBounds = [];
 	for (let j = 1; j < 11; j++) {
 		const article = await page.waitForSelector(
 			`shreddit-feed > :nth-child(${j} of article)`
@@ -71,6 +99,31 @@ for (let i = 0; i < 10; i++) {
 	await page.screenshot({
 		path: path.join(outDir, `rotation-${i}.jpg`),
 	});
+
+	// Do the same thing as above, but with proof disabled.
+	await toggleProof(page, true); // DISABLE PROOF
+
+	articleBounds = [];
+	for (let j = 1; j < 11; j++) {
+		const article = await page.waitForSelector(
+			`shreddit-feed > :nth-child(${j} of article)`
+		);
+		articleBounds.push({
+			...(await article.boundingBox()),
+			uuid: uuids[j - 1],
+		});
+	}
+
+	await fs.writeFile(
+		path.join(outDir, `rotation-${i}-no-proof.json`),
+		JSON.stringify(articleBounds)
+	);
+
+	await page.screenshot({
+		path: path.join(outDir, `rotation-${i}-no-proof.jpg`),
+	});
+
+	await toggleProof(page, false); // ENABLE PROOF
 
 	// Rotate 10th post into 1st rank
 	await page.evaluate(() => {
