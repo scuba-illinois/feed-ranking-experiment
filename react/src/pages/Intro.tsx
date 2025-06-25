@@ -205,6 +205,7 @@ export default function Intro() {
 	} = useContext(SurveyContext);
 
 	const [isInvalid, setIsInvalid] = useState<string | null>(null);
+	const [waiting, setWaiting] = useState(false);
 
 	return (
 		<div className="flex justify-center my-6">
@@ -235,6 +236,8 @@ export default function Intro() {
 
 						setConsentTimestamp(new Date().toISOString());
 
+						setWaiting(true);
+
 						fetch(
 							`https://trending-backend.vercel.app/validate/${participantID}`,
 							{
@@ -254,8 +257,12 @@ export default function Intro() {
 									setFeedURLs(data.feedURLs);
 									setFeedData(data.feedData);
 									setPostURLs(data.postURLs);
+
+									setWaiting(false);
 								} else {
 									setIsInvalid(participantID);
+
+									setWaiting(false);
 								}
 							});
 						});
@@ -272,9 +279,16 @@ export default function Intro() {
 						className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt]"
 						value={participantID || ""}
 						onChange={(e) => setParticipantID(e.target.value)}
+						disabled={waiting}
 					/>
-					<Button type="submit" disabled={!participantID}>
-						Submit
+					<Button
+						type="submit"
+						disabled={!participantID || waiting}
+						className={
+							waiting ? "bg-green-500 hover:bg-green-600 text-white" : ""
+						}
+					>
+						{waiting ? "Loading..." : "Submit"}
 					</Button>
 				</form>
 			</div>
