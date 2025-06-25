@@ -32,7 +32,7 @@ function App() {
 	const [exitAnswers, setExitAnswers] = useState<Record<string, any>>({});
 	const [exitTimestamp, setExitTimestamp] = useState<string | null>(null);
 	const [submitted, setSubmitted] = useState<
-		"UNSUBMITTED" | "PENDING" | "SUBMITTED"
+		"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR"
 	>("UNSUBMITTED");
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
