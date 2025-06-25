@@ -31,6 +31,9 @@ function App() {
 	);
 	const [exitAnswers, setExitAnswers] = useState<Record<string, any>>({});
 	const [exitTimestamp, setExitTimestamp] = useState<string | null>(null);
+	const [submitted, setSubmitted] = useState<
+		"UNSUBMITTED" | "PENDING" | "SUBMITTED"
+	>("UNSUBMITTED");
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
 	useEffect(() => {
@@ -68,6 +71,8 @@ function App() {
 				setExitAnswers,
 				exitTimestamp,
 				setExitTimestamp,
+				submitted,
+				setSubmitted,
 			}}
 		>
 			{phase === "CONSENT" && <Intro />}

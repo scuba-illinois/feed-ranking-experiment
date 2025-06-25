@@ -40,18 +40,32 @@ const TextArea = ({
 	/>
 );
 
-const ContinueButton = ({ answers }: { answers: ExitQuestionnaireAnswers }) => {
-	const { setPhase, setExitAnswers, setExitTimestamp } =
-		useContext(SurveyContext);
+const ContinueButton = ({
+	exitAnswers,
+}: {
+	exitAnswers: ExitQuestionnaireAnswers;
+}) => {
+	const {
+		participantID,
+		consentTimestamp,
+		answers,
+		feeds,
+		screenerAnswers,
+		screenerTimestamp,
+		setPhase,
+		setExitAnswers,
+		setExitTimestamp,
+		setSubmitted,
+	} = useContext(SurveyContext);
 
 	const isValid =
-		answers.postSelectionExplained.trim() !== "" &&
-		answers.selectedPostExplained.trim() !== "" &&
-		answers.nonSelectedPostExplained.trim() !== "" &&
-		answers.relevanceExplained.trim() !== "" &&
-		answers.trustExplained.trim() !== "" &&
-		answers.qualityExplained.trim() !== "" &&
-		answers.postLikelihood > 0;
+		exitAnswers.postSelectionExplained.trim() !== "" &&
+		exitAnswers.selectedPostExplained.trim() !== "" &&
+		exitAnswers.nonSelectedPostExplained.trim() !== "" &&
+		exitAnswers.relevanceExplained.trim() !== "" &&
+		exitAnswers.trustExplained.trim() !== "" &&
+		exitAnswers.qualityExplained.trim() !== "" &&
+		exitAnswers.postLikelihood > 0;
 
 	return (
 		<button
@@ -61,8 +75,42 @@ const ContinueButton = ({ answers }: { answers: ExitQuestionnaireAnswers }) => {
 				(isValid ? "" : " opacity-50 cursor-not-allowed")
 			}
 			onClick={() => {
+				const exitTimestamp = new Date().toISOString();
+
 				setExitAnswers(answers || {});
-				setExitTimestamp(new Date().toISOString());
+				setExitTimestamp(exitTimestamp);
+
+				setSubmitted("PENDING");
+
+				fetch("https://trending-backend.vercel.app/submit", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						participantID: participantID,
+						consentTimestamp: consentTimestamp,
+						feeds: feeds,
+						screenerAnswers: screenerAnswers,
+						screenerTimestamp: screenerTimestamp,
+						answers: answers,
+						exitAnswers: exitAnswers,
+						exitTimestamp: exitTimestamp,
+					}),
+				})
+					.then((response) => {
+						response.json().then((data) => {
+							if (data.status === "success") {
+								setSubmitted("SUBMITTED");
+							} else {
+								setSubmitted("ERROR");
+							}
+						});
+					})
+					.catch((error) => {
+						setSubmitted("ERROR");
+					});
+
 				setPhase("GOODBYE");
 			}}
 		>
@@ -472,7 +520,7 @@ export const ExitQuestionnaire = () => {
          be some space below the button. How is this different than 
          Intro.tsx's solution. */}
 				<div className="pb-4 w-full">
-					<ContinueButton answers={_answers} />
+					<ContinueButton exitAnswers={_answers} />
 				</div>
 			</div>
 		</div>

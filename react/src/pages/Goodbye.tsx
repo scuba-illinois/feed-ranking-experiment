@@ -13,6 +13,7 @@ export default function Goodbye() {
 		screenerTimestamp,
 		exitAnswers,
 		exitTimestamp,
+		submitted,
 	} = useContext(SurveyContext);
 
 	const jsonData = {
@@ -32,9 +33,20 @@ export default function Goodbye() {
 			<div className="flex flex-col w-[560px] gap-2 items-start">
 				<Header>Thank you for participating!</Header>
 				<Body>
-					Your responses have been recorded. If you have any questions or need
-					further information, please email Jackie Chan (
-					<Email>jackiec3@illinois.edu</Email>).
+					{(() => {
+						switch (submitted) {
+							case "UNSUBMITTED":
+								return "😶 Your data has not been submitted yet.";
+							case "PENDING":
+								return "🔄 Your data is being submitted.";
+							case "SUBMITTED":
+								return "✅ Your data has been successfully submitted.";
+							case "ERROR":
+								return "❌ There was an error submitting your data.";
+						}
+					})()}{" "}
+					If you have any questions or need further information, please email
+					Jackie Chan (<Email>jackiec3@illinois.edu</Email>).
 				</Body>
 				<Body>Have a great day!</Body>
 				<div className="relative w-full">

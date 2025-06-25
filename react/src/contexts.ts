@@ -50,6 +50,10 @@ export const SurveyContext = createContext<{
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
 
+	submitted: "UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR";
+	setSubmitted: React.Dispatch<
+		React.SetStateAction<"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR">
+	>;
 	// TODO: Add a completion timestamp.
 }>({
 	phase: "CONSENT",
@@ -93,4 +97,7 @@ export const SurveyContext = createContext<{
 
 	answers: {},
 	setAnswers: () => {},
+
+	submitted: "UNSUBMITTED",
+	setSubmitted: () => {},
 });
