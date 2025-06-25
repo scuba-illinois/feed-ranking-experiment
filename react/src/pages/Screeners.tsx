@@ -2,11 +2,6 @@ import { JSX, useContext, useState } from "react";
 import { Body, Header, RedAsterisk } from "../components/general";
 import { SurveyContext } from "../contexts";
 
-const removeDuplicatesAndSort = (arr: string[]): string[] => {
-	const uniqueArr = Array.from(new Set(arr));
-	return uniqueArr.sort((a, b) => a.localeCompare(b));
-};
-
 const Over18 = ({
 	answers,
 	setAnswers,
@@ -107,13 +102,17 @@ const RedditSubreddits = ({
 	const [subreddit, setSubreddit] = useState("");
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		if (e.key === "Enter" && subreddit.trim() !== "") {
+		if (
+			e.key === "Enter" &&
+			subreddit.trim() !== "" &&
+			(answers.subreddits || []).some(
+				(_subreddit: string) =>
+					_subreddit.trim().toLowerCase() === subreddit.trim().toLowerCase()
+			) === false
+		) {
 			setAnswers((state) => ({
 				...state,
-				subreddits: removeDuplicatesAndSort([
-					...(state.subreddits || []),
-					subreddit.trim(),
-				]),
+				subreddits: [...(answers.subreddits || []), subreddit.trim()],
 			}));
 			setSubreddit("");
 		}
@@ -122,9 +121,9 @@ const RedditSubreddits = ({
 	const handleRemove = (index: number) => {
 		setAnswers((state) => ({
 			...state,
-			subreddits: removeDuplicatesAndSort(
-				(state.subreddits as string[]).filter((_, i) => i !== index)
-			),
+			subreddits: [
+				...(state.subreddits as string[]).filter((_, i) => i !== index),
+			],
 		}));
 	};
 
@@ -205,7 +204,7 @@ const Interests = ({
 								  );
 							setAnswers({
 								...answers,
-								interests: removeDuplicatesAndSort(newInterests),
+								interests: [...new Set(newInterests)].sort(),
 							});
 						}}
 					/>
@@ -263,10 +262,10 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
-					{
-						"If applicable, what subreddits do you browse on Reddit? Hit enter to add. Subreddits will be listed below. Do not include the 'r/' prefix. Click on "
-					}
-					<span className="text-red-600">(X)</span>
+					If applicable, what subreddits do you browse on Reddit? Press enter to
+					add. Subreddits will be listed below. Do not include the 'r/' prefix.
+					Subreddits are case <span className="italic">insensitive</span>. Click
+					on <span className="text-red-600">(X)</span>
 					{" to remove."}
 				</>
 			),
