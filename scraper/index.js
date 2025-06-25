@@ -43,7 +43,7 @@ for (let i = 1; i < 11; i++) {
 
 	// Using the UUIDs, name the individual posts appropriately.
 	await article.screenshot({
-		path: path.join(outDir, `${uuids[i - 1]}.png`),
+		path: path.join(outDir, `${uuids[i - 1]}.jpg`),
 	});
 }
 
@@ -69,7 +69,7 @@ for (let i = 0; i < 10; i++) {
 
 	// Take screenshot
 	await page.screenshot({
-		path: path.join(outDir, `rotation-${i}.png`),
+		path: path.join(outDir, `rotation-${i}.jpg`),
 	});
 
 	// Rotate 10th post into 1st rank
