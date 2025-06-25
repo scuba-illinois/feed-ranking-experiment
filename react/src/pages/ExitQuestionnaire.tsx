@@ -107,7 +107,7 @@ const ContinueButton = ({
 							}
 						});
 					})
-					.catch((error) => {
+					.catch((_) => {
 						setSubmitted("ERROR");
 					});
 
