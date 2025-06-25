@@ -66,10 +66,8 @@ async def validate_participant(participant_id: str):
     # TODO: Should pull which feed UUIDs are assigned to them
     # and rotations for each feed.
 
-    if participant_id not in df["ID"].values:
+    if participant_id not in df["ID"].values and False:
         return {"valid": False}
-
-        # Check if the participant_id exists in the DataFrame
 
     # Read the meta.json for each feed UUID.
     feeds = [
