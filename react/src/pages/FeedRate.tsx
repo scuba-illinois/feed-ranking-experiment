@@ -353,7 +353,7 @@ const RatingPopup = ({
 
 	const CloseButton = () => (
 		<button
-			className="rounded text-white mt-4 py-2 px-4 bg-red-500 hover:bg-red-600"
+			className="rounded mt-4 py-2 px-4 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
 			onClick={() => {
 				setSelectedPost(null);
 				setLogs((state) => [
@@ -419,7 +419,7 @@ const RatingPopup = ({
 						)
 					)}
 				</div>
-				<div className="flex flex-row gap-2">
+				<div className="flex flex-row gap-2 justify-between">
 					<SubmitButton />
 					<CloseButton />
 				</div>
