@@ -83,12 +83,13 @@ const RedditUsage = ({
 			Select an option
 		</option>
 		<option value="never">Never</option>
-		<option value="rarely">Rarely (1-2 times)</option>
-		<option value="occasionally">Occasionally (3-10 times)</option>
-		<option value="frequently">Frequently (11-20 times)</option>
-		<option value="very_frequently">Very frequently (21-30 times)</option>
-		<option value="almost_every_day">Almost every day</option>
-		<option value="every_day">Every day or multiple times per day</option>
+		<option value="rarely">Rarely (once or twice a month)</option>
+		<option value="sometimes">Sometimes (a few times a month)</option>
+		<option value="occasionally">Occasionally (a few times a week)</option>
+		<option value="frequently">Frequently (about once a day)</option>
+		<option value="very_frequently">
+			Very frequently (multiple times a day)
+		</option>
 	</select>
 );
 
@@ -257,7 +258,7 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
-					How many times have you used Reddit in the previous month?
+					How often do you browse Reddit?
 					<RedAsterisk />
 				</>
 			),
