@@ -102,17 +102,21 @@ const RedditSubreddits = ({
 	const [subreddit, setSubreddit] = useState("");
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+		let _subreddit = e.currentTarget.value.trim();
+		if (_subreddit.startsWith("r/")) {
+			_subreddit = _subreddit.slice(2);
+		}
+
 		if (
 			e.key === "Enter" &&
-			subreddit.trim() !== "" &&
+			_subreddit !== "" &&
 			(answers.subreddits || []).some(
-				(_subreddit: string) =>
-					_subreddit.trim().toLowerCase() === subreddit.trim().toLowerCase()
+				(s: string) => s.toLowerCase() === _subreddit.toLowerCase()
 			) === false
 		) {
 			setAnswers((state) => ({
 				...state,
-				subreddits: [...(answers.subreddits || []), subreddit.trim()],
+				subreddits: [...(answers.subreddits || []), _subreddit],
 			}));
 			setSubreddit("");
 		}
@@ -262,11 +266,14 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
-					If applicable, what subreddits do you browse on Reddit? Press enter to
-					add. Subreddits will be listed below. Do not include the 'r/' prefix.
-					Subreddits are case <span className="italic">insensitive</span>. Click
-					on <span className="text-red-600">(X)</span>
-					{" to remove."}
+					If applicable, list the subreddits you browse the most on Reddit. Try
+					to include at least five. Press "Enter" to add. The subreddits you add
+					will be listed below. Do not include the{" "}
+					<span className="font-mono">"r/"</span> prefix (e.g., use{" "}
+					<span className="font-mono">pics</span>, not{" "}
+					<span className="font-mono">r/pics</span>). Subreddits are{" "}
+					<span className="italic">not case sensitive</span>. Click on{" "}
+					<span className="text-red-600">(X)</span> to remove.
 				</>
 			),
 			component: (
