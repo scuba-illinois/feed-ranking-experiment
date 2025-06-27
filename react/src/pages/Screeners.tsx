@@ -226,8 +226,6 @@ export const Screeners = () => {
 
 	const [_answers, _setAnswers] = useState<Record<string, any>>({});
 
-	// const isValid = false;
-
 	const isValid =
 		Object.keys(_answers).includes("age") &&
 		Object.keys(_answers).includes("inUSA") &&
