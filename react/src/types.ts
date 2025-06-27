@@ -8,8 +8,8 @@ export type Phase =
 
 export type QuestionAnswers = {
 	relevance: number;
-	trust: number;
 	quality: number;
+	manipulation: number;
 };
 
 export type FeedData = {
@@ -53,7 +53,7 @@ export type ExitQuestionnaireAnswers = {
 	selectedPostExplained: string;
 	nonSelectedPostExplained: string;
 	relevanceExplained: string;
-	trustExplained: string;
+	manipulationExplained: string;
 	qualityExplained: string;
 	postLikelihood: number;
 	selectedPostExample: {

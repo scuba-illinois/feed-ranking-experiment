@@ -7,10 +7,11 @@ import { pickRandomItems } from "../utils";
 
 const NUM_NON_SELECTED = 3;
 
-const QuestionWordings = {
-	quality: "This post is of high quality.",
-	relevance: "This post is relevant to me.",
-	trust: "This post is trustworthy.",
+const QUESTION_WORDINGS = {
+	quality: "This post seems well-made and high quality.",
+	relevance: "This post feels personally relevant to me.",
+	manipulation:
+		"This post seems exaggerated or misleading to attract attention.",
 };
 
 const Directions = () => {
@@ -24,8 +25,8 @@ const Directions = () => {
 			</Header>
 			<Body>
 				You'll now rate posts from the previous feed. The "Rate" button next to
-				each post will allow you to evaluate its relevance, trustworthiness, and
-				content quality.
+				each post will allow you to evaluate a post's relevance, quality, and
+				manipulativeness.
 			</Body>
 
 			<Body>
@@ -264,20 +265,24 @@ const RatingPopup = ({
 
 	const [answers, setAnswers] = useState<QuestionAnswers>({
 		relevance: previousAnswers?.relevance || 0,
-		trust: previousAnswers?.trust || 0,
 		quality: previousAnswers?.quality || 0,
+		manipulation: previousAnswers?.manipulation || 0,
 	});
 
 	const isValid = () => Object.values(answers).every((value) => value > 0);
 
 	const Question = ({ question }: { question: keyof QuestionAnswers }) => (
 		<div>
-			<Body>{QuestionWordings[question]}</Body>
-			<div className="flex flex-row gap-6 mt-4 mb-2 mx-4 items-start w-full justify-center">
-				<Body>Disagree</Body>
-				{[1, 2, 3, 4, 5, 6, 7].map((value) => (
-					<div key={value} className="flex items-center flex-col gap-2">
+			<Body>{QUESTION_WORDINGS[question]}</Body>
+			<div className="flex flex-row mt-4 mb-2 mx-4 items-start w-full justify-center">
+				<Body className="mr-2">Strongly Disagree</Body>
+				{[1, 2, 3, 4, 5].map((value) => (
+					<label
+						key={value}
+						className="flex flex-col items-center gap-2 px-4 cursor-pointer"
+					>
 						<input
+							className="cursor-pointer"
 							type="radio"
 							name={question}
 							value={value}
@@ -300,9 +305,9 @@ const RatingPopup = ({
 							}}
 						/>
 						<Body>{value}</Body>
-					</div>
+					</label>
 				))}
-				<Body>Agree</Body>
+				<Body className="ml-2">Strongly Agree</Body>
 			</div>
 		</div>
 	);
@@ -402,8 +407,8 @@ const RatingPopup = ({
 								You did <i>not</i> select
 							</>
 						)}{" "}
-						this post. Please rate its relevance, trustworthiness, and content
-						quality based on the preview.
+						this post. Please rate this post's relevance, quality, and
+						manipulativeness based on the preview.
 					</Body>
 				</>
 				<PostPreview fileName={postURLs[feedUUID][selectedPost]} />

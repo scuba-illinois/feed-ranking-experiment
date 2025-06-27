@@ -13,7 +13,7 @@ type Examples = {
 		feedUUID: string;
 		postUUID: string;
 		relevance: number;
-		trust: number;
+		manipulation: number;
 		quality: number;
 	};
 	nonSelectedPost: {
@@ -63,7 +63,7 @@ const ContinueButton = ({
 		exitAnswers.selectedPostExplained.trim() !== "" &&
 		exitAnswers.nonSelectedPostExplained.trim() !== "" &&
 		exitAnswers.relevanceExplained.trim() !== "" &&
-		exitAnswers.trustExplained.trim() !== "" &&
+		exitAnswers.manipulationExplained.trim() !== "" &&
 		exitAnswers.qualityExplained.trim() !== "" &&
 		exitAnswers.postLikelihood > 0;
 
@@ -218,7 +218,7 @@ const RatingExplanations = ({
 				feedUUID: string;
 				postUUID: string;
 				relevance: number;
-				trust: number;
+				manipulation: number;
 				quality: number;
 		  }
 		| undefined;
@@ -256,17 +256,17 @@ const RatingExplanations = ({
 				</div>
 				<div>
 					<Body>
-						(4b) For trustworthiness, you gave this post a{" "}
-						{post.trust.toLocaleString()} out of 7. How did you evaluate the
-						trustworthiness of this post?
+						(4b) For manipulativeness, you gave this post a{" "}
+						{post.manipulation.toLocaleString()} out of 7. How did you evaluate
+						the manipulativeness of this post?
 						<RedAsterisk />
 					</Body>
 					<TextArea
-						value={answers.trustExplained || ""}
+						value={answers.manipulationExplained || ""}
 						onChange={(e) =>
 							setAnswers({
 								...answers,
-								trustExplained: e.target.value,
+								manipulationExplained: e.target.value,
 							})
 						}
 						rows={2}
@@ -368,7 +368,7 @@ export const ExitQuestionnaire = () => {
 		selectedPostExplained: "",
 		nonSelectedPostExplained: "",
 		relevanceExplained: "",
-		trustExplained: "",
+		manipulationExplained: "",
 		qualityExplained: "",
 		postLikelihood: 0,
 		selectedPostExample: { feedUUID: "", postUUID: "" },
@@ -404,10 +404,10 @@ export const ExitQuestionnaire = () => {
 					answers[_ratedPostExample.feedUUID]!.ratings![
 						_ratedPostExample.postUUID
 					].relevance,
-				trust:
+				manipulation:
 					answers[_ratedPostExample.feedUUID]!.ratings![
 						_ratedPostExample.postUUID
-					].trust,
+					].manipulation,
 				quality:
 					answers[_ratedPostExample.feedUUID]!.ratings![
 						_ratedPostExample.postUUID
