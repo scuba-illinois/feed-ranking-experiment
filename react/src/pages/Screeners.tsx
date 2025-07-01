@@ -86,9 +86,9 @@ const RedditUsage = ({
 		<option value="rarely">Rarely (once or twice a month)</option>
 		<option value="sometimes">Sometimes (a few times a month)</option>
 		<option value="occasionally">Occasionally (a few times a week)</option>
-		<option value="frequently">Frequently (about once a day)</option>
+		<option value="frequently">Frequently (once or twice a day)</option>
 		<option value="very_frequently">
-			Very frequently (multiple times a day)
+			Very frequently (several times a day)
 		</option>
 	</select>
 );
