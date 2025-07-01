@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { Answers, Phase } from "./types";
+import { Answers, Phase, Settings } from "./types";
 
 export const SurveyContext = createContext<{
 	phase: Phase;
@@ -54,7 +54,9 @@ export const SurveyContext = createContext<{
 	setSubmitted: React.Dispatch<
 		React.SetStateAction<"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR">
 	>;
-	// TODO: Add a completion timestamp.
+
+	settings: Settings;
+	setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 }>({
 	phase: "CONSENT",
 	setPhase: () => {},
@@ -100,4 +102,10 @@ export const SurveyContext = createContext<{
 
 	submitted: "UNSUBMITTED",
 	setSubmitted: () => {},
+
+	settings: {
+		hideSelectionDirections: false,
+		hideRatingDirections: false,
+	},
+	setSettings: () => {},
 });

@@ -14,26 +14,69 @@ const QUESTION_WORDINGS = {
 		"This post seems exaggerated or misleading to attract attention.",
 };
 
+const ToggleDirectionsButton = () => {
+	const { settings, setSettings } = useContext(SurveyContext);
+
+	const toggleDirections = () => {
+		setSettings((state) => ({
+			...state,
+			hideRatingDirections: !state.hideRatingDirections,
+		}));
+	};
+
+	return settings.hideRatingDirections ? (
+		<button
+			onClick={toggleDirections}
+			className="text-[10pt] rounded py-1 px-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+		>
+			Hide Directions
+		</button>
+	) : (
+		<button
+			onClick={toggleDirections}
+			className="text-[10pt] rounded py-1 px-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+		>
+			Show Directions
+		</button>
+	);
+};
+
 const Directions = () => {
-	const { feeds, completedFeeds } = useContext(SurveyContext);
+	const { feeds, completedFeeds, settings } = useContext(SurveyContext);
 
 	return (
 		<div className="flex flex-col gap-2 mb-2">
-			<Header>
-				Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
-				{feeds.length.toLocaleString()})
-			</Header>
-			<Body>
-				You'll now rate posts from the previous feed. The "Rate" button next to
-				each post will allow you to evaluate a post's relevance, quality, and
-				manipulativeness.
-			</Body>
+			<div className="flex flex-row justify-between items-center">
+				{!settings.hideRatingDirections ? (
+					<Header>
+						Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+						{feeds.length.toLocaleString()})
+					</Header>
+				) : (
+					<Header>
+						Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+						{feeds.length.toLocaleString()}
+					</Header>
+				)}
+				<ToggleDirectionsButton />
+			</div>
+			{!settings.hideRatingDirections && (
+				<>
+					<Body>
+						You'll now rate posts from the previous feed. The "Rate" button next
+						to each post will allow you to evaluate a post's relevance, quality,
+						and manipulativeness.
+					</Body>
 
-			<Body>
-				Posts that you selected in the previous step will be marked with a star
-				icon (⭐️) near the top-right corner.
-			</Body>
-			<Body>There's no time limit. You must rate every post to continue.</Body>
+					<Body>
+						Posts that you selected in the previous step will be marked with a
+						star icon (⭐️) near the top-right corner.
+					</Body>
+					<Body>
+						There's no time limit. You must rate every post to continue.
+					</Body>
+				</>
+			)}
 		</div>
 	);
 };
@@ -420,8 +463,8 @@ const RatingPopup = ({
 					)}
 				</div>
 				<div className="flex flex-row gap-2 justify-between">
-					<SubmitButton />
 					<CloseButton />
+					<SubmitButton />
 				</div>
 			</div>
 		</div>

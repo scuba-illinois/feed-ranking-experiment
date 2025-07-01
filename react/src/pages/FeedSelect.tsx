@@ -6,27 +6,68 @@ import { formatTime } from "../utils";
 
 const TIMER_SETTING = 120;
 
+const ToggleDirectionsButton = () => {
+	const { settings, setSettings } = useContext(SurveyContext);
+
+	const toggleDirections = () => {
+		setSettings((state) => ({
+			...state,
+			hideSelectionDirections: !state.hideSelectionDirections,
+		}));
+	};
+
+	return settings.hideSelectionDirections ? (
+		<button
+			onClick={toggleDirections}
+			className="text-[10pt] rounded py-1 px-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+		>
+			Hide Directions
+		</button>
+	) : (
+		<button
+			onClick={toggleDirections}
+			className="text-[10pt] rounded py-1 px-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+		>
+			Show Directions
+		</button>
+	);
+};
+
 const Directions = () => {
-	const { feeds, completedFeeds } = useContext(SurveyContext);
+	const { feeds, completedFeeds, settings } = useContext(SurveyContext);
 
 	const feed = ["first", "second", "third and final"][completedFeeds.length];
 
 	return (
 		<div className="flex flex-col gap-2 mb-2">
-			<Header>
-				Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
-				{feeds.length.toLocaleString()})
-			</Header>
-			<Body>
-				You'll be shown three screenshots of Reddit's r/popular feed, each
-				containing 10 posts. <i>This is your {feed} feed.</i>
-			</Body>
-			<Body>
-				You have 2 minutes to select <i>up to 3 posts</i> you'd want to read
-				more about by clicking the "Select" button next to each post.
-			</Body>
-			<Body>Click "Show Feed" to begin. A timer will appear below.</Body>
-			<Body>When you're done, click "Continue".</Body>
+			<div className="flex flex-row justify-between items-center">
+				{!settings.hideSelectionDirections ? (
+					<Header>
+						Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+						{feeds.length.toLocaleString()})
+					</Header>
+				) : (
+					<Header>
+						Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+						{feeds.length.toLocaleString()}
+					</Header>
+				)}
+				<ToggleDirectionsButton />
+			</div>
+			{!settings.hideSelectionDirections && (
+				<>
+					<Body>
+						You'll be shown three screenshots of Reddit's r/popular feed, each
+						containing 10 posts. <i>This is your {feed} feed.</i>
+					</Body>
+					<Body>
+						You have 2 minutes to select <i>up to 3 posts</i> you'd want to read
+						more about by clicking the "Select" button next to each post.
+					</Body>
+					<Body>Click "Show Feed" to begin. A timer will appear below.</Body>
+					<Body>When you're done, click "Continue".</Body>
+				</>
+			)}
 		</div>
 	);
 };

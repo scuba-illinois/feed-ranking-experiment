@@ -34,6 +34,10 @@ function App() {
 	const [submitted, setSubmitted] = useState<
 		"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR"
 	>("UNSUBMITTED");
+	const [settings, setSettings] = useState({
+		hideSelectionDirections: false,
+		hideRatingDirections: false,
+	});
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
 	useEffect(() => {
@@ -73,6 +77,8 @@ function App() {
 				setExitTimestamp,
 				submitted,
 				setSubmitted,
+				settings,
+				setSettings,
 			}}
 		>
 			{phase === "CONSENT" && <Intro />}

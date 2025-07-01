@@ -69,3 +69,8 @@ export type ExitQuestionnaireAnswers = {
 		postUUID: string;
 	};
 };
+
+export type Settings = {
+	hideSelectionDirections: boolean;
+	hideRatingDirections: boolean;
+};
