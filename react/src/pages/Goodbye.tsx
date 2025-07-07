@@ -20,21 +20,21 @@ export default function Goodbye() {
 		submitted,
 	} = useContext(SurveyContext);
 
-	const jsonData = {
-		participantID: participantID,
-		consentTimestamp: consentTimestamp,
-		feeds: feeds,
-		screenerAnswers: screenerAnswers,
-		screenerStart: screenerStart,
-		screenerEnd: screenerEnd,
-		screenerDuration: screenerDuration,
-		exitAnswers: exitAnswers,
-		exitStart: exitStart,
-		exitEnd: exitEnd,
-		exitDuration: exitDuration,
-		totalDuration: totalDuration,
-		answers: answers,
-	};
+	// const jsonData = {
+	// 	participantID: participantID,
+	// 	consentTimestamp: consentTimestamp,
+	// 	feeds: feeds,
+	// 	screenerAnswers: screenerAnswers,
+	// 	screenerStart: screenerStart,
+	// 	screenerEnd: screenerEnd,
+	// 	screenerDuration: screenerDuration,
+	// 	exitAnswers: exitAnswers,
+	// 	exitStart: exitStart,
+	// 	exitEnd: exitEnd,
+	// 	exitDuration: exitDuration,
+	// 	totalDuration: totalDuration,
+	// 	answers: answers,
+	// };
 
 	return (
 		<div className="flex justify-center h-[100vh] gap-2 p-4">
