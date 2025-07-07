@@ -10,7 +10,7 @@ const Over18 = ({
 	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 }) => (
 	<div className="flex flex-col gap-1">
-		<div className="flex gap-2">
+		<label className="flex gap-2">
 			<input
 				type="radio"
 				name="age"
@@ -18,9 +18,9 @@ const Over18 = ({
 				checked={answers.age === "yes"}
 				onChange={() => setAnswers({ ...answers, age: "yes" })}
 			/>
-			<label className="text-[10pt] text-gray-600">Yes</label>
-		</div>
-		<div className="flex gap-2">
+			<span className="text-[10pt] text-gray-600">Yes</span>
+		</label>
+		<label className="flex gap-2">
 			<input
 				type="radio"
 				name="age"
@@ -28,8 +28,8 @@ const Over18 = ({
 				checked={answers.age === "no"}
 				onChange={() => setAnswers({ ...answers, age: "no" })}
 			/>
-			<label className="text-[10pt] text-gray-600">No</label>
-		</div>
+			<span className="text-[10pt] text-gray-600">No</span>
+		</label>
 	</div>
 );
 
@@ -42,7 +42,7 @@ const InUSA = ({
 }) => (
 	<div>
 		<div className="flex flex-col gap-1">
-			<div className="flex gap-2">
+			<label className="flex gap-2">
 				<input
 					type="radio"
 					name="inUSA"
@@ -50,9 +50,9 @@ const InUSA = ({
 					checked={answers.inUSA === "yes"}
 					onChange={() => setAnswers({ ...answers, inUSA: "yes" })}
 				/>
-				<label className="text-[10pt] text-gray-600">Yes</label>
-			</div>
-			<div className="flex gap-2">
+				<span className="text-[10pt] text-gray-600">Yes</span>
+			</label>
+			<label className="flex gap-2">
 				<input
 					type="radio"
 					name="inUSA"
@@ -60,8 +60,8 @@ const InUSA = ({
 					checked={answers.inUSA === "no"}
 					onChange={() => setAnswers({ ...answers, inUSA: "no" })}
 				/>
-				<label className="text-[10pt] text-gray-600">No</label>
-			</div>
+				<span className="text-[10pt] text-gray-600">No</span>
+			</label>
 		</div>
 	</div>
 );
@@ -194,7 +194,7 @@ const Interests = ({
 				"Vehicles",
 				"Wellness",
 			].map((interest) => (
-				<div key={interest} className="flex flex-row gap-2">
+				<label key={interest} className="flex flex-row gap-2">
 					<input
 						key={interest}
 						type="checkbox"
@@ -213,8 +213,8 @@ const Interests = ({
 							});
 						}}
 					/>
-					<label className="text-[10pt] text-gray-600">{interest} </label>
-				</div>
+					<span className="text-[10pt] text-gray-600">{interest} </span>
+				</label>
 			))}
 		</div>
 	);

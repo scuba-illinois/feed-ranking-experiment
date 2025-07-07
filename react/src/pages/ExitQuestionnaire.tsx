@@ -306,16 +306,20 @@ const PostLikelihood = ({
 		<div className="flex flex-row items-start w-full justify-center gap-6 my-2">
 			<Body>Unlikely</Body>
 			{[1, 2, 3, 4, 5, 6, 7].map((score) => (
-				<div key={score} className="flex flex-col items-center">
+				<label
+					key={score}
+					className="flex flex-col items-center gap-2 cursor-pointer"
+				>
 					<input
 						type="radio"
 						name="postLikelihood"
 						value={score}
 						checked={answers.postLikelihood === score}
 						onChange={() => setAnswers({ ...answers, postLikelihood: score })}
+						className="cursor-pointer"
 					/>
-					<label className="text-[10pt] text-gray-600 mt-1">{score}</label>
-				</div>
+					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
+				</label>
 			))}
 			<Body>Likely</Body>
 		</div>
