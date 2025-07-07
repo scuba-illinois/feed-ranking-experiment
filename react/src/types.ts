@@ -4,7 +4,8 @@ export type Phase =
 	| "FEED"
 	| "FEEDRATING"
 	| "EXIT"
-	| "GOODBYE";
+	| "GOODBYE"
+	| "UNQUALIFIED";
 
 export type QuestionAnswers = {
 	relevance: number;

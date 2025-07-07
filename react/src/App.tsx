@@ -7,6 +7,7 @@ import { Screeners } from "./pages/Screeners";
 import { ExitQuestionnaire } from "./pages/ExitQuestionnaire";
 import { FeedSelect } from "./pages/FeedSelect";
 import { FeedRate } from "./pages/FeedRate";
+import Unqualified from "./pages/Unqualified";
 
 function App() {
 	const [phase, setPhase] = useState<Phase>("CONSENT");
@@ -87,6 +88,7 @@ function App() {
 			{phase === "FEEDRATING" && <FeedRate />}
 			{phase === "EXIT" && <ExitQuestionnaire />}
 			{phase === "GOODBYE" && <Goodbye />}
+			{phase === "UNQUALIFIED" && <Unqualified />}
 		</SurveyContext.Provider>
 	);
 }

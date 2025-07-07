@@ -311,15 +311,17 @@ export const Screeners = () => {
 					}
 					disabled={!isValid}
 					onClick={() => {
+						// Record the answers to context state.
 						setScreenerAnswers(_answers);
 						setScreenerTimestamp(new Date().toISOString());
 
+						// Determine the next phase based on answers.
 						if (
 							_answers.age === "no" ||
 							_answers.inUSA === "no" ||
 							_answers.redditUsage === "never"
 						) {
-							setPhase("GOODBYE");
+							setPhase("UNQUALIFIED");
 						} else {
 							setPhase("FEED");
 						}
