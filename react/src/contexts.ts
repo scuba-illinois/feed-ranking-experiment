@@ -5,11 +5,11 @@ export const SurveyContext = createContext<{
 	phase: Phase;
 	setPhase: React.Dispatch<React.SetStateAction<Phase>>;
 
-	participantID: string | null;
-	setParticipantID: React.Dispatch<React.SetStateAction<string | null>>;
+	participantID: string;
+	setParticipantID: React.Dispatch<React.SetStateAction<string>>;
 
-	consentTimestamp: string | null;
-	setConsentTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
+	consentTimestamp: string;
+	setConsentTimestamp: React.Dispatch<React.SetStateAction<string>>;
 
 	feeds: string[];
 	setFeeds: React.Dispatch<React.SetStateAction<string[]>>;
@@ -31,9 +31,6 @@ export const SurveyContext = createContext<{
 
 	completedFeeds: string[];
 	setCompletedFeeds: React.Dispatch<React.SetStateAction<string[]>>;
-
-	rotations: number[];
-	setRotations: React.Dispatch<React.SetStateAction<number[]>>;
 
 	screenerAnswers?: Record<string, any>;
 	setScreenerAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
@@ -59,6 +56,9 @@ export const SurveyContext = createContext<{
 	exitDuration: number;
 	setExitDuration: React.Dispatch<React.SetStateAction<number>>;
 
+	totalDuration: number;
+	setTotalDuration: React.Dispatch<React.SetStateAction<number>>;
+
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
 
@@ -73,10 +73,10 @@ export const SurveyContext = createContext<{
 	phase: "CONSENT",
 	setPhase: () => {},
 
-	participantID: null,
+	participantID: "",
 	setParticipantID: () => {},
 
-	consentTimestamp: null,
+	consentTimestamp: "",
 	setConsentTimestamp: () => {},
 
 	feeds: [],
@@ -93,9 +93,6 @@ export const SurveyContext = createContext<{
 
 	completedFeeds: [],
 	setCompletedFeeds: () => {},
-
-	rotations: [],
-	setRotations: () => {},
 
 	screenerAnswers: {},
 	setScreenerAnswers: () => {},
@@ -120,6 +117,9 @@ export const SurveyContext = createContext<{
 
 	exitDuration: -1,
 	setExitDuration: () => {},
+
+	totalDuration: -1,
+	setTotalDuration: () => {},
 
 	answers: {},
 	setAnswers: () => {},

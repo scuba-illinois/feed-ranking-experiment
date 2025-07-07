@@ -55,10 +55,11 @@ const ContinueButton = ({
 		screenerEnd,
 		screenerDuration,
 		setPhase,
-		setExitAnswers,
 		exitStart,
+		setExitAnswers,
 		setExitEnd,
 		setExitDuration,
+		setTotalDuration,
 		setSubmitted,
 	} = useContext(SurveyContext);
 
@@ -82,10 +83,14 @@ const ContinueButton = ({
 				const exitEnd = new Date();
 				const exitDuration =
 					(exitEnd.getTime() - new Date(exitStart).getTime()) / 1_000;
+				const totalDuration =
+					(exitEnd.getTime() - new Date(consentTimestamp).getTime()) / 1_000;
 
-				setExitAnswers(answers || {});
+				setExitAnswers(exitAnswers);
+
 				setExitEnd(exitEnd.toISOString());
 				setExitDuration(exitDuration);
+				setTotalDuration(totalDuration);
 
 				setSubmitted("PENDING");
 
@@ -98,15 +103,18 @@ const ContinueButton = ({
 						participantID: participantID,
 						consentTimestamp: consentTimestamp,
 						feeds: feeds,
+
 						screenerAnswers: screenerAnswers,
 						screenerStart: screenerStart,
 						screenerEnd: screenerEnd,
 						screenerDuration: screenerDuration,
-						answers: answers,
+
 						exitAnswers: exitAnswers,
 						exitStart: exitStart,
 						exitEnd: exitEnd,
 						exitDuration: exitDuration,
+
+						answers: answers,
 					}),
 				})
 					.then((response) => {

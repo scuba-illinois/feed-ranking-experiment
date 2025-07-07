@@ -8,7 +8,6 @@ export default function Goodbye() {
 		consentTimestamp,
 		answers,
 		feeds,
-		rotations,
 		screenerAnswers,
 		screenerStart,
 		screenerEnd,
@@ -17,6 +16,7 @@ export default function Goodbye() {
 		exitStart,
 		exitEnd,
 		exitDuration,
+		totalDuration,
 		submitted,
 	} = useContext(SurveyContext);
 
@@ -32,7 +32,7 @@ export default function Goodbye() {
 		exitStart: exitStart,
 		exitEnd: exitEnd,
 		exitDuration: exitDuration,
-		rotations: rotations,
+		totalDuration: totalDuration,
 		answers: answers,
 	};
 
@@ -53,25 +53,13 @@ export default function Goodbye() {
 								return "❌ There was an error submitting your data.";
 						}
 					})()}{" "}
+				</Body>
+				<Body>
 					If you have any questions or need further information, please email
 					Jackie Chan (<Email>jackiec3@illinois.edu</Email>).
 				</Body>
 				<Body>Have a great day!</Body>
-				<div className="relative w-full">
-					<textarea
-						className="h-[500px] w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
-						value={JSON.stringify(jsonData, null, 4)}
-						readOnly
-					/>
-					<button
-						className="absolute top-2 right-6 px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
-						onClick={() =>
-							navigator.clipboard.writeText(JSON.stringify(jsonData, null, 4))
-						}
-					>
-						Copy
-					</button>
-				</div>
+				{/* <DebugInfo /> */}
 			</div>
 		</div>
 	);

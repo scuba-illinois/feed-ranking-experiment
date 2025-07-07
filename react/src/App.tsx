@@ -11,8 +11,8 @@ import Unqualified from "./pages/Unqualified";
 
 function App() {
 	const [phase, setPhase] = useState<Phase>("CONSENT");
-	const [participantID, setParticipantID] = useState<string | null>(null);
-	const [consentTimestamp, setConsentTimestamp] = useState<string | null>(null);
+	const [participantID, setParticipantID] = useState<string>("");
+	const [consentTimestamp, setConsentTimestamp] = useState<string>("");
 	const [feeds, setFeeds] = useState<string[]>([]);
 	const [completedFeeds, setCompletedFeeds] = useState<string[]>([]);
 	const [feedURLs, setFeedURLs] = useState<string[]>([]);
@@ -22,7 +22,6 @@ function App() {
 	const [feedData, setFeedData] = useState<
 		Record<string, { uuid: string; y: number; height: number }[]>
 	>({});
-	const [rotations, setRotations] = useState<number[]>([]);
 	const [answers, setAnswers] = useState<Answers>({});
 
 	const [screenerAnswers, setScreenerAnswers] = useState<Record<string, any>>(
@@ -36,6 +35,9 @@ function App() {
 	const [exitStart, setExitStart] = useState<string>("");
 	const [exitEnd, setExitEnd] = useState<string>("");
 	const [exitDuration, setExitDuration] = useState<number>(-1);
+
+	const [totalDuration, setTotalDuration] = useState<number>(-1);
+
 	const [submitted, setSubmitted] = useState<
 		"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR"
 	>("UNSUBMITTED");
@@ -68,8 +70,6 @@ function App() {
 				setPostURLs,
 				completedFeeds,
 				setCompletedFeeds,
-				rotations,
-				setRotations,
 				answers,
 				setAnswers,
 				screenerAnswers,
@@ -88,6 +88,8 @@ function App() {
 				setExitEnd,
 				exitDuration,
 				setExitDuration,
+				totalDuration,
+				setTotalDuration,
 				submitted,
 				setSubmitted,
 				settings,

@@ -128,10 +128,17 @@ const ContinueButton = ({
 				(disabled ? "opacity-50 cursor-not-allowed" : "")
 			}
 			onClick={() => {
+				const ratingEnd = new Date();
+
 				setAnswers((state) => ({
 					...state,
 					[feedUUID]: {
 						...state[feedUUID],
+						ratingEnd: ratingEnd.toISOString(),
+						ratingDuration:
+							(ratingEnd.getTime() -
+								new Date(state[feedUUID].ratingStart).getTime()) /
+							1_000,
 						ratings: ratings,
 						ratingLogs: [
 							...logs,
@@ -472,7 +479,7 @@ const RatingPopup = ({
 };
 
 export const FeedRate = () => {
-	const { feeds, feedURLs, feedData, completedFeeds, answers } =
+	const { feeds, feedURLs, feedData, completedFeeds, answers, setAnswers } =
 		useContext(SurveyContext);
 
 	// Figure out which feed and rotation we are currently on.
@@ -485,6 +492,16 @@ export const FeedRate = () => {
 
 	// Used to track which post is being rated.
 	const [_selectedPost, _setSelectedPost] = useState<string | null>(null);
+
+	useEffect(() => {
+		setAnswers((state) => ({
+			...state,
+			[feedUUID]: {
+				...state[feedUUID],
+				ratingStart: new Date().toISOString(),
+			},
+		}));
+	}, []);
 
 	return (
 		<div className="flex justify-center h-[100vh] gap-2 py-4">

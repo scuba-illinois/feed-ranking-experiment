@@ -46,6 +46,12 @@ export type Answers = Record<
 		selectionLogs?: SelectionLogs;
 		ratings?: Record<string, QuestionAnswers>;
 		ratingLogs?: RatingLogs;
+		selectionStart: string;
+		selectionEnd: string;
+		selectionDuration: number;
+		ratingStart: string;
+		ratingEnd: string;
+		ratingDuration: number;
 	}
 >;
 

@@ -66,6 +66,8 @@ export const DebugInfo = () => {
 		exitStart,
 		exitEnd,
 		exitDuration,
+		answers,
+		exitAnswers,
 	} = useContext(SurveyContext);
 
 	const jsonData = {
@@ -77,12 +79,14 @@ export const DebugInfo = () => {
 		exitStart,
 		exitEnd,
 		exitDuration,
+		answers,
+		exitAnswers,
 	};
 
 	return (
 		<div className="relative w-full">
 			<textarea
-				className="h-[200px] w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
+				className="h-[400px] w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
 				value={JSON.stringify(jsonData, null, 4)}
 				readOnly
 			/>

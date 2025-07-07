@@ -76,28 +76,42 @@ const ShowFeedButton = ({
 	setIsVisible,
 	setTimeLeft,
 	setLogs,
+	feedUUID,
 }: {
 	setIsVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	setTimeLeft: React.Dispatch<React.SetStateAction<number>>;
 	setLogs: React.Dispatch<React.SetStateAction<SelectionLogs>>;
-}) => (
-	<button
-		className="py-2 px-3 mt-1 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
-		onClick={() => {
-			setIsVisible(true);
-			setTimeLeft(TIMER_SETTING);
-			setLogs((state) => [
-				...state,
-				{
-					timestamp: new Date().toISOString(),
-					action: "START",
-				},
-			]);
-		}}
-	>
-		Show Feed
-	</button>
-);
+	feedUUID: string;
+}) => {
+	const { setAnswers } = useContext(SurveyContext);
+
+	return (
+		<button
+			className="py-2 px-3 mt-1 shadow-lg rounded-md text-[10pt] text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+			onClick={() => {
+				setIsVisible(true);
+				setTimeLeft(TIMER_SETTING);
+				setLogs((state) => [
+					...state,
+					{
+						timestamp: new Date().toISOString(),
+						action: "START",
+					},
+				]);
+
+				setAnswers((state) => ({
+					...state,
+					[feedUUID]: {
+						...state[feedUUID],
+						selectionStart: new Date().toISOString(),
+					},
+				}));
+			}}
+		>
+			Show Feed
+		</button>
+	);
+};
 
 export const FeedView = ({
 	fileName,
@@ -287,24 +301,29 @@ const Status = ({
 const ContinueButton = ({
 	selectedPosts,
 	logs,
+	feedUUID,
 }: {
 	selectedPosts: string[];
 	logs: SelectionLogs;
+	feedUUID: string;
 }) => {
-	const { setPhase, setAnswers, feeds, completedFeeds } =
-		useContext(SurveyContext);
-
-	// Figure out which feed you're on so you can save the answers correctly.
-	const feedUUID = feeds[completedFeeds.length];
+	const { setPhase, setAnswers } = useContext(SurveyContext);
 
 	const isDisabled = selectedPosts.length < 1;
 
 	const onClick = () => {
+		const end = new Date();
+
 		setPhase("FEEDRATING");
 
 		setAnswers((state) => ({
 			...state,
 			[feedUUID]: {
+				...state[feedUUID],
+				selectionEnd: end.toISOString(),
+				selectionDuration:
+					(end.getTime() - new Date(state[feedUUID].selectionStart).getTime()) /
+					1_000,
 				selectedPosts: selectedPosts,
 				selectionLogs: [
 					...logs,
@@ -382,6 +401,7 @@ export const FeedSelect = () => {
 						setIsVisible={setIsVisible}
 						setTimeLeft={setTimeLeft}
 						setLogs={_setLogs}
+						feedUUID={feedUUID}
 					/>
 				)}
 
@@ -397,7 +417,11 @@ export const FeedSelect = () => {
 					</Body>
 				)}
 				{isVisible && (
-					<ContinueButton selectedPosts={_selectedPosts} logs={_logs} />
+					<ContinueButton
+						selectedPosts={_selectedPosts}
+						logs={_logs}
+						feedUUID={feedUUID}
+					/>
 				)}
 
 				{isVisible && (!timeExpired || _selectedPosts.length < 1) && (
