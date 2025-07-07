@@ -51,10 +51,14 @@ const ContinueButton = ({
 		answers,
 		feeds,
 		screenerAnswers,
-		screenerTimestamp,
+		screenerStart,
+		screenerEnd,
+		screenerDuration,
 		setPhase,
 		setExitAnswers,
-		setExitTimestamp,
+		exitStart,
+		setExitEnd,
+		setExitDuration,
 		setSubmitted,
 	} = useContext(SurveyContext);
 
@@ -75,10 +79,13 @@ const ContinueButton = ({
 				(isValid ? "" : " opacity-50 cursor-not-allowed")
 			}
 			onClick={() => {
-				const exitTimestamp = new Date().toISOString();
+				const exitEnd = new Date();
+				const exitDuration =
+					(exitEnd.getTime() - new Date(exitStart).getTime()) / 1_000;
 
 				setExitAnswers(answers || {});
-				setExitTimestamp(exitTimestamp);
+				setExitEnd(exitEnd.toISOString());
+				setExitDuration(exitDuration);
 
 				setSubmitted("PENDING");
 
@@ -92,10 +99,14 @@ const ContinueButton = ({
 						consentTimestamp: consentTimestamp,
 						feeds: feeds,
 						screenerAnswers: screenerAnswers,
-						screenerTimestamp: screenerTimestamp,
+						screenerStart: screenerStart,
+						screenerEnd: screenerEnd,
+						screenerDuration: screenerDuration,
 						answers: answers,
 						exitAnswers: exitAnswers,
-						exitTimestamp: exitTimestamp,
+						exitStart: exitStart,
+						exitEnd: exitEnd,
+						exitDuration: exitDuration,
 					}),
 				})
 					.then((response) => {
@@ -365,7 +376,7 @@ const getNonSelectedPosts = (
 };
 
 export const ExitQuestionnaire = () => {
-	const { answers } = useContext(SurveyContext);
+	const { answers, setExitStart } = useContext(SurveyContext);
 
 	const [_answers, _setAnswers] = useState<ExitQuestionnaireAnswers>({
 		postSelectionExplained: "",
@@ -383,6 +394,8 @@ export const ExitQuestionnaire = () => {
 	const [examples, setExamples] = useState<Examples | null>(null);
 
 	useEffect(() => {
+		setExitStart(new Date().toISOString());
+
 		// Gets all selected and non-selected posts from the answers,
 		// formats it into a list of dicts in the form of:
 		// { feedUUID: string, postUUID: string }.

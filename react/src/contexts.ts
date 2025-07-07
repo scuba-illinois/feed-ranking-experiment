@@ -38,14 +38,26 @@ export const SurveyContext = createContext<{
 	screenerAnswers?: Record<string, any>;
 	setScreenerAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 
-	screenerTimestamp: string | null;
-	setScreenerTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
+	screenerStart: string;
+	setScreenerStart: React.Dispatch<React.SetStateAction<string>>;
+
+	screenerEnd: string;
+	setScreenerEnd: React.Dispatch<React.SetStateAction<string>>;
+
+	screenerDuration: number;
+	setScreenerDuration: React.Dispatch<React.SetStateAction<number>>;
 
 	exitAnswers?: Record<string, any>;
 	setExitAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
 
-	exitTimestamp: string | null;
-	setExitTimestamp: React.Dispatch<React.SetStateAction<string | null>>;
+	exitStart: string;
+	setExitStart: React.Dispatch<React.SetStateAction<string>>;
+
+	exitEnd: string;
+	setExitEnd: React.Dispatch<React.SetStateAction<string>>;
+
+	exitDuration: number;
+	setExitDuration: React.Dispatch<React.SetStateAction<number>>;
 
 	answers: Answers;
 	setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
@@ -88,14 +100,26 @@ export const SurveyContext = createContext<{
 	screenerAnswers: {},
 	setScreenerAnswers: () => {},
 
-	screenerTimestamp: null,
-	setScreenerTimestamp: () => {},
+	screenerStart: "",
+	setScreenerStart: () => {},
+
+	screenerEnd: "",
+	setScreenerEnd: () => {},
+
+	screenerDuration: -1,
+	setScreenerDuration: () => {},
 
 	exitAnswers: {},
 	setExitAnswers: () => {},
 
-	exitTimestamp: null,
-	setExitTimestamp: () => {},
+	exitStart: "",
+	setExitStart: () => {},
+
+	exitEnd: "",
+	setExitEnd: () => {},
+
+	exitDuration: -1,
+	setExitDuration: () => {},
 
 	answers: {},
 	setAnswers: () => {},

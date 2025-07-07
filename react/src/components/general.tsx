@@ -1,4 +1,5 @@
-import { ReactNode } from "react";
+import { ReactNode, useContext } from "react";
+import { SurveyContext } from "../contexts";
 
 export const RedAsterisk = () => <span className="text-red-600">*</span>;
 
@@ -54,3 +55,45 @@ export function Button({
 		</button>
 	);
 }
+
+export const DebugInfo = () => {
+	const {
+		participantID,
+		consentTimestamp,
+		screenerStart,
+		screenerEnd,
+		screenerDuration,
+		exitStart,
+		exitEnd,
+		exitDuration,
+	} = useContext(SurveyContext);
+
+	const jsonData = {
+		participantID,
+		consentTimestamp,
+		screenerStart,
+		screenerEnd,
+		screenerDuration,
+		exitStart,
+		exitEnd,
+		exitDuration,
+	};
+
+	return (
+		<div className="relative w-full">
+			<textarea
+				className="h-[200px] w-full p-2 font-mono text-[6pt] bg-gray-100 border border-gray-300 rounded resize-none"
+				value={JSON.stringify(jsonData, null, 4)}
+				readOnly
+			/>
+			<button
+				className="absolute top-2 right-6 px-2 py-1 text-xs text-white bg-blue-500 rounded hover:bg-blue-600"
+				onClick={() =>
+					navigator.clipboard.writeText(JSON.stringify(jsonData, null, 4))
+				}
+			>
+				Copy
+			</button>
+		</div>
+	);
+};

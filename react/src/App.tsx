@@ -24,14 +24,18 @@ function App() {
 	>({});
 	const [rotations, setRotations] = useState<number[]>([]);
 	const [answers, setAnswers] = useState<Answers>({});
+
 	const [screenerAnswers, setScreenerAnswers] = useState<Record<string, any>>(
 		{}
 	);
-	const [screenerTimestamp, setScreenerTimestamp] = useState<string | null>(
-		null
-	);
+	const [screenerStart, setScreenerStart] = useState<string>("");
+	const [screenerEnd, setScreenerEnd] = useState<string>("");
+	const [screenerDuration, setScreenerDuration] = useState<number>(-1);
+
 	const [exitAnswers, setExitAnswers] = useState<Record<string, any>>({});
-	const [exitTimestamp, setExitTimestamp] = useState<string | null>(null);
+	const [exitStart, setExitStart] = useState<string>("");
+	const [exitEnd, setExitEnd] = useState<string>("");
+	const [exitDuration, setExitDuration] = useState<number>(-1);
 	const [submitted, setSubmitted] = useState<
 		"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR"
 	>("UNSUBMITTED");
@@ -70,12 +74,20 @@ function App() {
 				setAnswers,
 				screenerAnswers,
 				setScreenerAnswers,
-				screenerTimestamp,
-				setScreenerTimestamp,
+				screenerStart,
+				setScreenerStart,
+				screenerEnd,
+				setScreenerEnd,
+				screenerDuration,
+				setScreenerDuration,
 				exitAnswers,
 				setExitAnswers,
-				exitTimestamp,
-				setExitTimestamp,
+				exitStart,
+				setExitStart,
+				exitEnd,
+				setExitEnd,
+				exitDuration,
+				setExitDuration,
 				submitted,
 				setSubmitted,
 				settings,

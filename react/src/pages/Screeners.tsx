@@ -1,4 +1,4 @@
-import { JSX, useContext, useState } from "react";
+import { JSX, useContext, useEffect, useState } from "react";
 import { Body, Header, RedAsterisk } from "../components/general";
 import { SurveyContext } from "../contexts";
 
@@ -221,8 +221,18 @@ const Interests = ({
 };
 
 export const Screeners = () => {
-	const { setPhase, setScreenerAnswers, setScreenerTimestamp } =
-		useContext(SurveyContext);
+	const {
+		setPhase,
+		setScreenerAnswers,
+		screenerStart,
+		setScreenerStart,
+		setScreenerEnd,
+		setScreenerDuration,
+	} = useContext(SurveyContext);
+
+	useEffect(() => {
+		setScreenerStart(new Date().toISOString());
+	}, []);
 
 	const [_answers, _setAnswers] = useState<Record<string, any>>({});
 
@@ -313,7 +323,14 @@ export const Screeners = () => {
 					onClick={() => {
 						// Record the answers to context state.
 						setScreenerAnswers(_answers);
-						setScreenerTimestamp(new Date().toISOString());
+
+						const screenerEnd = new Date();
+
+						setScreenerEnd(screenerEnd.toISOString());
+						setScreenerDuration(
+							(screenerEnd.getTime() - new Date(screenerStart).getTime()) /
+								1_000
+						);
 
 						// Determine the next phase based on answers.
 						if (
@@ -333,5 +350,3 @@ export const Screeners = () => {
 		</div>
 	);
 };
-
-// Throwaway comment.
