@@ -3,38 +3,7 @@ import { SurveyContext } from "../contexts";
 import { Body, Email, Header } from "../components/general";
 
 export default function Goodbye() {
-	const {
-		participantID,
-		consentTimestamp,
-		answers,
-		feeds,
-		screenerAnswers,
-		screenerStart,
-		screenerEnd,
-		screenerDuration,
-		exitAnswers,
-		exitStart,
-		exitEnd,
-		exitDuration,
-		totalDuration,
-		submitted,
-	} = useContext(SurveyContext);
-
-	// const jsonData = {
-	// 	participantID: participantID,
-	// 	consentTimestamp: consentTimestamp,
-	// 	feeds: feeds,
-	// 	screenerAnswers: screenerAnswers,
-	// 	screenerStart: screenerStart,
-	// 	screenerEnd: screenerEnd,
-	// 	screenerDuration: screenerDuration,
-	// 	exitAnswers: exitAnswers,
-	// 	exitStart: exitStart,
-	// 	exitEnd: exitEnd,
-	// 	exitDuration: exitDuration,
-	// 	totalDuration: totalDuration,
-	// 	answers: answers,
-	// };
+	const { submitted } = useContext(SurveyContext);
 
 	return (
 		<div className="flex justify-center h-[100vh] gap-2 p-4">
