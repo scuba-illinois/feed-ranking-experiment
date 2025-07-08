@@ -261,7 +261,7 @@ const RatingExplanations = ({
 				<div>
 					<Body>
 						(4a) For relevance, you gave this post a{" "}
-						{post.relevance.toLocaleString()} out of 7. How did you evaluate the
+						{post.relevance.toLocaleString()} out of 5. How did you evaluate the
 						relevance of this post?
 						<RedAsterisk />
 					</Body>
@@ -276,7 +276,7 @@ const RatingExplanations = ({
 				<div>
 					<Body>
 						(4b) For manipulativeness, you gave this post a{" "}
-						{post.manipulation.toLocaleString()} out of 7. How did you evaluate
+						{post.manipulation.toLocaleString()} out of 5. How did you evaluate
 						the manipulativeness of this post?
 						<RedAsterisk />
 					</Body>
@@ -294,7 +294,7 @@ const RatingExplanations = ({
 				<div>
 					<Body>
 						(4c) For content quality, you gave this post a{" "}
-						{post.quality.toLocaleString()} out of 7. How did you evaluate the
+						{post.quality.toLocaleString()} out of 5. How did you evaluate the
 						content quality of this post?
 						<RedAsterisk />
 					</Body>
