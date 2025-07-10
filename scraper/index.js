@@ -1,7 +1,10 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { v4 as uuid } from "uuid";
+
+puppeteer.use(StealthPlugin());
 
 const toggleProof = async (page, disable = true) => {
 	await page.evaluate((disable) => {
@@ -23,15 +26,23 @@ const originalOrdering = [...uuids];
 const outDir = `./data/${snapshotUUID}/`;
 await fs.mkdir(outDir, { recursive: true });
 
-const browser = await puppeteer.launch({ headless: false });
+const browser = await puppeteer.launch({
+	headless: "new",
+});
 const page = await browser.newPage();
+
+await page.setUserAgent(
+	"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+);
 
 // Use light mode.
 await page.emulateMediaFeatures([
 	{ name: "prefers-color-scheme", value: "light" },
 ]);
 
-await page.goto("https://www.reddit.com/r/popular/");
+await page.goto("https://www.reddit.com/r/popular/", {
+	waitUntil: "domcontentloaded",
+});
 await page.setViewport({ width: 500, height: 9999, deviceScaleFactor: 2 });
 
 // Wait until 10 articles have been loaded.
