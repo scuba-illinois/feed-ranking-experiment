@@ -165,7 +165,11 @@ async def submit_response(response: dict):
 
         client.close()
 
-        return {"status": "success"}
+        return {
+            "status": "success",
+            "completionCode": "XXXXXX",
+            "completionURL": "https://www.google.com/",
+        }
 
     except Exception as e:
 
