@@ -43,7 +43,7 @@ export default function Goodbye() {
 								value={compensation.completionCode}
 								readOnly
 								disabled
-								className="border rounded px-2 py-1 flex-1 bg-gray-100 cursor-default"
+								className="border rounded-md px-2 py-1 flex-1 bg-gray-300 border-gray-300 cursor-default"
 							/>
 							<button
 								type="button"
