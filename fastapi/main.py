@@ -167,8 +167,10 @@ async def submit_response(response: dict):
 
         return {
             "status": "success",
-            "completionCode": "XXXXXX",
-            "completionURL": "https://www.google.com/",
+            "completionCode": os.environ.get("COMPLETION_CODE", "XXXXXX"),
+            "completionURL": os.environ.get(
+                "COMPLETION_URL", "https://www.google.com/"
+            ),
         }
 
     except Exception as e:
