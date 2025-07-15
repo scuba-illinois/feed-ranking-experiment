@@ -47,6 +47,7 @@ const ContinueButton = ({
 }) => {
 	const {
 		participantID,
+		prolific,
 		consentTimestamp,
 		answers,
 		feeds,
@@ -101,6 +102,7 @@ const ContinueButton = ({
 					},
 					body: JSON.stringify({
 						participantID: participantID,
+						prolific: prolific,
 						consentTimestamp: consentTimestamp,
 						feeds: feeds,
 

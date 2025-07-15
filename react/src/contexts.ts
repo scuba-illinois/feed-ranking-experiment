@@ -5,6 +5,19 @@ export const SurveyContext = createContext<{
 	phase: Phase;
 	setPhase: React.Dispatch<React.SetStateAction<Phase>>;
 
+	prolific: {
+		PROLIFIC_PID: string;
+		STUDY_ID: string;
+		SESSION_ID: string;
+	};
+	setProlific: React.Dispatch<
+		React.SetStateAction<{
+			PROLIFIC_PID: string;
+			STUDY_ID: string;
+			SESSION_ID: string;
+		}>
+	>;
+
 	participantID: string;
 	setParticipantID: React.Dispatch<React.SetStateAction<string>>;
 
@@ -72,6 +85,13 @@ export const SurveyContext = createContext<{
 }>({
 	phase: "CONSENT",
 	setPhase: () => {},
+
+	prolific: {
+		PROLIFIC_PID: "",
+		STUDY_ID: "",
+		SESSION_ID: "",
+	},
+	setProlific: () => {},
 
 	participantID: "",
 	setParticipantID: () => {},

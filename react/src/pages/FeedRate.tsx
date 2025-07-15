@@ -47,25 +47,19 @@ const Directions = () => {
 	return (
 		<div className="flex flex-col gap-2 mb-2">
 			<div className="flex flex-row justify-between items-center">
-				{!settings.hideRatingDirections ? (
-					<Header>
-						Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
-						{feeds.length.toLocaleString()})
-					</Header>
-				) : (
-					<Header>
-						Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
-						{feeds.length.toLocaleString()}
-					</Header>
-				)}
+				<Header>
+					Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+					{feeds.length.toLocaleString()} - Rating Phase
+				</Header>
 				<ToggleDirectionsButton />
 			</div>
 			{!settings.hideRatingDirections && (
 				<>
 					<Body>
-						You'll now rate posts from the previous feed. The "Rate" button next
-						to each post will allow you to evaluate a post's relevance, quality,
-						and manipulativeness.
+						<span className="font-bold">Directions:</span> You'll now rate posts
+						from the previous feed. The "Rate" button next to each post will
+						allow you to evaluate a post's relevance, quality, and
+						manipulativeness.
 					</Body>
 
 					<Body>

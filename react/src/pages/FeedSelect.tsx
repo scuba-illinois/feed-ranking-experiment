@@ -41,24 +41,18 @@ const Directions = () => {
 	return (
 		<div className="flex flex-col gap-2 mb-2">
 			<div className="flex flex-row justify-between items-center">
-				{!settings.hideSelectionDirections ? (
-					<Header>
-						Directions (Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
-						{feeds.length.toLocaleString()})
-					</Header>
-				) : (
-					<Header>
-						Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
-						{feeds.length.toLocaleString()}
-					</Header>
-				)}
+				<Header>
+					Feed {(completedFeeds.length + 1).toLocaleString()} /{" "}
+					{feeds.length.toLocaleString()} - Selection Phase
+				</Header>
 				<ToggleDirectionsButton />
 			</div>
 			{!settings.hideSelectionDirections && (
 				<>
 					<Body>
-						You'll be shown three screenshots of Reddit's r/popular feed, each
-						containing 10 posts. <i>This is your {feed} feed.</i>
+						<span className="font-bold">Directions:</span> You'll be shown three
+						screenshots of Reddit's r/popular feed, each containing 10 posts.{" "}
+						<i>This is your {feed} feed.</i>
 					</Body>
 					<Body>
 						You have 2 minutes to select <i>up to 3 posts</i> you'd want to read

@@ -8,9 +8,17 @@ import { ExitQuestionnaire } from "./pages/ExitQuestionnaire";
 import { FeedSelect } from "./pages/FeedSelect";
 import { FeedRate } from "./pages/FeedRate";
 import Unqualified from "./pages/Unqualified";
+import { BrowserRouter } from "react-router-dom";
 
 function App() {
 	const [phase, setPhase] = useState<Phase>("CONSENT");
+
+	const [prolific, setProlific] = useState<{
+		PROLIFIC_PID: string;
+		STUDY_ID: string;
+		SESSION_ID: string;
+	}>({ PROLIFIC_PID: "", STUDY_ID: "", SESSION_ID: "" });
+
 	const [participantID, setParticipantID] = useState<string>("");
 	const [consentTimestamp, setConsentTimestamp] = useState<string>("");
 	const [feeds, setFeeds] = useState<string[]>([]);
@@ -56,6 +64,8 @@ function App() {
 			value={{
 				phase,
 				setPhase,
+				prolific,
+				setProlific,
 				participantID,
 				setParticipantID,
 				consentTimestamp,
@@ -96,13 +106,15 @@ function App() {
 				setSettings,
 			}}
 		>
-			{phase === "CONSENT" && <Intro />}
-			{phase === "SCREENER" && <Screeners />}
-			{phase === "FEED" && <FeedSelect />}
-			{phase === "FEEDRATING" && <FeedRate />}
-			{phase === "EXIT" && <ExitQuestionnaire />}
-			{phase === "GOODBYE" && <Goodbye />}
-			{phase === "UNQUALIFIED" && <Unqualified />}
+			<BrowserRouter>
+				{phase === "CONSENT" && <Intro />}
+				{phase === "SCREENER" && <Screeners />}
+				{phase === "FEED" && <FeedSelect />}
+				{phase === "FEEDRATING" && <FeedRate />}
+				{phase === "EXIT" && <ExitQuestionnaire />}
+				{phase === "GOODBYE" && <Goodbye />}
+				{phase === "UNQUALIFIED" && <Unqualified />}
+			</BrowserRouter>
 		</SurveyContext.Provider>
 	);
 }

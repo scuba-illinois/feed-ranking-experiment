@@ -1,4 +1,5 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { SurveyContext } from "../contexts";
 import { Body, Button, Header, Email } from "../components/general";
 
@@ -195,6 +196,7 @@ const Consent = () => (
 export default function Intro() {
 	const {
 		setPhase,
+		setProlific,
 		participantID,
 		setParticipantID,
 		setConsentTimestamp,
@@ -206,6 +208,22 @@ export default function Intro() {
 
 	const [isInvalid, setIsInvalid] = useState<string | null>(null);
 	const [waiting, setWaiting] = useState(false);
+	const [searchParams] = useSearchParams();
+
+	// Set Prolific information if it's available in the URL parameters.
+	useEffect(() => {
+		const PROLIFIC_PID = searchParams.get("PROLIFIC_PID");
+		const STUDY_ID = searchParams.get("STUDY_ID");
+		const SESSION_ID = searchParams.get("SESSION_ID");
+
+		if (PROLIFIC_PID && STUDY_ID && SESSION_ID) {
+			setProlific({
+				PROLIFIC_PID,
+				STUDY_ID,
+				SESSION_ID,
+			});
+		}
+	}, []);
 
 	return (
 		<div className="flex justify-center my-6">
