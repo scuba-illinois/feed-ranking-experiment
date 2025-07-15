@@ -49,9 +49,15 @@ function App() {
 	const [submitted, setSubmitted] = useState<
 		"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR"
 	>("UNSUBMITTED");
+
 	const [settings, setSettings] = useState({
 		hideSelectionDirections: false,
 		hideRatingDirections: false,
+	});
+
+	const [compensation, setCompensation] = useState({
+		completionCode: "",
+		completionURL: "",
 	});
 
 	// Ideally for later. Maybe do this after they submitted their participant ID.
@@ -104,6 +110,8 @@ function App() {
 				setSubmitted,
 				settings,
 				setSettings,
+				compensation,
+				setCompensation,
 			}}
 		>
 			<BrowserRouter>

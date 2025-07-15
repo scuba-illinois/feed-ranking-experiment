@@ -62,6 +62,7 @@ const ContinueButton = ({
 		setExitDuration,
 		setTotalDuration,
 		setSubmitted,
+		setCompensation,
 	} = useContext(SurveyContext);
 
 	const isValid =
@@ -122,6 +123,11 @@ const ContinueButton = ({
 					.then((response) => {
 						response.json().then((data) => {
 							if (data.status === "success") {
+								setCompensation({
+									completionCode: data.completionCode,
+									completionURL: data.completionURL,
+								});
+
 								setSubmitted("SUBMITTED");
 							} else {
 								setSubmitted("ERROR");

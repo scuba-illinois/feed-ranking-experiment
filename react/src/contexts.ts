@@ -80,6 +80,17 @@ export const SurveyContext = createContext<{
 		React.SetStateAction<"UNSUBMITTED" | "PENDING" | "SUBMITTED" | "ERROR">
 	>;
 
+	compensation: {
+		completionCode: string;
+		completionURL: string;
+	};
+	setCompensation: React.Dispatch<
+		React.SetStateAction<{
+			completionCode: string;
+			completionURL: string;
+		}>
+	>;
+
 	settings: Settings;
 	setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 }>({
@@ -152,4 +163,10 @@ export const SurveyContext = createContext<{
 		hideRatingDirections: false,
 	},
 	setSettings: () => {},
+
+	compensation: {
+		completionCode: "",
+		completionURL: "",
+	},
+	setCompensation: () => {},
 });
