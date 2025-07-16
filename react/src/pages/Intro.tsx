@@ -256,15 +256,20 @@ export default function Intro() {
 
 						setWaiting(true);
 
-						fetch(
-							`https://trending-backend.vercel.app/validate/${participantID}`,
-							{
-								headers: {
-									"Content-Type": "application/json",
-									Accept: "application/json",
-								},
-							}
-						).then((response) => {
+						fetch(`https://trending-backend.vercel.app/validate/`, {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+								Accept: "application/json",
+							},
+							body: JSON.stringify({
+								participantID,
+								timestamp: new Date().toISOString(),
+								PROLIFIC_PID: searchParams.get("PROLIFIC_PID") || "",
+								STUDY_ID: searchParams.get("STUDY_ID") || "",
+								SESSION_ID: searchParams.get("SESSION_ID") || "",
+							}),
+						}).then((response) => {
 							response.json().then((data) => {
 								// TODO: Some verification that the data returned is correct.
 								// Otherwise, blow up.

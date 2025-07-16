@@ -29,6 +29,7 @@ export default function Goodbye() {
 						<Body>
 							To be compensated, either copy the confirmation code below or open
 							this link:
+							<br />
 							<a
 								className="text-blue-500 hover:underline"
 								href="#"
@@ -43,11 +44,11 @@ export default function Goodbye() {
 								value={compensation.completionCode}
 								readOnly
 								disabled
-								className="border rounded-md px-2 py-1 flex-1 bg-gray-300 border-gray-300 cursor-default"
+								className="border rounded-md px-3 py-2 flex-1 border-gray-300 cursor-default"
 							/>
 							<button
 								type="button"
-								className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+								className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
 								onClick={async (e) => {
 									await navigator.clipboard.writeText(
 										compensation.completionCode
