@@ -9,7 +9,17 @@ from dotenv import load_dotenv
 import os
 import pprint
 import random
+from pydantic import BaseModel
 from motor.motor_asyncio import AsyncIOMotorClient
+
+
+class Session(BaseModel):
+    participantID: str
+    timestamp: str
+    PROLIFIC_PID: str = ""
+    STUDY_ID: str = ""
+    SESSION_ID: str = ""
+
 
 load_dotenv()
 
@@ -28,6 +38,12 @@ app.add_middleware(
 )
 
 
+def create_client():
+    return AsyncIOMotorClient(
+        f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
+    )
+
+
 def get_from_S3(key: str, bucket: str = "trending-feeds", expires_in: int = 3_600):
     return s3.generate_presigned_url(
         "get_object",
@@ -44,9 +60,29 @@ def get_meta(uuid: str, bucket: str = "trending-feeds"):
     return json.load(response["Body"])
 
 
-def record_stimuli():
+async def record_session_start(
+    session: Session, feeds: list, rotations: list, show_proof: bool
+):
 
-    return
+    client = create_client()
+
+    collection = client.get_database("trending-feeds").get_collection("session-starts")
+
+    await collection.insert_one(
+        {
+            "participantID": session.participantID,
+            "timestamp": session.timestamp,
+            "PROLIFIC_PID": session.PROLIFIC_PID,
+            "STUDY_ID": session.STUDY_ID,
+            "SESSION_ID": session.SESSION_ID,
+            "feeds": [
+                {"feedUUID": feeds[i], "rotation": rotations[i]} for i in range(3)
+            ],
+            "shown_proof": show_proof,
+        }
+    )
+
+    client.close()
 
 
 @app.get("/")
@@ -54,8 +90,8 @@ async def root():
     return {"message": "Hello, World!"}
 
 
-@app.get("/validate/{participant_id}")
-async def validate_participant(participant_id: str):
+@app.post("/validate/")
+async def validate_participant(session: Session):
     """
     Given a participant ID, gives back a list of feed URLs assigned to them.
 
@@ -82,6 +118,13 @@ async def validate_participant(participant_id: str):
     TODO: Record the treatments given to the participant, store it in session-starts
     cluster on MongoDB.
     """
+    try:
+        await record_session_start(session, feeds, rotations, show_proof)
+    except Exception as e:
+        return {
+            "valid": False,
+            "message": f"Error recording session start.",
+        }
 
     return {
         "valid": True,
@@ -137,9 +180,7 @@ async def submit_response(response: dict):
 
     try:
 
-        client = AsyncIOMotorClient(
-            f"mongodb+srv://{os.environ.get('MONGO_USER')}:{os.environ.get('MONGO_SECRET')}@responses.vpbn1v3.mongodb.net/?retryWrites=true&w=majority&appName=responses"
-        )
+        client = create_client()
 
         collection = client.get_database("trending-feeds").get_collection("responses")
 
