@@ -29,14 +29,14 @@ const ToggleDirectionsButton = () => {
 			onClick={toggleDirections}
 			className="text-[10pt] rounded py-1 px-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
 		>
-			Hide Directions
+			Show Directions
 		</button>
 	) : (
 		<button
 			onClick={toggleDirections}
 			className="text-[10pt] rounded py-1 px-2 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
 		>
-			Show Directions
+			Hide Directions
 		</button>
 	);
 };
