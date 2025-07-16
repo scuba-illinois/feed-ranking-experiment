@@ -121,6 +121,8 @@ const ContinueButton = ({
 						exitEnd: exitEnd,
 						exitDuration: exitDuration,
 
+						totalDuration: totalDuration,
+
 						answers: answers,
 					}),
 				})
