@@ -107,10 +107,11 @@ async def validate_participant(session: Session):
     ]
 
     feeds = [
-        "5e95e7a5-6f6e-47a1-8677-8707e1b63e02",
-        "ebb00a74-0230-4380-ba31-d4c2593f212a",
-        "3992c1e1-17e6-4991-85fa-f9da14f30568",
+        "75c8e402-ac6f-42f2-8d2c-8e8662b80be1",
+        "16281c4b-7df9-402a-bc7d-1f70ab07c821",
+        "af6d485b-2dcf-4542-b62d-fc5d22004918",
     ]
+    random.shuffle(feeds)
 
     meta = {feed_uuid: get_meta(feed_uuid) for feed_uuid in feeds}
 
