@@ -72,7 +72,11 @@ const ContinueButton = ({
 		exitAnswers.relevanceExplained.trim() !== "" &&
 		exitAnswers.manipulationExplained.trim() !== "" &&
 		exitAnswers.qualityExplained.trim() !== "" &&
-		exitAnswers.postLikelihood > 0;
+		exitAnswers.postLikelihood > 0 &&
+		exitAnswers.attentionCheck > 0 &&
+		exitAnswers.age.trim() !== "" &&
+		exitAnswers.gender.trim() !== "" &&
+		exitAnswers.education.trim() !== "";
 
 	return (
 		<button
@@ -353,6 +357,122 @@ const PostLikelihood = ({
 	);
 };
 
+const AttentionCheck = ({
+	answers,
+	setAnswers,
+}: {
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+}) => (
+	<div className="flex flex-row items-start w-full justify-center gap-6 mt-6 mb-2 ">
+		{[1, 2, 3, 4, 5, 6, 7, 8].map((minutes) => (
+			<label
+				key={minutes}
+				className="flex flex-col items-center gap-2 cursor-pointer"
+			>
+				<input
+					type="radio"
+					name="attentionCheck"
+					value={minutes}
+					checked={answers.attentionCheck === minutes}
+					onChange={() => setAnswers({ ...answers, attentionCheck: minutes })}
+					className="cursor-pointer"
+				/>
+				<span className="text-[10pt] text-gray-600 mt-1">{minutes} min.</span>
+			</label>
+		))}
+	</div>
+);
+
+const AgeQuestion = ({
+	answers,
+	setAnswers,
+}: {
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+}) => (
+	<div className="flex flex-col gap-2 mt-2">
+		{[
+			"Under 18",
+			"18-24",
+			"25-34",
+			"35-44",
+			"45-54",
+			"55-64",
+			"65 or older",
+			"Prefer not to say",
+		].map((ageGroup) => (
+			<label key={ageGroup} className="flex gap-2">
+				<input
+					type="radio"
+					name="age"
+					value={ageGroup}
+					checked={answers.age === ageGroup}
+					onChange={() => setAnswers({ ...answers, age: ageGroup })}
+				/>
+				<span className="text-[10pt] text-gray-600">{ageGroup}</span>
+			</label>
+		))}
+	</div>
+);
+
+const GenderQuestion = ({
+	answers,
+	setAnswers,
+}: {
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+}) => (
+	<div className="flex flex-col gap-2 mt-2">
+		{["Man", "Woman", "Non-binary / Third gender", "Prefer not to say"].map(
+			(gender) => (
+				<label key={gender} className="flex gap-2">
+					<input
+						type="radio"
+						name="gender"
+						value={gender}
+						checked={answers.gender === gender}
+						onChange={() => setAnswers({ ...answers, gender })}
+					/>
+					<span className="text-[10pt] text-gray-600">{gender}</span>
+				</label>
+			)
+		)}
+	</div>
+);
+
+const EducationQuestion = ({
+	answers,
+	setAnswers,
+}: {
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+}) => (
+	<div className="flex flex-col gap-2 mt-2">
+		{[
+			"Less than high school",
+			"High school graduate or equivalent (e.g., GED)",
+			"Some college, no degree",
+			"Associate degree (e.g., AA, AS)",
+			"Bachelor's degree (e.g., BA, BS)",
+			"Master's degree (e.g., MA, MS, MBA)",
+			"Graduate degree (e.g., PhD, MD, JD)",
+			"Prefer not to say",
+		].map((education) => (
+			<label key={education} className="flex gap-2">
+				<input
+					type="radio"
+					name="education"
+					value={education}
+					checked={answers.education === education}
+					onChange={() => setAnswers({ ...answers, education })}
+				/>
+				<span className="text-[10pt] text-gray-600">{education}</span>
+			</label>
+		))}
+	</div>
+);
+
 const getSelectedPosts = (
 	answers: Answers
 ): { feedUUID: string; postUUID: string }[] => {
@@ -401,6 +521,10 @@ export const ExitQuestionnaire = () => {
 		relevanceExplained: "",
 		manipulationExplained: "",
 		qualityExplained: "",
+		attentionCheck: 0,
+		age: "",
+		gender: "",
+		education: "",
 		postLikelihood: 0,
 		selectedPostExample: { feedUUID: "", postUUID: "" },
 		nonSelectedPostExample: { feedUUID: "", postUUID: "" },
@@ -473,11 +597,11 @@ export const ExitQuestionnaire = () => {
 		},
 		{
 			question: (
-				<>
-					Given this example of a post you selected, can you explain what about
-					this post made you select it?
+				<span>
+					This is a post you selected, can you explain what about this post made
+					you select it?
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: (
 				<SelectedPostExample
@@ -490,8 +614,8 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					Given this example of a post you didn't select, can you explain why
-					you didn't choose this post?
+					This is a post you did <span className="italic">not</span> select, can
+					you explain why you did not choose this post?
 					<RedAsterisk />
 				</>
 			),
@@ -506,8 +630,8 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					Here is a post you rated with the scores below. Can you explain how
-					you evaluated the post for each feature?
+					This is a post you rated. Can you explain how you arrived at each
+					score?
 					<RedAsterisk />
 				</>
 			),
@@ -522,12 +646,52 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
+					How many <span className="italic">minutes</span> were you given to
+					browse <span className="italic">each</span> feed?
+					<RedAsterisk />
+				</>
+			),
+			component: <AttentionCheck answers={_answers} setAnswers={_setAnswers} />,
+		},
+
+		{
+			question: (
+				<>
 					How likely are you to encounter content similar to what you saw during
 					the experiment?
 					<RedAsterisk />
 				</>
 			),
 			component: <PostLikelihood answers={_answers} setAnswers={_setAnswers} />,
+		},
+		{
+			question: (
+				<>
+					What is your age?
+					<RedAsterisk />
+				</>
+			),
+			component: <AgeQuestion answers={_answers} setAnswers={_setAnswers} />,
+		},
+		{
+			question: (
+				<>
+					What is your gender?
+					<RedAsterisk />
+				</>
+			),
+			component: <GenderQuestion answers={_answers} setAnswers={_setAnswers} />,
+		},
+		{
+			question: (
+				<>
+					What is the highest level of education you have completed?
+					<RedAsterisk />
+				</>
+			),
+			component: (
+				<EducationQuestion answers={_answers} setAnswers={_setAnswers} />
+			),
 		},
 	];
 
@@ -542,6 +706,8 @@ export const ExitQuestionnaire = () => {
 				<div className="flex flex-col gap-4 mt-1 w-full">
 					{questions.map(({ question, component }, index) => (
 						<div key={index}>
+							{index === 6 && <hr className="my-4 border-gray-300" />}{" "}
+							{/* FIXME: Stupid hack to get the horizontal rule above demographic questions. */}
 							<p className="text-[10pt] text-gray-600">
 								({index + 1}) {question}
 							</p>

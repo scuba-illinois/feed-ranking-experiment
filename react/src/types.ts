@@ -62,6 +62,10 @@ export type ExitQuestionnaireAnswers = {
 	relevanceExplained: string;
 	manipulationExplained: string;
 	qualityExplained: string;
+	attentionCheck: number;
+	age: string;
+	gender: string;
+	education: string;
 	postLikelihood: number;
 	selectedPostExample: {
 		feedUUID: string;
