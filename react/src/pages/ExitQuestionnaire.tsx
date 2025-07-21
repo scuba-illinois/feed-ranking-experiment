@@ -475,6 +475,21 @@ const EducationQuestion = ({
 	</div>
 );
 
+const FeedbackQuestion = ({
+	answers,
+	setAnswers,
+}: {
+	answers: ExitQuestionnaireAnswers;
+	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
+}) => (
+	<div>
+		<TextArea
+			value={answers.feedback || ""}
+			onChange={(e) => setAnswers({ ...answers, feedback: e.target.value })}
+		/>
+	</div>
+);
+
 const getSelectedPosts = (
 	answers: Answers
 ): { feedUUID: string; postUUID: string }[] => {
@@ -527,6 +542,7 @@ export const ExitQuestionnaire = () => {
 		age: "",
 		gender: "",
 		education: "",
+		feedback: "",
 		postLikelihood: 0,
 		selectedPostExample: { feedUUID: "", postUUID: "" },
 		nonSelectedPostExample: { feedUUID: "", postUUID: "" },
@@ -665,6 +681,17 @@ export const ExitQuestionnaire = () => {
 				</>
 			),
 			component: <PostLikelihood answers={_answers} setAnswers={_setAnswers} />,
+		},
+		{
+			question: (
+				<>
+					Do you have any feedback about your experience participating in this
+					study?
+				</>
+			),
+			component: (
+				<FeedbackQuestion answers={_answers} setAnswers={_setAnswers} />
+			),
 		},
 		{
 			question: (

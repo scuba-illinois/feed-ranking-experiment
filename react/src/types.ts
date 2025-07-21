@@ -67,6 +67,7 @@ export type ExitQuestionnaireAnswers = {
 	gender: string;
 	education: string;
 	postLikelihood: number;
+	feedback: string;
 	selectedPostExample: {
 		feedUUID: string;
 		postUUID: string;
