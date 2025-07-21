@@ -108,8 +108,8 @@ async def validate_participant(session: Session):
 
     feeds = [
         "75c8e402-ac6f-42f2-8d2c-8e8662b80be1",
-        "16281c4b-7df9-402a-bc7d-1f70ab07c821",
-        "af6d485b-2dcf-4542-b62d-fc5d22004918",
+        "f807d07e-5a77-49f9-bd02-8935b4d2dcf2",
+        "08253bf4-c284-4599-8533-0ce3c632c691",
     ]
     random.shuffle(feeds)
 
