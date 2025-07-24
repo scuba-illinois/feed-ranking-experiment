@@ -57,15 +57,20 @@ const Directions = () => {
 				<>
 					<Body>
 						<span className="font-bold">Directions:</span> You'll now rate posts
-						from the previous feed. The "Rate" button next to each post will
-						allow you to evaluate a post's relevance, quality, and
-						manipulativeness.
+						from the previous feed—
+						<span className="italic">
+							specifically the ones you selected and three posts you did not
+							select.
+						</span>{" "}
+						Use the "Rate" button next to each post to evaluate its relevance,
+						quality, and manipulativeness.
 					</Body>
 
 					<Body>
-						Posts that you selected in the previous step will be marked with a
-						star icon (⭐️) near the top-right corner.
+						Posts you selected in the previous step are marked with a star icon
+						(⭐️) in the top-right corner.
 					</Body>
+
 					<Body>
 						There's no time limit. You must rate every post to continue.
 					</Body>
