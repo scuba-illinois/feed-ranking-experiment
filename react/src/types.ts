@@ -59,6 +59,26 @@ export type Answers = Record<
 	}
 >;
 
+export type ExitAnswers = {
+	selectionExplained: (string | { option: "Other: "; value: string })[];
+	selectedPostExplained: (string | { option: "Other: "; value: string })[];
+	nonSelectedPostExplained: (string | { option: "Other: "; value: string })[];
+	attentionCheck: number;
+	age: string;
+	gender: string;
+	education: string;
+	postLikelihood: number;
+	feedback: string;
+	selectedPostExample: {
+		feedUUID: string;
+		postUUID: string;
+	};
+	nonSelectedPostExample: {
+		feedUUID: string;
+		postUUID: string;
+	};
+};
+
 export type ExitQuestionnaireAnswers = {
 	postSelectionExplained: string;
 	selectedPostExplained: string;

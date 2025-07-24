@@ -1,5 +1,11 @@
 import { createContext } from "react";
-import { Answers, Phase, ScreenerAnswers, Settings } from "./types";
+import {
+	Answers,
+	ExitAnswers,
+	Phase,
+	ScreenerAnswers,
+	Settings,
+} from "./types";
 
 export const SurveyContext = createContext<{
 	phase: Phase;
@@ -57,8 +63,8 @@ export const SurveyContext = createContext<{
 	screenerDuration: number;
 	setScreenerDuration: React.Dispatch<React.SetStateAction<number>>;
 
-	exitAnswers?: Record<string, any>;
-	setExitAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+	exitAnswers: ExitAnswers;
+	setExitAnswers: React.Dispatch<React.SetStateAction<ExitAnswers>>;
 
 	exitStart: string;
 	setExitStart: React.Dispatch<React.SetStateAction<string>>;
@@ -140,7 +146,25 @@ export const SurveyContext = createContext<{
 	screenerDuration: -1,
 	setScreenerDuration: () => {},
 
-	exitAnswers: {},
+	exitAnswers: {
+		selectionExplained: [],
+		selectedPostExplained: [],
+		nonSelectedPostExplained: [],
+		attentionCheck: -1,
+		age: "",
+		gender: "",
+		education: "",
+		postLikelihood: -1,
+		feedback: "",
+		selectedPostExample: {
+			feedUUID: "",
+			postUUID: "",
+		},
+		nonSelectedPostExample: {
+			feedUUID: "",
+			postUUID: "",
+		},
+	},
 	setExitAnswers: () => {},
 
 	exitStart: "",

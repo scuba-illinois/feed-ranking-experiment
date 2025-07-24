@@ -1,26 +1,8 @@
 import React, { JSX, useContext, useEffect, useState } from "react";
 import { SurveyContext } from "../contexts";
 import { Body, Header, RedAsterisk } from "../components/general";
-import { Answers, ExitQuestionnaireAnswers } from "../types";
+import { Answers } from "../types";
 import { pickRandomItems } from "../utils";
-
-type Examples = {
-	selectedPost: {
-		feedUUID: string;
-		postUUID: string;
-	};
-	ratedPost: {
-		feedUUID: string;
-		postUUID: string;
-		relevance: number;
-		manipulation: number;
-		quality: number;
-	};
-	nonSelectedPost: {
-		feedUUID: string;
-		postUUID: string;
-	};
-};
 
 const TextArea = ({
 	value,
@@ -40,11 +22,7 @@ const TextArea = ({
 	/>
 );
 
-const ContinueButton = ({
-	exitAnswers,
-}: {
-	exitAnswers: ExitQuestionnaireAnswers;
-}) => {
+const ContinueButton = () => {
 	const {
 		participantID,
 		prolific,
@@ -57,6 +35,7 @@ const ContinueButton = ({
 		screenerDuration,
 		setPhase,
 		exitStart,
+		exitAnswers,
 		setExitAnswers,
 		setExitEnd,
 		setExitDuration,
@@ -66,12 +45,9 @@ const ContinueButton = ({
 	} = useContext(SurveyContext);
 
 	const isValid =
-		exitAnswers.postSelectionExplained.trim() !== "" &&
-		exitAnswers.selectedPostExplained.trim() !== "" &&
-		exitAnswers.nonSelectedPostExplained.trim() !== "" &&
-		exitAnswers.relevanceExplained.trim() !== "" &&
-		exitAnswers.manipulationExplained.trim() !== "" &&
-		exitAnswers.qualityExplained.trim() !== "" &&
+		exitAnswers.selectionExplained.length !== 0 &&
+		exitAnswers.selectedPostExplained.length !== 0 &&
+		exitAnswers.nonSelectedPostExplained.length !== 0 &&
 		exitAnswers.postLikelihood > 0 &&
 		exitAnswers.attentionCheck > 0 &&
 		exitAnswers.age.trim() !== "" &&
@@ -152,193 +128,13 @@ const ContinueButton = ({
 	);
 };
 
-const PostSelection = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => {
-	return (
-		<div className="flex flex-col gap-2">
-			<TextArea
-				value={answers.postSelectionExplained || ""}
-				onChange={(e) =>
-					setAnswers({ ...answers, postSelectionExplained: e.target.value })
-				}
-			/>
-		</div>
-	);
-};
-
-const SelectedPostExample = ({
-	answers,
-	setAnswers,
-	post,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-	post: { feedUUID: string; postUUID: string } | undefined;
-}) => {
-	if (!post) {
-		return <></>;
-	}
-
-	const { postURLs } = useContext(SurveyContext);
+const PostLikelihood = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
 
 	return (
-		<div>
-			<div className="w-full flex justify-center">
-				<img
-					src={postURLs[post.feedUUID][post.postUUID]}
-					style={{ maxHeight: "300px" }}
-					className="border-2 mt-2 mb-1"
-				/>
-			</div>
-			<TextArea
-				value={answers.selectedPostExplained || ""}
-				onChange={(e) =>
-					setAnswers({ ...answers, selectedPostExplained: e.target.value })
-				}
-			/>
-		</div>
-	);
-};
-
-const NonSelectedPostExample = ({
-	answers,
-	setAnswers,
-	post,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-	post: { feedUUID: string; postUUID: string } | undefined;
-}) => {
-	if (!post) {
-		return <></>;
-	}
-
-	const { postURLs } = useContext(SurveyContext);
-
-	return (
-		<div>
-			<div className="w-full flex justify-center">
-				<img
-					src={postURLs[post.feedUUID][post.postUUID]}
-					style={{ maxHeight: "300px" }}
-					className="border-2 mt-2 mb-1"
-				/>
-			</div>
-			<TextArea
-				value={answers.nonSelectedPostExplained || ""}
-				onChange={(e) =>
-					setAnswers({ ...answers, nonSelectedPostExplained: e.target.value })
-				}
-			/>
-		</div>
-	);
-};
-
-const RatingExplanations = ({
-	answers,
-	setAnswers,
-	post,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-	post:
-		| {
-				feedUUID: string;
-				postUUID: string;
-				relevance: number;
-				manipulation: number;
-				quality: number;
-		  }
-		| undefined;
-}) => {
-	if (!post) {
-		return <></>;
-	}
-
-	const { postURLs } = useContext(SurveyContext);
-
-	return (
-		<div>
-			<div className="w-full flex justify-center">
-				<img
-					src={postURLs[post.feedUUID][post.postUUID]}
-					style={{ maxHeight: "300px" }}
-					className="border-2 mt-2 mb-1"
-				/>
-			</div>
-			<div className="mt-2 flex flex-col gap-4">
-				<div>
-					<Body>
-						(4a) For relevance, you gave this post a{" "}
-						{post.relevance.toLocaleString()} out of 5. How did you evaluate the
-						relevance of this post?
-						<RedAsterisk />
-					</Body>
-					<TextArea
-						value={answers.relevanceExplained || ""}
-						onChange={(e) =>
-							setAnswers({ ...answers, relevanceExplained: e.target.value })
-						}
-						rows={2}
-					/>
-				</div>
-				<div>
-					<Body>
-						(4b) For manipulativeness, you gave this post a{" "}
-						{post.manipulation.toLocaleString()} out of 5. How did you evaluate
-						the manipulativeness of this post?
-						<RedAsterisk />
-					</Body>
-					<TextArea
-						value={answers.manipulationExplained || ""}
-						onChange={(e) =>
-							setAnswers({
-								...answers,
-								manipulationExplained: e.target.value,
-							})
-						}
-						rows={2}
-					/>
-				</div>
-				<div>
-					<Body>
-						(4c) For content quality, you gave this post a{" "}
-						{post.quality.toLocaleString()} out of 5. How did you evaluate the
-						content quality of this post?
-						<RedAsterisk />
-					</Body>
-					<TextArea
-						value={answers.qualityExplained || ""}
-						onChange={(e) =>
-							setAnswers({
-								...answers,
-								qualityExplained: e.target.value,
-							})
-						}
-						rows={2}
-					/>
-				</div>
-			</div>
-		</div>
-	);
-};
-
-const PostLikelihood = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => {
-	return (
-		<div className="flex flex-row items-start w-full justify-center gap-6 my-2">
+		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
 			<Body>Unlikely</Body>
-			{[1, 2, 3, 4, 5, 6, 7].map((score) => (
+			{[1, 2, 3, 4, 5].map((score) => (
 				<label
 					key={score}
 					className="flex flex-col items-center gap-2 cursor-pointer"
@@ -347,8 +143,10 @@ const PostLikelihood = ({
 						type="radio"
 						name="postLikelihood"
 						value={score}
-						checked={answers.postLikelihood === score}
-						onChange={() => setAnswers({ ...answers, postLikelihood: score })}
+						checked={exitAnswers.postLikelihood === score}
+						onChange={() =>
+							setExitAnswers((state) => ({ ...state, postLikelihood: score }))
+						}
 						className="cursor-pointer"
 					/>
 					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
@@ -359,136 +157,142 @@ const PostLikelihood = ({
 	);
 };
 
-const AttentionCheck = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => (
-	<div className="flex flex-row items-start w-full justify-center gap-6 mt-6 mb-2 ">
-		{[1, 2, 3, 4, 5, 6, 7, 8].map((minutes) => (
-			<label
-				key={minutes}
-				className="flex flex-col items-center gap-2 cursor-pointer"
-			>
-				<input
-					type="radio"
-					name="attentionCheck"
-					value={minutes}
-					checked={answers.attentionCheck === minutes}
-					onChange={() => setAnswers({ ...answers, attentionCheck: minutes })}
-					className="cursor-pointer"
-				/>
-				<span className="text-[10pt] text-gray-600 mt-1">{minutes} min.</span>
-			</label>
-		))}
-	</div>
-);
+const AttentionCheck = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
 
-const AgeQuestion = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => (
-	<div className="flex flex-col gap-2 mt-2">
-		{[
-			"Under 18",
-			"18-24",
-			"25-34",
-			"35-44",
-			"45-54",
-			"55-64",
-			"65 or older",
-			"Prefer not to say",
-		].map((ageGroup) => (
-			<label key={ageGroup} className="flex gap-2">
-				<input
-					type="radio"
-					name="age"
-					value={ageGroup}
-					checked={answers.age === ageGroup}
-					onChange={() => setAnswers({ ...answers, age: ageGroup })}
-				/>
-				<span className="text-[10pt] text-gray-600">{ageGroup}</span>
-			</label>
-		))}
-	</div>
-);
+	return (
+		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
+			<Body>Disagree</Body>
+			{[1, 2, 3, 4, 5].map((score) => (
+				<label
+					key={score}
+					className="flex flex-col items-center gap-2 cursor-pointer"
+				>
+					<input
+						type="radio"
+						name="attentionCheck"
+						value={score}
+						checked={exitAnswers.attentionCheck === score}
+						onChange={() =>
+							setExitAnswers({ ...exitAnswers, attentionCheck: score })
+						}
+						className="cursor-pointer"
+					/>
+					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
+				</label>
+			))}
+			<Body>Agree</Body>
+		</div>
+	);
+};
 
-const GenderQuestion = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => (
-	<div className="flex flex-col gap-2 mt-2">
-		{["Man", "Woman", "Non-binary / Third gender", "Prefer not to say"].map(
-			(gender) => (
+const AgeQuestion = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+
+	const AGE_GROUPS = [
+		"18-24",
+		"25-34",
+		"35-44",
+		"45-54",
+		"55-64",
+		"65 or older",
+		"Prefer not to say",
+	];
+
+	return (
+		<div className="flex flex-col gap-2 mt-2">
+			{AGE_GROUPS.map((ageGroup) => (
+				<label key={ageGroup} className="flex gap-2">
+					<input
+						type="radio"
+						name="age"
+						value={ageGroup}
+						checked={exitAnswers.age === ageGroup}
+						onChange={() => setExitAnswers({ ...exitAnswers, age: ageGroup })}
+					/>
+					<span className="text-[10pt] text-gray-600">{ageGroup}</span>
+				</label>
+			))}
+		</div>
+	);
+};
+
+const GenderQuestion = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+
+	const GENDER_OPTIONS = [
+		"Man",
+		"Woman",
+		"Non-binary / Third gender",
+		"Prefer not to say",
+	];
+
+	return (
+		<div className="flex flex-col gap-2 mt-2">
+			{GENDER_OPTIONS.map((gender) => (
 				<label key={gender} className="flex gap-2">
 					<input
 						type="radio"
 						name="gender"
 						value={gender}
-						checked={answers.gender === gender}
-						onChange={() => setAnswers({ ...answers, gender })}
+						checked={exitAnswers.gender === gender}
+						onChange={() => setExitAnswers({ ...exitAnswers, gender })}
 					/>
 					<span className="text-[10pt] text-gray-600">{gender}</span>
 				</label>
-			)
-		)}
-	</div>
-);
+			))}
+		</div>
+	);
+};
 
-const EducationQuestion = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => (
-	<div className="flex flex-col gap-2 mt-2">
-		{[
-			"Less than high school",
-			"High school graduate or equivalent (e.g., GED)",
-			"Some college, no degree",
-			"Associate degree (e.g., AA, AS)",
-			"Bachelor's degree (e.g., BA, BS)",
-			"Master's degree (e.g., MA, MS, MBA)",
-			"Graduate degree (e.g., PhD, MD, JD)",
-			"Prefer not to say",
-		].map((education) => (
-			<label key={education} className="flex gap-2">
-				<input
-					type="radio"
-					name="education"
-					value={education}
-					checked={answers.education === education}
-					onChange={() => setAnswers({ ...answers, education })}
-				/>
-				<span className="text-[10pt] text-gray-600">{education}</span>
-			</label>
-		))}
-	</div>
-);
+const EducationQuestion = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
 
-const FeedbackQuestion = ({
-	answers,
-	setAnswers,
-}: {
-	answers: ExitQuestionnaireAnswers;
-	setAnswers: React.Dispatch<React.SetStateAction<ExitQuestionnaireAnswers>>;
-}) => (
-	<div>
-		<TextArea
-			value={answers.feedback || ""}
-			onChange={(e) => setAnswers({ ...answers, feedback: e.target.value })}
-		/>
-	</div>
-);
+	const EDUCATION_OPTIONS = [
+		"Less than high school",
+		"High school graduate or equivalent (e.g., GED)",
+		"Some college, no degree",
+		"Associate degree (e.g., AA, AS)",
+		"Bachelor's degree (e.g., BA, BS)",
+		"Master's degree (e.g., MA, MS, MBA)",
+		"Graduate degree (e.g., PhD, MD, JD)",
+		"Prefer not to say",
+	];
+
+	return (
+		<div className="flex flex-col gap-2 mt-2">
+			{EDUCATION_OPTIONS.map((education) => (
+				<label key={education} className="flex gap-2">
+					<input
+						type="radio"
+						name="education"
+						value={education}
+						checked={exitAnswers.education === education}
+						onChange={() =>
+							setExitAnswers((state) => ({ ...state, education: education }))
+						}
+					/>
+					<span className="text-[10pt] text-gray-600">{education}</span>
+				</label>
+			))}
+		</div>
+	);
+};
+
+const FeedbackQuestion = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+
+	return (
+		<div>
+			<TextArea
+				value={exitAnswers.feedback}
+				onChange={(e) =>
+					setExitAnswers((state) => ({ ...state, feedback: e.target.value }))
+				}
+			/>
+		</div>
+	);
+};
 
 const getSelectedPosts = (
 	answers: Answers
@@ -528,28 +332,322 @@ const getNonSelectedPosts = (
 	return nonSelectedPosts;
 };
 
+const PostSelection = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+	const [other, setOther] = useState("");
+
+	const OPTIONS = [
+		"The position of the post on the feed",
+		"The content of the post",
+		"The number of upvotes on the post",
+		"The number of comments on the post",
+		"The subreddit the post is from",
+	];
+
+	const includesOther = () =>
+		exitAnswers.selectionExplained.some(
+			(_option) => typeof _option === "object" && _option.option === "Other: "
+		);
+
+	return (
+		<div className="flex flex-col gap-2 mt-2">
+			{OPTIONS.map((option) => {
+				const isChecked = exitAnswers.selectionExplained.includes(option);
+
+				const handleChange = () => {
+					setExitAnswers((state) => {
+						let updated = [...state.selectionExplained];
+
+						if (isChecked) {
+							updated = updated.filter((_option) => _option != option);
+						} else {
+							updated = [...updated, option];
+						}
+
+						return {
+							...state,
+							selectionExplained: updated,
+						};
+					});
+				};
+
+				return (
+					<label key={option} className="flex gap-2">
+						<input
+							type="checkbox"
+							name="selectionExplained"
+							value={option}
+							checked={isChecked}
+							onChange={handleChange}
+						/>
+						<span className="text-[10pt] text-gray-600">{option}</span>
+					</label>
+				);
+			})}
+
+			{/* Checkbox for "Other: " option */}
+			<label className="flex gap-2">
+				<input
+					type="checkbox"
+					name="selectionExplained"
+					value={other}
+					checked={includesOther()}
+					onChange={() => {
+						setExitAnswers((state) => {
+							let updated = [...state.selectionExplained];
+
+							if (includesOther()) {
+								updated = updated.filter(
+									(_option) =>
+										typeof _option !== "object" || _option.option !== "Other: "
+								);
+							} else {
+								updated.push({ option: "Other: ", value: other });
+							}
+
+							return {
+								...state,
+								selectionExplained: updated,
+							};
+						});
+					}}
+				/>
+				<span className="text-[10pt] text-gray-600">
+					Other:{" "}
+					<input
+						className="border border-gray-300 rounded-md px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt] ml-1 w-[250px]"
+						placeholder="Please specify"
+						value={other}
+						onChange={(e) => {
+							setOther(e.target.value);
+
+							setExitAnswers((state) => ({
+								...state,
+								selectionExplained: state.selectionExplained.map((_option) =>
+									typeof _option === "object" && _option.option === "Other: "
+										? { option: "Other: ", value: e.target.value }
+										: _option
+								),
+							}));
+						}}
+					/>
+				</span>
+			</label>
+		</div>
+	);
+};
+
+const SelectedPostExample = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+	const [other, setOther] = useState("");
+
+	const OPTIONS = [
+		"This post looked relevant to me",
+		"This post looked trustworthy",
+		"This post seemed to be high quality",
+	];
+
+	const includesOther = () =>
+		exitAnswers.selectedPostExplained.some(
+			(_option) => typeof _option === "object" && _option.option === "Other: "
+		);
+
+	return (
+		<div className="flex flex-col gap-2 mt-2">
+			{OPTIONS.map((option) => {
+				const isChecked = exitAnswers.selectedPostExplained.includes(option);
+
+				const handleChange = () => {
+					setExitAnswers((state) => {
+						let updated = [...state.selectedPostExplained];
+
+						if (isChecked) {
+							updated = updated.filter((_option) => _option != option);
+						} else {
+							updated = [...updated, option];
+						}
+
+						return {
+							...state,
+							selectedPostExplained: updated,
+						};
+					});
+				};
+
+				return (
+					<label key={option} className="flex gap-2">
+						<input
+							type="checkbox"
+							name="selectedPostExplained"
+							value={option}
+							checked={isChecked}
+							onChange={handleChange}
+						/>
+						<span className="text-[10pt] text-gray-600">{option}</span>
+					</label>
+				);
+			})}
+
+			{/* Checkbox for "Other: " option */}
+			<label className="flex gap-2">
+				<input
+					type="checkbox"
+					name="selectedPostExplained"
+					value={other}
+					checked={includesOther()}
+					onChange={() => {
+						setExitAnswers((state) => {
+							let updated = [...state.selectedPostExplained];
+
+							if (includesOther()) {
+								updated = updated.filter(
+									(_option) =>
+										typeof _option !== "object" || _option.option !== "Other: "
+								);
+							} else {
+								updated.push({ option: "Other: ", value: other });
+							}
+
+							return {
+								...state,
+								selectedPostExplained: updated,
+							};
+						});
+					}}
+				/>
+				<span className="text-[10pt] text-gray-600">
+					Other:{" "}
+					<input
+						className="border border-gray-300 rounded-md px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt] ml-1 w-[250px]"
+						placeholder="Please specify"
+						value={other}
+						onChange={(e) => {
+							setOther(e.target.value);
+
+							setExitAnswers((state) => ({
+								...state,
+								selectedPostExplained: state.selectedPostExplained.map(
+									(_option) =>
+										typeof _option === "object" && _option.option === "Other: "
+											? { option: "Other: ", value: e.target.value }
+											: _option
+								),
+							}));
+						}}
+					/>
+				</span>
+			</label>
+		</div>
+	);
+};
+
+const NonSelectedPostExample = () => {
+	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+	const [other, setOther] = useState("");
+
+	const OPTIONS = [
+		"This post did not look relevant to me",
+		"This post did not look trustworthy",
+		"This post did not seem to be high quality",
+	];
+
+	const includesOther = () =>
+		exitAnswers.nonSelectedPostExplained.some(
+			(_option) => typeof _option === "object" && _option.option === "Other: "
+		);
+
+	return (
+		<div className="flex flex-col gap-2 mt-2">
+			{OPTIONS.map((option) => {
+				const isChecked = exitAnswers.nonSelectedPostExplained.includes(option);
+
+				const handleChange = () => {
+					setExitAnswers((state) => {
+						let updated = [...state.nonSelectedPostExplained];
+
+						if (isChecked) {
+							updated = updated.filter((_option) => _option != option);
+						} else {
+							updated = [...updated, option];
+						}
+
+						return {
+							...state,
+							nonSelectedPostExplained: updated,
+						};
+					});
+				};
+
+				return (
+					<label key={option} className="flex gap-2">
+						<input
+							type="checkbox"
+							name="nonSelectedPostExplained"
+							value={option}
+							checked={isChecked}
+							onChange={handleChange}
+						/>
+						<span className="text-[10pt] text-gray-600">{option}</span>
+					</label>
+				);
+			})}
+
+			{/* Checkbox for "Other: " option */}
+			<label className="flex gap-2">
+				<input
+					type="checkbox"
+					name="nonSelectedPostExplained"
+					value={other}
+					checked={includesOther()}
+					onChange={() => {
+						setExitAnswers((state) => {
+							let updated = [...state.nonSelectedPostExplained];
+
+							if (includesOther()) {
+								updated = updated.filter(
+									(_option) =>
+										typeof _option !== "object" || _option.option !== "Other: "
+								);
+							} else {
+								updated.push({ option: "Other: ", value: other });
+							}
+
+							return {
+								...state,
+								nonSelectedPostExplained: updated,
+							};
+						});
+					}}
+				/>
+				<span className="text-[10pt] text-gray-600">
+					Other:{" "}
+					<input
+						className="border border-gray-300 rounded-md px-2 py-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt] ml-1 w-[250px]"
+						placeholder="Please specify"
+						value={other}
+						onChange={(e) => {
+							setOther(e.target.value);
+
+							setExitAnswers((state) => ({
+								...state,
+								nonSelectedPostExplained: state.nonSelectedPostExplained.map(
+									(_option) =>
+										typeof _option === "object" && _option.option === "Other: "
+											? { option: "Other: ", value: e.target.value }
+											: _option
+								),
+							}));
+						}}
+					/>
+				</span>
+			</label>
+		</div>
+	);
+};
+
 export const ExitQuestionnaire = () => {
-	const { answers, setExitStart } = useContext(SurveyContext);
-
-	const [_answers, _setAnswers] = useState<ExitQuestionnaireAnswers>({
-		postSelectionExplained: "",
-		selectedPostExplained: "",
-		nonSelectedPostExplained: "",
-		relevanceExplained: "",
-		manipulationExplained: "",
-		qualityExplained: "",
-		attentionCheck: 0,
-		age: "",
-		gender: "",
-		education: "",
-		feedback: "",
-		postLikelihood: 0,
-		selectedPostExample: { feedUUID: "", postUUID: "" },
-		nonSelectedPostExample: { feedUUID: "", postUUID: "" },
-		ratedPostExample: { feedUUID: "", postUUID: "" },
-	});
-
-	const [examples, setExamples] = useState<Examples | null>(null);
+	const { answers, setExitStart, exitAnswers, setExitAnswers, postURLs } =
+		useContext(SurveyContext);
 
 	useEffect(() => {
 		setExitStart(new Date().toISOString());
@@ -560,43 +658,23 @@ export const ExitQuestionnaire = () => {
 		const selectedPosts = getSelectedPosts(answers);
 		const nonSelectedPosts = getNonSelectedPosts(answers);
 
-		const _selectedPostExample = pickRandomItems(selectedPosts, 1)[0];
-		const _ratedPostExample = pickRandomItems(
-			selectedPosts.filter(
-				(post) =>
-					post.feedUUID !== _selectedPostExample.feedUUID &&
-					post.postUUID !== _selectedPostExample.postUUID
-			),
-			1
-		)[0];
-		const _nonSelectedPostExample = pickRandomItems(nonSelectedPosts, 1)[0];
+		if (selectedPosts.length === 0 || nonSelectedPosts.length === 0) {
+			return;
+		}
 
-		setExamples({
-			selectedPost: _selectedPostExample,
-			ratedPost: {
-				..._ratedPostExample,
-				relevance:
-					answers[_ratedPostExample.feedUUID]!.ratings![
-						_ratedPostExample.postUUID
-					].relevance,
-				manipulation:
-					answers[_ratedPostExample.feedUUID]!.ratings![
-						_ratedPostExample.postUUID
-					].manipulation,
-				quality:
-					answers[_ratedPostExample.feedUUID]!.ratings![
-						_ratedPostExample.postUUID
-					].quality,
-			},
-			nonSelectedPost: _nonSelectedPostExample,
-		});
+		const selectedPostExample = pickRandomItems(selectedPosts, 1)[0];
+		const nonSelectedPostExample = pickRandomItems(nonSelectedPosts, 1)[0];
 
-		// Remember which examples you showed in the exit questionnaire.
-		_setAnswers((state) => ({
+		setExitAnswers((state) => ({
 			...state,
-			selectedPostExample: _selectedPostExample,
-			nonSelectedPostExample: _nonSelectedPostExample,
-			ratedPostExample: _ratedPostExample,
+			selectedPostExample: {
+				feedUUID: selectedPostExample.feedUUID,
+				postUUID: selectedPostExample.postUUID,
+			},
+			nonSelectedPostExample: {
+				feedUUID: nonSelectedPostExample.feedUUID,
+				postUUID: nonSelectedPostExample.postUUID,
+			},
 		}));
 	}, []);
 
@@ -607,69 +685,68 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					How did you determine which posts you selected?
+					(1) How did you determine which posts you selected?
 					<RedAsterisk />
 				</>
 			),
-			component: <PostSelection answers={_answers} setAnswers={_setAnswers} />,
+			component: <PostSelection />,
 		},
 		{
 			question: (
-				<span>
-					This is a post you selected, can you explain what about this post made
-					you select it?
+				<div>
+					{exitAnswers.selectedPostExample.feedUUID !== "" && (
+						<div className="w-full flex justify-center mb-4">
+							<img
+								src={
+									postURLs[exitAnswers.selectedPostExample.feedUUID][
+										exitAnswers.selectedPostExample.postUUID
+									]
+								}
+								style={{ maxHeight: "300px" }}
+								className="border-2 mt-2 mb-1"
+							/>
+						</div>
+					)}
+					<span>
+						(2) This was a post you selected, can you explain what about this
+						post made you select it?
+						<RedAsterisk />
+					</span>
+				</div>
+			),
+			component: <SelectedPostExample />,
+		},
+		{
+			question: (
+				<div>
+					{exitAnswers.selectedPostExample.feedUUID !== "" && (
+						<div className="w-full flex justify-center mb-4">
+							<img
+								src={
+									postURLs[exitAnswers.nonSelectedPostExample.feedUUID][
+										exitAnswers.nonSelectedPostExample.postUUID
+									]
+								}
+								style={{ maxHeight: "300px" }}
+								className="border-2 mt-2 mb-1"
+							/>
+						</div>
+					)}
+					(3) This was a post you did not select, can you explain what about
+					this post made you select it?
 					<RedAsterisk />
-				</span>
+				</div>
 			),
-			component: (
-				<SelectedPostExample
-					answers={_answers}
-					setAnswers={_setAnswers}
-					post={examples?.selectedPost}
-				/>
-			),
+			component: <NonSelectedPostExample />,
 		},
 		{
 			question: (
 				<>
-					This is a post you did <span className="italic">not</span> select, can
-					you explain why you did not choose this post?
+					For this question only, please select 5 as your answer.
 					<RedAsterisk />
 				</>
 			),
-			component: (
-				<NonSelectedPostExample
-					answers={_answers}
-					setAnswers={_setAnswers}
-					post={examples?.nonSelectedPost}
-				/>
-			),
-		},
-		{
-			question: (
-				<>
-					This is a post you rated. Can you explain how you arrived at each
-					score?
-					<RedAsterisk />
-				</>
-			),
-			component: (
-				<RatingExplanations
-					answers={_answers}
-					setAnswers={_setAnswers}
-					post={examples?.ratedPost}
-				/>
-			),
-		},
-		{
-			question: (
-				<>
-					How many <span className="italic">minutes</span> were you given to
-					browse <span className="italic">each</span> feed?
-					<RedAsterisk />
-				</>
-			),
-			component: <AttentionCheck answers={_answers} setAnswers={_setAnswers} />,
+			component: <AttentionCheck />,
 		},
 
 		{
@@ -680,7 +757,7 @@ export const ExitQuestionnaire = () => {
 					<RedAsterisk />
 				</>
 			),
-			component: <PostLikelihood answers={_answers} setAnswers={_setAnswers} />,
+			component: <PostLikelihood />,
 		},
 		{
 			question: (
@@ -689,9 +766,7 @@ export const ExitQuestionnaire = () => {
 					study?
 				</>
 			),
-			component: (
-				<FeedbackQuestion answers={_answers} setAnswers={_setAnswers} />
-			),
+			component: <FeedbackQuestion />,
 		},
 		{
 			question: (
@@ -700,7 +775,7 @@ export const ExitQuestionnaire = () => {
 					<RedAsterisk />
 				</>
 			),
-			component: <AgeQuestion answers={_answers} setAnswers={_setAnswers} />,
+			component: <AgeQuestion />,
 		},
 		{
 			question: (
@@ -709,7 +784,7 @@ export const ExitQuestionnaire = () => {
 					<RedAsterisk />
 				</>
 			),
-			component: <GenderQuestion answers={_answers} setAnswers={_setAnswers} />,
+			component: <GenderQuestion />,
 		},
 		{
 			question: (
@@ -718,9 +793,7 @@ export const ExitQuestionnaire = () => {
 					<RedAsterisk />
 				</>
 			),
-			component: (
-				<EducationQuestion answers={_answers} setAnswers={_setAnswers} />
-			),
+			component: <EducationQuestion />,
 		},
 	];
 
@@ -737,18 +810,16 @@ export const ExitQuestionnaire = () => {
 						<div key={index}>
 							{index === 6 && <hr className="my-4 border-gray-300" />}{" "}
 							{/* FIXME: Stupid hack to get the horizontal rule above demographic questions. */}
-							<p className="text-[10pt] text-gray-600">
-								({index + 1}) {question}
-							</p>
+							<p className="text-[10pt] text-gray-600">{question}</p>
 							{component}
 						</div>
 					))}
 				</div>
-				{/* BUG:I have no idea why this padding needs to be this way for there to
+				{/* BUG: I have no idea why this padding needs to be this way for there to
          be some space below the button. How is this different than 
          Intro.tsx's solution. */}
-				<div className="pb-4 w-full">
-					<ContinueButton exitAnswers={_answers} />
+				<div className="mt-2 pb-4 w-full">
+					<ContinueButton />
 				</div>
 			</div>
 		</div>

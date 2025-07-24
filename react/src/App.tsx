@@ -2,7 +2,7 @@ import { useState } from "react";
 import { SurveyContext } from "./contexts";
 import Goodbye from "./pages/Goodbye";
 import Intro from "./pages/Intro";
-import { Phase, Answers, ScreenerAnswers } from "./types";
+import { Phase, Answers, ScreenerAnswers, ExitAnswers } from "./types";
 import { Screeners } from "./pages/Screeners";
 import { ExitQuestionnaire } from "./pages/ExitQuestionnaire";
 import { FeedSelect } from "./pages/FeedSelect";
@@ -39,7 +39,25 @@ function App() {
 	const [screenerEnd, setScreenerEnd] = useState<string>("");
 	const [screenerDuration, setScreenerDuration] = useState<number>(-1);
 
-	const [exitAnswers, setExitAnswers] = useState<Record<string, any>>({});
+	const [exitAnswers, setExitAnswers] = useState<ExitAnswers>({
+		selectionExplained: [],
+		selectedPostExplained: [],
+		nonSelectedPostExplained: [],
+		attentionCheck: -1,
+		age: "",
+		gender: "",
+		education: "",
+		postLikelihood: -1,
+		feedback: "",
+		selectedPostExample: {
+			feedUUID: "",
+			postUUID: "",
+		},
+		nonSelectedPostExample: {
+			feedUUID: "",
+			postUUID: "",
+		},
+	});
 	const [exitStart, setExitStart] = useState<string>("");
 	const [exitEnd, setExitEnd] = useState<string>("");
 	const [exitDuration, setExitDuration] = useState<number>(-1);
