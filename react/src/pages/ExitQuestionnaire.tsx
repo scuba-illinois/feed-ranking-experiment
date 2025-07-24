@@ -133,7 +133,7 @@ const PostLikelihood = () => {
 
 	return (
 		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
-			<Body>Unlikely</Body>
+			<span className="text-gray-600 text-[10pt]">Unlikely</span>
 			{[1, 2, 3, 4, 5].map((score) => (
 				<label
 					key={score}
@@ -152,7 +152,7 @@ const PostLikelihood = () => {
 					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
 				</label>
 			))}
-			<Body>Likely</Body>
+			<span className="text-gray-600 text-[10pt]">Likely</span>
 		</div>
 	);
 };
@@ -162,7 +162,7 @@ const AttentionCheck = () => {
 
 	return (
 		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
-			<Body>Disagree</Body>
+			<span className="text-gray-600 text-[10pt]">Disagree</span>
 			{[1, 2, 3, 4, 5].map((score) => (
 				<label
 					key={score}
@@ -181,7 +181,7 @@ const AttentionCheck = () => {
 					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
 				</label>
 			))}
-			<Body>Agree</Body>
+			<span className="text-gray-600 text-[10pt]">Agree</span>
 		</div>
 	);
 };
@@ -808,7 +808,7 @@ export const ExitQuestionnaire = () => {
 				<div className="flex flex-col gap-4 mt-1 w-full">
 					{questions.map(({ question, component }, index) => (
 						<div key={index}>
-							{index === 6 && <hr className="my-4 border-gray-300" />}{" "}
+							{index === 6 && <hr className="mt-2 mb-5 border-gray-300" />}{" "}
 							{/* FIXME: Stupid hack to get the horizontal rule above demographic questions. */}
 							<p className="text-[10pt] text-gray-600">{question}</p>
 							{component}
