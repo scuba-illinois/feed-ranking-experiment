@@ -742,7 +742,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					For this question only, please select 5 as your answer.
+					(4) For this question only, please select 5 as your answer.
 					<RedAsterisk />
 				</>
 			),
@@ -752,8 +752,8 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					How likely are you to encounter content similar to what you saw during
-					the experiment?
+					(5) How likely are you to encounter content similar to what you saw
+					during the experiment?
 					<RedAsterisk />
 				</>
 			),
@@ -762,8 +762,8 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					Do you have any feedback about your experience participating in this
-					study?
+					(6) Do you have any feedback about your experience participating in
+					this study?
 				</>
 			),
 			component: <FeedbackQuestion />,
@@ -771,7 +771,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					What is your age?
+					(7) What is your age?
 					<RedAsterisk />
 				</>
 			),
@@ -780,7 +780,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					What is your gender?
+					(8) What is your gender?
 					<RedAsterisk />
 				</>
 			),
@@ -789,7 +789,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					What is the highest level of education you have completed?
+					(9) What is the highest level of education you have completed?
 					<RedAsterisk />
 				</>
 			),
@@ -808,9 +808,9 @@ export const ExitQuestionnaire = () => {
 				<div className="flex flex-col gap-4 mt-1 w-full">
 					{questions.map(({ question, component }, index) => (
 						<div key={index}>
-							{index === 6 && <hr className="mt-2 mb-5 border-gray-300" />}{" "}
+							{index === 6 && <hr className="mt-2 mb-5 border-gray-300" />}
 							{/* FIXME: Stupid hack to get the horizontal rule above demographic questions. */}
-							<p className="text-[10pt] text-gray-600">{question}</p>
+							<span className="text-[10pt] text-gray-600">{question}</span>
 							{component}
 						</div>
 					))}
