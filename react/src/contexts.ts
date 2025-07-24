@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { Answers, Phase, Settings } from "./types";
+import { Answers, Phase, ScreenerAnswers, Settings } from "./types";
 
 export const SurveyContext = createContext<{
 	phase: Phase;
@@ -45,8 +45,8 @@ export const SurveyContext = createContext<{
 	completedFeeds: string[];
 	setCompletedFeeds: React.Dispatch<React.SetStateAction<string[]>>;
 
-	screenerAnswers?: Record<string, any>;
-	setScreenerAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+	screenerAnswers: ScreenerAnswers;
+	setScreenerAnswers: React.Dispatch<React.SetStateAction<ScreenerAnswers>>;
 
 	screenerStart: string;
 	setScreenerStart: React.Dispatch<React.SetStateAction<string>>;
@@ -125,7 +125,10 @@ export const SurveyContext = createContext<{
 	completedFeeds: [],
 	setCompletedFeeds: () => {},
 
-	screenerAnswers: {},
+	screenerAnswers: {
+		subreddits: [],
+		interests: [],
+	},
 	setScreenerAnswers: () => {},
 
 	screenerStart: "",

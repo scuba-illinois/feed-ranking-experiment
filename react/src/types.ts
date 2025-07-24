@@ -4,8 +4,12 @@ export type Phase =
 	| "FEED"
 	| "FEEDRATING"
 	| "EXIT"
-	| "GOODBYE"
-	| "UNQUALIFIED";
+	| "GOODBYE";
+
+export type ScreenerAnswers = {
+	subreddits: string[];
+	interests: string[];
+};
 
 export type QuestionAnswers = {
 	relevance: number;

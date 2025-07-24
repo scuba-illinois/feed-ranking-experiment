@@ -2,133 +2,63 @@ import { JSX, useContext, useEffect, useState } from "react";
 import { Body, Header, RedAsterisk } from "../components/general";
 import { SurveyContext } from "../contexts";
 
-const Over18 = ({
-	answers,
-	setAnswers,
-}: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-}) => (
-	<div className="flex flex-col gap-1">
-		<label className="flex gap-2">
-			<input
-				type="radio"
-				name="age"
-				value="yes"
-				checked={answers.age === "yes"}
-				onChange={() => setAnswers({ ...answers, age: "yes" })}
-			/>
-			<span className="text-[10pt] text-gray-600">Yes</span>
-		</label>
-		<label className="flex gap-2">
-			<input
-				type="radio"
-				name="age"
-				value="no"
-				checked={answers.age === "no"}
-				onChange={() => setAnswers({ ...answers, age: "no" })}
-			/>
-			<span className="text-[10pt] text-gray-600">No</span>
-		</label>
-	</div>
-);
+const INTERESTS = [
+	"Internet Culture",
+	"Games",
+	"Q&As",
+	"Technology",
+	"Pop Culture",
+	"Movies & TV",
+	"Anime",
+	"Arts",
+	"Business",
+	"Collectibles & Other Hobbies",
+	"Education & Career",
+	"Fashion & Beauty",
+	"Food & Drink",
+	"Home & Garden",
+	"Humanities & Law",
+	"Music",
+	"Nature & Outdoors",
+	"News & Politics",
+	"Places & Travel",
+	"Science",
+	"Sports",
+	"Spooky",
+	"Vehicles",
+	"Wellness",
+];
 
-const InUSA = ({
-	answers,
-	setAnswers,
-}: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-}) => (
-	<div>
-		<div className="flex flex-col gap-1">
-			<label className="flex gap-2">
-				<input
-					type="radio"
-					name="inUSA"
-					value="yes"
-					checked={answers.inUSA === "yes"}
-					onChange={() => setAnswers({ ...answers, inUSA: "yes" })}
-				/>
-				<span className="text-[10pt] text-gray-600">Yes</span>
-			</label>
-			<label className="flex gap-2">
-				<input
-					type="radio"
-					name="inUSA"
-					value="no"
-					checked={answers.inUSA === "no"}
-					onChange={() => setAnswers({ ...answers, inUSA: "no" })}
-				/>
-				<span className="text-[10pt] text-gray-600">No</span>
-			</label>
-		</div>
-	</div>
-);
-
-const RedditUsage = ({
-	answers,
-	setAnswers,
-}: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-}) => (
-	<select
-		name="redditUsage"
-		value={answers.redditUsage || ""}
-		onChange={(e) => setAnswers({ ...answers, redditUsage: e.target.value })}
-		className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt] text-gray-600"
-	>
-		<option hidden disabled value="">
-			Select an option
-		</option>
-		<option value="never">Never</option>
-		<option value="rarely">Rarely (once or twice a month)</option>
-		<option value="sometimes">Sometimes (a few times a month)</option>
-		<option value="occasionally">Occasionally (a few times a week)</option>
-		<option value="frequently">Frequently (once or twice a day)</option>
-		<option value="very_frequently">
-			Very frequently (several times a day)
-		</option>
-	</select>
-);
-
-const RedditSubreddits = ({
-	answers,
-	setAnswers,
-}: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-}) => {
-	const [subreddit, setSubreddit] = useState("");
+const Subreddits = () => {
+	const { screenerAnswers, setScreenerAnswers } = useContext(SurveyContext);
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-		let _subreddit = e.currentTarget.value.trim();
-		if (_subreddit.startsWith("r/")) {
-			_subreddit = _subreddit.slice(2);
+		let subreddit = e.currentTarget.value.trim();
+
+		if (subreddit.startsWith("r/")) {
+			subreddit = subreddit.slice(2);
 		}
 
 		if (
 			e.key === "Enter" &&
-			_subreddit !== "" &&
-			(answers.subreddits || []).some(
-				(s: string) => s.toLowerCase() === _subreddit.toLowerCase()
+			subreddit !== "" &&
+			(screenerAnswers.subreddits || []).some(
+				(s: string) => s.toLowerCase() === subreddit.toLowerCase()
 			) === false
 		) {
-			setAnswers((state) => ({
+			setScreenerAnswers((state) => ({
 				...state,
-				subreddits: [...(answers.subreddits || []), _subreddit],
+				subreddits: [...screenerAnswers.subreddits, subreddit],
 			}));
-			setSubreddit("");
+
+			e.currentTarget.value = ""; // Clear the input field after adding
 		}
 	};
 
 	const handleRemove = (index: number) => {
-		setAnswers((state) => ({
+		setScreenerAnswers((state) => ({
 			...state,
-			subreddits: [
-				...(state.subreddits as string[]).filter((_, i) => i !== index),
-			],
+			subreddits: [...state.subreddits.filter((_, i) => i !== index)],
 		}));
 	};
 
@@ -136,14 +66,12 @@ const RedditSubreddits = ({
 		<div>
 			<input
 				type="text"
-				value={subreddit}
-				onChange={(e) => setSubreddit(e.target.value)}
 				onKeyDown={handleKeyDown}
 				placeholder="Enter a subreddit"
 				className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt]"
 			/>
 			<ul className="flex flex-col gap-1 mt-2">
-				{((answers.subreddits || []) as string[]).map((subreddit, index) => (
+				{screenerAnswers.subreddits.map((subreddit, index) => (
 					<li key={index} className="text-[10pt] text-gray-600 flex gap-4">
 						{subreddit}
 						<button
@@ -159,58 +87,32 @@ const RedditSubreddits = ({
 	);
 };
 
-const Interests = ({
-	answers,
-	setAnswers,
-}: {
-	answers: Record<string, any>;
-	setAnswers: React.Dispatch<React.SetStateAction<Record<string, any>>>;
-}) => {
+const Interests = () => {
+	const { screenerAnswers, setScreenerAnswers } = useContext(SurveyContext);
+
 	return (
 		<div className="flex flex-wrap gap-y-3 gap-x-4">
-			{[
-				"Internet Culture",
-				"Games",
-				"Q&As",
-				"Technology",
-				"Pop Culture",
-				"Movies & TV",
-				"Anime",
-				"Arts",
-				"Business",
-				"Collectibles & Other Hobbies",
-				"Education & Career",
-				"Fashion & Beauty",
-				"Food & Drink",
-				"Home & Garden",
-				"Humanities & Law",
-				"Music",
-				"Nature & Outdoors",
-				"News & Politics",
-				"Places & Travel",
-				"Science",
-				"Sports",
-				"Spooky",
-				"Vehicles",
-				"Wellness",
-			].map((interest) => (
+			{INTERESTS.map((interest) => (
 				<label key={interest} className="flex flex-row gap-2">
 					<input
 						key={interest}
 						type="checkbox"
 						name="interests"
 						value={interest}
-						checked={(answers.interests || []).includes(interest)}
+						checked={screenerAnswers.interests.includes(interest)}
 						onChange={(e) => {
+							// If the checkbox is checked, add the interest; otherwise, remove it
 							const newInterests = e.target.checked
-								? [...(answers.interests || []), interest]
-								: (answers.interests || []).filter(
-										(i: string) => i !== interest
+								? [...screenerAnswers.interests, interest]
+								: screenerAnswers.interests.filter(
+										(_interest: string) => _interest !== interest
 								  );
-							setAnswers({
-								...answers,
+
+							// Update the state with the new interest set.
+							setScreenerAnswers((state) => ({
+								...state,
 								interests: [...new Set(newInterests)].sort(),
-							});
+							}));
 						}}
 					/>
 					<span className="text-[10pt] text-gray-600">{interest} </span>
@@ -223,7 +125,6 @@ const Interests = ({
 export const Screeners = () => {
 	const {
 		setPhase,
-		setScreenerAnswers,
 		screenerStart,
 		setScreenerStart,
 		setScreenerEnd,
@@ -236,73 +137,80 @@ export const Screeners = () => {
 
 	const [_answers, _setAnswers] = useState<Record<string, any>>({});
 
-	const isValid =
-		Object.keys(_answers).includes("age") &&
-		Object.keys(_answers).includes("inUSA") &&
-		Object.keys(_answers).includes("redditUsage");
-
 	const questions: {
 		question: string | JSX.Element;
 		component: JSX.Element;
 	}[] = [
 		{
 			question: (
-				<>
-					Are you 18 years or older?
+				<span>
+					Which of these topics are you generally interested in?{" "}
+					<span className="italic">
+						Please select all that apply. You must choose at least one.
+					</span>
 					<RedAsterisk />
-				</>
+				</span>
 			),
-			component: <Over18 answers={_answers} setAnswers={_setAnswers} />,
+			component: <Interests />,
 		},
 		{
 			question: (
 				<>
-					Are you currently based in the United States?
-					<RedAsterisk />
+					<span>
+						List the subreddits you visit most often. Try to list at least five.
+					</span>
+					<div className="mt-2 pl-5">
+						Press "Enter" to add. The subreddits you add will be listed below.
+						Do not include the <span className="font-mono">"r/"</span> prefix
+						(e.g., use <span className="font-mono">pics</span>, not{" "}
+						<span className="font-mono">r/pics</span>). Subreddits are{" "}
+						<span className="italic">not case sensitive</span>. Click on{" "}
+						<span className="text-red-600">(X)</span> to remove.
+					</div>
 				</>
 			),
-			component: <InUSA answers={_answers} setAnswers={_setAnswers} />,
-		},
-		{
-			question: (
-				<>
-					How often do you browse Reddit?
-					<RedAsterisk />
-				</>
-			),
-			component: <RedditUsage answers={_answers} setAnswers={_setAnswers} />,
-		},
-		{
-			question: (
-				<>
-					If applicable, list the subreddits you browse the most on Reddit. Try
-					to include at least five. Press "Enter" to add. The subreddits you add
-					will be listed below. Do not include the{" "}
-					<span className="font-mono">"r/"</span> prefix (e.g., use{" "}
-					<span className="font-mono">pics</span>, not{" "}
-					<span className="font-mono">r/pics</span>). Subreddits are{" "}
-					<span className="italic">not case sensitive</span>. Click on{" "}
-					<span className="text-red-600">(X)</span> to remove.
-				</>
-			),
-			component: (
-				<RedditSubreddits answers={_answers} setAnswers={_setAnswers} />
-			),
-		},
-		{
-			question:
-				"Which of these topics are you generally interested in? (Select all that apply.)",
-			component: <Interests answers={_answers} setAnswers={_setAnswers} />,
+			component: <Subreddits />,
 		},
 	];
+
+	const ContinueButton = () => {
+		const { screenerAnswers } = useContext(SurveyContext);
+
+		const valid = screenerAnswers.interests.length > 0;
+
+		const handleClick = () => {
+			const screenerEnd = new Date();
+
+			setScreenerEnd(screenerEnd.toISOString());
+			setScreenerDuration(
+				(screenerEnd.getTime() - new Date(screenerStart).getTime()) / 1_000
+			);
+
+			// Determine the next phase based on answers.
+			setPhase("FEED");
+		};
+
+		return (
+			<button
+				className={
+					"bg-blue-500 text-white rounded-md px-4 py-2 mt-2 w-full text-[10pt] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" +
+					(valid ? "" : " opacity-50 cursor-not-allowed")
+				}
+				onClick={handleClick}
+				disabled={!valid}
+			>
+				Continue
+			</button>
+		);
+	};
 
 	return (
 		<div className="flex justify-center my-6">
 			<div className="flex flex-col w-[560px] gap-2">
-				<Header>Screener Questions</Header>
+				<Header>Pre-Experiment Questions</Header>
 				<Body>
-					Please answer the following questions before partaking in this study.
-					Questions marked with <RedAsterisk /> are required.
+					Please answer the following questions before continuing. Questions
+					marked with <RedAsterisk /> are required.
 				</Body>
 				<div className="flex flex-col gap-4 mt-1">
 					{questions.map(({ question, component }, index) => (
@@ -314,38 +222,7 @@ export const Screeners = () => {
 						</div>
 					))}
 				</div>
-				<button
-					className={
-						"bg-blue-500 text-white rounded-md px-4 py-2 mt-2 w-[100%] text-[10pt]" +
-						(isValid ? "" : " opacity-50 cursor-not-allowed")
-					}
-					disabled={!isValid}
-					onClick={() => {
-						// Record the answers to context state.
-						setScreenerAnswers(_answers);
-
-						const screenerEnd = new Date();
-
-						setScreenerEnd(screenerEnd.toISOString());
-						setScreenerDuration(
-							(screenerEnd.getTime() - new Date(screenerStart).getTime()) /
-								1_000
-						);
-
-						// Determine the next phase based on answers.
-						if (
-							_answers.age === "no" ||
-							_answers.inUSA === "no" ||
-							_answers.redditUsage === "never"
-						) {
-							setPhase("UNQUALIFIED");
-						} else {
-							setPhase("FEED");
-						}
-					}}
-				>
-					Submit
-				</button>
+				<ContinueButton />
 			</div>
 		</div>
 	);

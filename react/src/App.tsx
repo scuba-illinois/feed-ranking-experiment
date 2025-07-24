@@ -1,13 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SurveyContext } from "./contexts";
 import Goodbye from "./pages/Goodbye";
 import Intro from "./pages/Intro";
-import { Phase, Answers } from "./types";
+import { Phase, Answers, ScreenerAnswers } from "./types";
 import { Screeners } from "./pages/Screeners";
 import { ExitQuestionnaire } from "./pages/ExitQuestionnaire";
 import { FeedSelect } from "./pages/FeedSelect";
 import { FeedRate } from "./pages/FeedRate";
-import Unqualified from "./pages/Unqualified";
 import { BrowserRouter } from "react-router-dom";
 
 function App() {
@@ -32,9 +31,10 @@ function App() {
 	>({});
 	const [answers, setAnswers] = useState<Answers>({});
 
-	const [screenerAnswers, setScreenerAnswers] = useState<Record<string, any>>(
-		{}
-	);
+	const [screenerAnswers, setScreenerAnswers] = useState<ScreenerAnswers>({
+		subreddits: [],
+		interests: [],
+	});
 	const [screenerStart, setScreenerStart] = useState<string>("");
 	const [screenerEnd, setScreenerEnd] = useState<string>("");
 	const [screenerDuration, setScreenerDuration] = useState<number>(-1);
@@ -60,10 +60,10 @@ function App() {
 		completionURL: "",
 	});
 
-	// Ideally for later. Maybe do this after they submitted their participant ID.
-	useEffect(() => {
-		setAnswers((state) => ({ ...state }));
-	}, []);
+	// TODO: Delete this, not sure if it's breaking so keeping it for now.
+	// useEffect(() => {
+	// 	setAnswers((state) => ({ ...state }));
+	// }, []);
 
 	return (
 		<SurveyContext.Provider
@@ -121,7 +121,6 @@ function App() {
 				{phase === "FEEDRATING" && <FeedRate />}
 				{phase === "EXIT" && <ExitQuestionnaire />}
 				{phase === "GOODBYE" && <Goodbye />}
-				{phase === "UNQUALIFIED" && <Unqualified />}
 			</BrowserRouter>
 		</SurveyContext.Provider>
 	);
