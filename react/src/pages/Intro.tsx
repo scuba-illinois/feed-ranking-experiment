@@ -170,7 +170,7 @@ const Compensation = () => (
 	<>
 		<Header>Costs & Compensation</Header>
 		<Body>
-			You will be compensated $1.50 for participating in this study. The
+			You will be compensated $2.50 for participating in this study. The
 			compensation will be delivered digitally after the completion of the
 			study.
 		</Body>
