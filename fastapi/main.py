@@ -14,7 +14,6 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 
 class Session(BaseModel):
-    participantID: str
     timestamp: str
     PROLIFIC_PID: str = ""
     STUDY_ID: str = ""
@@ -80,7 +79,6 @@ async def record_session_start(
 
     await collection.insert_one(
         {
-            "participantID": session.participantID,
             "timestamp": session.timestamp,
             "PROLIFIC_PID": session.PROLIFIC_PID,
             "STUDY_ID": session.STUDY_ID,
@@ -142,7 +140,7 @@ async def validate_participant(session: Session):
     meta = {feed_uuid: get_meta(feed_uuid) for feed_uuid in feeds}
 
     """
-    TODO: Record the treatments given to the participant, store it in session-starts
+    Records the treatments given to the participant, store it in session-starts
     cluster on MongoDB.
     """
     try:
