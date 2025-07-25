@@ -2,6 +2,7 @@ import { createContext } from "react";
 import {
 	Answers,
 	ExitAnswers,
+	OptionOrder,
 	Phase,
 	ScreenerAnswers,
 	Settings,
@@ -24,9 +25,6 @@ export const SurveyContext = createContext<{
 		}>
 	>;
 
-	participantID: string;
-	setParticipantID: React.Dispatch<React.SetStateAction<string>>;
-
 	consentTimestamp: string;
 	setConsentTimestamp: React.Dispatch<React.SetStateAction<string>>;
 
@@ -47,6 +45,9 @@ export const SurveyContext = createContext<{
 	setPostURLs: React.Dispatch<
 		React.SetStateAction<Record<string, Record<string, string>>>
 	>;
+
+	optionOrder: OptionOrder;
+	setOptionOrder: React.Dispatch<React.SetStateAction<OptionOrder>>;
 
 	completedFeeds: string[];
 	setCompletedFeeds: React.Dispatch<React.SetStateAction<string[]>>;
@@ -110,8 +111,13 @@ export const SurveyContext = createContext<{
 	},
 	setProlific: () => {},
 
-	participantID: "",
-	setParticipantID: () => {},
+	optionOrder: {
+		likert: [],
+		selection_multiple_choice: [],
+		selected_multiple_choice: [],
+		non_selected_multiple_choice: [],
+	},
+	setOptionOrder: () => {},
 
 	consentTimestamp: "",
 	setConsentTimestamp: () => {},

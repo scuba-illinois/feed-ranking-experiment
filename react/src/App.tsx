@@ -2,7 +2,13 @@ import { useState } from "react";
 import { SurveyContext } from "./contexts";
 import Goodbye from "./pages/Goodbye";
 import Intro from "./pages/Intro";
-import { Phase, Answers, ScreenerAnswers, ExitAnswers } from "./types";
+import {
+	Phase,
+	Answers,
+	ScreenerAnswers,
+	ExitAnswers,
+	OptionOrder,
+} from "./types";
 import { Screeners } from "./pages/Screeners";
 import { ExitQuestionnaire } from "./pages/ExitQuestionnaire";
 import { FeedSelect } from "./pages/FeedSelect";
@@ -18,7 +24,13 @@ function App() {
 		SESSION_ID: string;
 	}>({ PROLIFIC_PID: "", STUDY_ID: "", SESSION_ID: "" });
 
-	const [participantID, setParticipantID] = useState<string>("");
+	const [optionOrder, setOptionOrder] = useState<OptionOrder>({
+		likert: [],
+		selection_multiple_choice: [],
+		selected_multiple_choice: [],
+		non_selected_multiple_choice: [],
+	});
+
 	const [consentTimestamp, setConsentTimestamp] = useState<string>("");
 	const [feeds, setFeeds] = useState<string[]>([]);
 	const [completedFeeds, setCompletedFeeds] = useState<string[]>([]);
@@ -90,8 +102,8 @@ function App() {
 				setPhase,
 				prolific,
 				setProlific,
-				participantID,
-				setParticipantID,
+				optionOrder,
+				setOptionOrder,
 				consentTimestamp,
 				setConsentTimestamp,
 				feeds,

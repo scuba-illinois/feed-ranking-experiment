@@ -110,3 +110,24 @@ export type Settings = {
 	hideSelectionDirections: boolean;
 	hideRatingDirections: boolean;
 };
+
+export type OptionOrder = {
+	likert: ("relevance" | "trustworthiness" | "content_quality")[];
+	selection_multiple_choice: (
+		| "position"
+		| "content"
+		| "upvotes"
+		| "comments"
+		| "subreddit"
+	)[];
+	selected_multiple_choice: (
+		| "relevance"
+		| "trustworthiness"
+		| "content_quality"
+	)[];
+	non_selected_multiple_choice: (
+		| "relevance"
+		| "trustworthiness"
+		| "content_quality"
+	)[];
+};

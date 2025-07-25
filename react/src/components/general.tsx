@@ -58,7 +58,6 @@ export function Button({
 
 export const DebugInfo = () => {
 	const {
-		participantID,
 		consentTimestamp,
 		screenerStart,
 		screenerEnd,
@@ -71,7 +70,6 @@ export const DebugInfo = () => {
 	} = useContext(SurveyContext);
 
 	const jsonData = {
-		participantID,
 		consentTimestamp,
 		screenerStart,
 		screenerEnd,

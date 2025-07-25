@@ -24,7 +24,6 @@ const TextArea = ({
 
 const ContinueButton = () => {
 	const {
-		participantID,
 		prolific,
 		consentTimestamp,
 		answers,
@@ -82,7 +81,6 @@ const ContinueButton = () => {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
-						participantID: participantID,
 						prolific: prolific,
 						consentTimestamp: consentTimestamp,
 						feeds: feeds,
@@ -153,35 +151,6 @@ const PostLikelihood = () => {
 				</label>
 			))}
 			<span className="text-gray-600 text-[10pt]">Likely</span>
-		</div>
-	);
-};
-
-const AttentionCheck = () => {
-	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
-
-	return (
-		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
-			<span className="text-gray-600 text-[10pt]">Disagree</span>
-			{[1, 2, 3, 4, 5].map((score) => (
-				<label
-					key={score}
-					className="flex flex-col items-center gap-2 cursor-pointer"
-				>
-					<input
-						type="radio"
-						name="attentionCheck"
-						value={score}
-						checked={exitAnswers.attentionCheck === score}
-						onChange={() =>
-							setExitAnswers({ ...exitAnswers, attentionCheck: score })
-						}
-						className="cursor-pointer"
-					/>
-					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
-				</label>
-			))}
-			<span className="text-gray-600 text-[10pt]">Agree</span>
 		</div>
 	);
 };
@@ -333,16 +302,19 @@ const getNonSelectedPosts = (
 };
 
 const PostSelection = () => {
-	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+	const { exitAnswers, setExitAnswers, optionOrder } =
+		useContext(SurveyContext);
 	const [other, setOther] = useState("");
 
-	const OPTIONS = [
-		"The position of the post on the feed",
-		"The content of the post",
-		"The number of upvotes on the post",
-		"The number of comments on the post",
-		"The subreddit the post is from",
-	];
+	const OPTIONS = {
+		position: "The position of the post on the feed",
+		content: "The content of the post",
+		upvotes: "The number of upvotes on the post",
+		comments: "The number of comments on the post",
+		subreddit: "The subreddit the post is from",
+	};
+
+	const order: (keyof typeof OPTIONS)[] = optionOrder.selection_multiple_choice;
 
 	const includesOther = () =>
 		exitAnswers.selectionExplained.some(
@@ -351,7 +323,7 @@ const PostSelection = () => {
 
 	return (
 		<div className="flex flex-col gap-2 mt-2">
-			{OPTIONS.map((option) => {
+			{order.map((option) => {
 				const isChecked = exitAnswers.selectionExplained.includes(option);
 
 				const handleChange = () => {
@@ -372,15 +344,15 @@ const PostSelection = () => {
 				};
 
 				return (
-					<label key={option} className="flex gap-2">
+					<label key={OPTIONS[option]} className="flex gap-2">
 						<input
 							type="checkbox"
 							name="selectionExplained"
-							value={option}
+							value={OPTIONS[option]}
 							checked={isChecked}
 							onChange={handleChange}
 						/>
-						<span className="text-[10pt] text-gray-600">{option}</span>
+						<span className="text-[10pt] text-gray-600">{OPTIONS[option]}</span>
 					</label>
 				);
 			})}
@@ -438,14 +410,17 @@ const PostSelection = () => {
 };
 
 const SelectedPostExample = () => {
-	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+	const { exitAnswers, setExitAnswers, optionOrder } =
+		useContext(SurveyContext);
 	const [other, setOther] = useState("");
 
-	const OPTIONS = [
-		"This post looked relevant to me",
-		"This post looked trustworthy",
-		"This post seemed to be high quality",
-	];
+	const OPTIONS = {
+		relevance: "This post looked relevant to me",
+		trustworthiness: "This post looked trustworthy",
+		content_quality: "This post seemed to be high quality",
+	};
+
+	const order: (keyof typeof OPTIONS)[] = optionOrder.selected_multiple_choice;
 
 	const includesOther = () =>
 		exitAnswers.selectedPostExplained.some(
@@ -454,7 +429,7 @@ const SelectedPostExample = () => {
 
 	return (
 		<div className="flex flex-col gap-2 mt-2">
-			{OPTIONS.map((option) => {
+			{order.map((option) => {
 				const isChecked = exitAnswers.selectedPostExplained.includes(option);
 
 				const handleChange = () => {
@@ -475,15 +450,15 @@ const SelectedPostExample = () => {
 				};
 
 				return (
-					<label key={option} className="flex gap-2">
+					<label key={OPTIONS[option]} className="flex gap-2">
 						<input
 							type="checkbox"
 							name="selectedPostExplained"
-							value={option}
+							value={OPTIONS[option]}
 							checked={isChecked}
 							onChange={handleChange}
 						/>
-						<span className="text-[10pt] text-gray-600">{option}</span>
+						<span className="text-[10pt] text-gray-600">{OPTIONS[option]}</span>
 					</label>
 				);
 			})}
@@ -542,14 +517,18 @@ const SelectedPostExample = () => {
 };
 
 const NonSelectedPostExample = () => {
-	const { exitAnswers, setExitAnswers } = useContext(SurveyContext);
+	const { exitAnswers, setExitAnswers, optionOrder } =
+		useContext(SurveyContext);
 	const [other, setOther] = useState("");
 
-	const OPTIONS = [
-		"This post did not look relevant to me",
-		"This post did not look trustworthy",
-		"This post did not seem to be high quality",
-	];
+	const OPTIONS = {
+		relevance: "This post did not look relevant to me",
+		trustworthiness: "This post did not look trustworthy",
+		content_quality: "This post did not seem to be high quality",
+	};
+
+	const order: (keyof typeof OPTIONS)[] =
+		optionOrder.non_selected_multiple_choice;
 
 	const includesOther = () =>
 		exitAnswers.nonSelectedPostExplained.some(
@@ -558,7 +537,7 @@ const NonSelectedPostExample = () => {
 
 	return (
 		<div className="flex flex-col gap-2 mt-2">
-			{OPTIONS.map((option) => {
+			{order.map((option) => {
 				const isChecked = exitAnswers.nonSelectedPostExplained.includes(option);
 
 				const handleChange = () => {
@@ -579,15 +558,15 @@ const NonSelectedPostExample = () => {
 				};
 
 				return (
-					<label key={option} className="flex gap-2">
+					<label key={OPTIONS[option]} className="flex gap-2">
 						<input
 							type="checkbox"
 							name="nonSelectedPostExplained"
-							value={option}
+							value={OPTIONS[option]}
 							checked={isChecked}
 							onChange={handleChange}
 						/>
-						<span className="text-[10pt] text-gray-600">{option}</span>
+						<span className="text-[10pt] text-gray-600">{OPTIONS[option]}</span>
 					</label>
 				);
 			})}
@@ -646,8 +625,14 @@ const NonSelectedPostExample = () => {
 };
 
 export const ExitQuestionnaire = () => {
-	const { answers, setExitStart, exitAnswers, setExitAnswers, postURLs } =
-		useContext(SurveyContext);
+	const {
+		answers,
+		setExitStart,
+		exitAnswers,
+		setExitAnswers,
+		postURLs,
+		optionOrder,
+	} = useContext(SurveyContext);
 
 	useEffect(() => {
 		setExitStart(new Date().toISOString());
@@ -742,17 +727,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(4) For this question only, please select 5 as your answer.
-					<RedAsterisk />
-				</>
-			),
-			component: <AttentionCheck />,
-		},
-
-		{
-			question: (
-				<>
-					(5) How likely are you to encounter content similar to what you saw
+					(4) How likely are you to encounter content similar to what you saw
 					during the experiment?
 					<RedAsterisk />
 				</>
@@ -762,7 +737,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(6) Do you have any feedback about your experience participating in
+					(5) Do you have any feedback about your experience participating in
 					this study?
 				</>
 			),
@@ -771,7 +746,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(7) What is your age?
+					(6) What is your age?
 					<RedAsterisk />
 				</>
 			),
@@ -780,7 +755,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(8) What is your gender?
+					(7) What is your gender?
 					<RedAsterisk />
 				</>
 			),
@@ -789,7 +764,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(9) What is the highest level of education you have completed?
+					(8) What is the highest level of education you have completed?
 					<RedAsterisk />
 				</>
 			),
@@ -800,6 +775,7 @@ export const ExitQuestionnaire = () => {
 	return (
 		<div className="flex justify-center h-[100vh] py-4">
 			<div className="flex flex-col w-[560px] gap-2 items-start">
+				{/* {<pre>{JSON.stringify({ ...exitAnswers, optionOrder }, null, 2)}</pre>} */}
 				<Header>Exit Questionnaire</Header>
 				<Body>
 					Before finishing this experiment, please complete the following

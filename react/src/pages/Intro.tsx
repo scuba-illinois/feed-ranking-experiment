@@ -109,7 +109,7 @@ const ParticipationRequirements = () => (
 		<Body>
 			You may participate in this study if you meet the following requirements:
 		</Body>
-		<ol className="list-decimal text-[10pt] text-gray-600 ml-10">
+		<ol className="list-decimal text-[10pt] text-gray-600 ml-10 mb-2">
 			<li>Have used Reddit in the past month</li>
 			<li>Be 18 years old or older</li>
 			<li>Be located in the United States of America (USA)</li>
@@ -182,8 +182,8 @@ const Consent = () => (
 		<Header>Consent</Header>
 		<Body>
 			I certify that I have read and understand the above consent form and that
-			I am 18 years of age or older. By inputting my participant ID, I indicate
-			my willingness to take part in this study.
+			I am 18 years of age or older. By hitting the "I Consent, Begin Study"
+			button below, I indicate my willingness to take part in this study.
 		</Body>
 		<Body>
 			Please print this consent form if you would like to retain a copy for your
@@ -196,9 +196,9 @@ const Consent = () => (
 export default function Intro() {
 	const {
 		setPhase,
+		prolific,
+		setOptionOrder,
 		setProlific,
-		participantID,
-		setParticipantID,
 		setConsentTimestamp,
 		setFeeds,
 		setFeedURLs,
@@ -206,11 +206,63 @@ export default function Intro() {
 		setPostURLs,
 	} = useContext(SurveyContext);
 
-	const [isInvalid, setIsInvalid] = useState<string | null>(null);
-	const [waiting, setWaiting] = useState(false);
+	const [buttonStatus, setButtonStatus] = useState<
+		"NOT_READY" | "LOADING" | "READY" | "ERROR"
+	>("NOT_READY");
 	const [searchParams] = useSearchParams();
 
+	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		setConsentTimestamp(new Date().toISOString());
+		setButtonStatus("LOADING");
+
+		const controller = new AbortController();
+		const timeoutId = setTimeout(() => controller.abort(), 60_000); // 1 minute
+
+		fetch(`https://trending-backend.vercel.app/validate/`, {
+			method: "POST",
+			signal: controller.signal,
+			headers: {
+				"Content-Type": "application/json",
+				Accept: "application/json",
+			},
+			body: JSON.stringify({
+				timestamp: new Date().toISOString(),
+				PROLIFIC_PID: prolific.PROLIFIC_PID,
+				STUDY_ID: prolific.STUDY_ID,
+				SESSION_ID: prolific.SESSION_ID,
+			}),
+		})
+			.then((response) => response.json())
+			.then((data) => {
+				if (data.valid) {
+					setFeeds(data.feeds);
+					setFeedURLs(data.feedURLs);
+					setFeedData(data.feedData);
+					setPostURLs(data.postURLs);
+					setOptionOrder({
+						likert: data.optionsRandomized.likert,
+						selection_multiple_choice:
+							data.optionsRandomized.selection_multiple_choice,
+						selected_multiple_choice:
+							data.optionsRandomized.selected_multiple_choice,
+						non_selected_multiple_choice:
+							data.optionsRandomized.nonselected_multiple_choice, // BUG: Not sure why I didn't add an underscore.
+					});
+					setPhase("SCREENER");
+				}
+			})
+			.catch((error) => {
+				if (error.name === "AbortError") {
+					setButtonStatus("ERROR");
+				}
+			})
+			.finally(() => clearTimeout(timeoutId));
+	};
+
 	// Set Prolific information if it's available in the URL parameters.
+	// ?PROLIFIC_PID=test&STUDY_ID=test&SESSION_ID=test
 	useEffect(() => {
 		const PROLIFIC_PID = searchParams.get("PROLIFIC_PID");
 		const STUDY_ID = searchParams.get("STUDY_ID");
@@ -222,6 +274,7 @@ export default function Intro() {
 				STUDY_ID,
 				SESSION_ID,
 			});
+			setButtonStatus("READY");
 		}
 	}, []);
 
@@ -247,71 +300,24 @@ export default function Intro() {
 				<hr className="h-px my-4 dark:bg-gray-700"></hr>
 				<Consent />
 
-				<form
-					className="flex flex-col gap-4 mt-2"
-					onSubmit={(e) => {
-						e.preventDefault();
-
-						setConsentTimestamp(new Date().toISOString());
-
-						setWaiting(true);
-
-						fetch(`https://trending-backend.vercel.app/validate/`, {
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
-								Accept: "application/json",
-							},
-							body: JSON.stringify({
-								participantID,
-								timestamp: new Date().toISOString(),
-								PROLIFIC_PID: searchParams.get("PROLIFIC_PID") || "",
-								STUDY_ID: searchParams.get("STUDY_ID") || "",
-								SESSION_ID: searchParams.get("SESSION_ID") || "",
-							}),
-						}).then((response) => {
-							response.json().then((data) => {
-								// TODO: Some verification that the data returned is correct.
-								// Otherwise, blow up.
-
-								if (data.valid) {
-									setPhase("SCREENER");
-									setFeeds(data.feeds);
-									setFeedURLs(data.feedURLs);
-									setFeedData(data.feedData);
-									setPostURLs(data.postURLs);
-
-									setWaiting(false);
-								} else {
-									setIsInvalid(participantID);
-
-									setWaiting(false);
-								}
-							});
-						});
-					}}
-				>
-					{isInvalid && (
-						<Body className="text-red-600 mt-[-5px]">
-							{isInvalid} is not a valid participant ID.
-						</Body>
-					)}
-					<input
-						type="text"
-						placeholder="Enter Participant ID"
-						className="border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 text-[10pt]"
-						value={participantID || ""}
-						onChange={(e) => setParticipantID(e.target.value)}
-						disabled={waiting}
-					/>
+				<form className="flex flex-col gap-4 mt-2" onSubmit={handleSubmit}>
 					<Button
 						type="submit"
-						disabled={!participantID || waiting}
+						disabled={
+							buttonStatus === "LOADING" || buttonStatus === "NOT_READY"
+						}
 						className={
-							waiting ? "bg-green-500 hover:bg-green-600 text-white" : ""
+							buttonStatus === "LOADING"
+								? "bg-green-500 hover:bg-green-600 text-white"
+								: ""
 						}
 					>
-						{waiting ? "Loading..." : "Submit"}
+						{buttonStatus === "LOADING" && "Loading..."}
+						{buttonStatus === "NOT_READY" &&
+							"Cannot Begin, No Prolific Credentials Found"}
+						{buttonStatus === "READY" && "I Consent, Begin Study"}
+						{buttonStatus === "ERROR" &&
+							"An error occurred. Please refresh and try again."}
 					</Button>
 				</form>
 			</div>

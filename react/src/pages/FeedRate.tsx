@@ -306,7 +306,20 @@ const RatingPopup = ({
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 	selected: boolean;
 }) => {
-	const { feeds, completedFeeds, postURLs } = useContext(SurveyContext);
+	const { feeds, completedFeeds, postURLs, optionOrder } =
+		useContext(SurveyContext);
+
+	// FIXME: Crappy patch because the names from the server for
+	// perceptions dimensions are different.
+	const order = optionOrder.likert.map((option) => {
+		if (option === "content_quality") {
+			return "quality";
+		} else if (option === "relevance") {
+			return "relevance";
+		} else if (option === "trustworthiness") {
+			return "manipulation";
+		}
+	});
 
 	const feedUUID = feeds[completedFeeds.length];
 
@@ -462,8 +475,8 @@ const RatingPopup = ({
 				</>
 				<PostPreview fileName={postURLs[feedUUID][selectedPost]} />
 				<div>
-					{(Object.keys(answers) as Array<keyof QuestionAnswers>).map(
-						(question) => (
+					{(order as Array<keyof QuestionAnswers>).map(
+						(question: "quality" | "relevance" | "manipulation") => (
 							<Question key={question} question={question} />
 						)
 					)}
