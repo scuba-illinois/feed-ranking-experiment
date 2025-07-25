@@ -60,8 +60,18 @@ def get_meta(uuid: str, bucket: str = "trending-feeds"):
     return json.load(response["Body"])
 
 
+def shuffle_copy(lst: list):
+    shuffled = lst.copy()
+    random.shuffle(shuffled)
+    return shuffled
+
+
 async def record_session_start(
-    session: Session, feeds: list, rotations: list, show_proof: bool
+    session: Session,
+    feeds: list,
+    rotations: list,
+    show_proof: bool,
+    option_randomized: dict,
 ):
 
     client = create_client()
@@ -79,6 +89,7 @@ async def record_session_start(
                 {"feedUUID": feeds[i], "rotation": rotations[i]} for i in range(3)
             ],
             "shown_proof": show_proof,
+            "options_randomized": option_randomized,
         }
     )
 
@@ -113,6 +124,21 @@ async def validate_participant(session: Session):
     ]
     random.shuffle(feeds)
 
+    # Determines how the Likert scale orders are randomized and
+    # multiple choice options during exit questionnaire are randomized.
+    option_randomized = {
+        "likert": shuffle_copy(["relevance", "trustworthiness", "content_quality"]),
+        "selection_multiple_choice": shuffle_copy(
+            ["position", "content", "upvotes", "comments", "subreddit"]
+        ),
+        "selected_multiple_choice": shuffle_copy(
+            ["relevance", "trustworthiness", "content_quality"]
+        ),
+        "nonselected_multiple_choice": shuffle_copy(
+            ["relevance", "trustworthiness", "content_quality"]
+        ),
+    }
+
     meta = {feed_uuid: get_meta(feed_uuid) for feed_uuid in feeds}
 
     """
@@ -120,7 +146,9 @@ async def validate_participant(session: Session):
     cluster on MongoDB.
     """
     try:
-        await record_session_start(session, feeds, rotations, show_proof)
+        await record_session_start(
+            session, feeds, rotations, show_proof, option_randomized
+        )
     except Exception as e:
         return {
             "valid": False,
@@ -130,6 +158,7 @@ async def validate_participant(session: Session):
     return {
         "valid": True,
         "feeds": feeds,
+        "optionsRandomized": option_randomized,
         "feedURLs": [
             get_from_S3(
                 f"public/{feeds[0]}/"
