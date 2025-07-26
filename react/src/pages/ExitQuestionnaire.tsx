@@ -777,7 +777,7 @@ export const ExitQuestionnaire = () => {
 				<div className="flex flex-col gap-4 mt-1 w-full">
 					{questions.map(({ question, component }, index) => (
 						<div key={index}>
-							{index === 6 && <hr className="mt-2 mb-5 border-gray-300" />}
+							{index === 5 && <hr className="mt-2 mb-5 border-gray-300" />}
 							{/* FIXME: Stupid hack to get the horizontal rule above demographic questions. */}
 							<span className="text-[10pt] text-gray-600">{question}</span>
 							{component}
