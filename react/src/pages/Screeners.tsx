@@ -215,9 +215,9 @@ export const Screeners = () => {
 				<div className="flex flex-col gap-4 mt-1">
 					{questions.map(({ question, component }, index) => (
 						<div key={index} className="flex flex-col gap-2">
-							<p className="text-[10pt] text-gray-600">
+							<div className="text-[10pt] text-gray-600">
 								({index + 1}) {question}
-							</p>
+							</div>
 							{component}
 						</div>
 					))}

@@ -156,7 +156,6 @@ export const SurveyContext = createContext<{
 		selectionExplained: [],
 		selectedPostExplained: [],
 		nonSelectedPostExplained: [],
-		attentionCheck: -1,
 		age: "",
 		gender: "",
 		education: "",

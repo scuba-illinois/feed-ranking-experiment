@@ -48,7 +48,6 @@ const ContinueButton = () => {
 		exitAnswers.selectedPostExplained.length !== 0 &&
 		exitAnswers.nonSelectedPostExplained.length !== 0 &&
 		exitAnswers.postLikelihood > 0 &&
-		exitAnswers.attentionCheck > 0 &&
 		exitAnswers.age.trim() !== "" &&
 		exitAnswers.gender.trim() !== "" &&
 		exitAnswers.education.trim() !== "";
@@ -625,14 +624,8 @@ const NonSelectedPostExample = () => {
 };
 
 export const ExitQuestionnaire = () => {
-	const {
-		answers,
-		setExitStart,
-		exitAnswers,
-		setExitAnswers,
-		postURLs,
-		optionOrder,
-	} = useContext(SurveyContext);
+	const { answers, setExitStart, exitAnswers, setExitAnswers, postURLs } =
+		useContext(SurveyContext);
 
 	useEffect(() => {
 		setExitStart(new Date().toISOString());

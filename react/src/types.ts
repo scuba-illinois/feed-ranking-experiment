@@ -56,6 +56,12 @@ export type Answers = Record<
 		ratingStart: string;
 		ratingEnd: string;
 		ratingDuration: number;
+		attentionCheckPost?: string;
+		attentionCheckAnswer?: {
+			relevance: number;
+			quality: number;
+			manipulation: number;
+		};
 	}
 >;
 
@@ -63,7 +69,6 @@ export type ExitAnswers = {
 	selectionExplained: (string | { option: "Other: "; value: string })[];
 	selectedPostExplained: (string | { option: "Other: "; value: string })[];
 	nonSelectedPostExplained: (string | { option: "Other: "; value: string })[];
-	attentionCheck: number;
 	age: string;
 	gender: string;
 	education: string;

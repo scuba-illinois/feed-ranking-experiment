@@ -53,17 +53,18 @@ const StudyProcedure = () => (
 			conducted.
 		</Body>
 		<Body>
-			The experiment includes four stages: (1) screener questions, (2) feed
-			experiment, (3) post-experiment questionnaire, and (4) compensation. The
-			second stage will take up the majority of your time. During this stage,
-			you will be shown three archived screenshots of Reddit's r/popular feed.
-			For each screenshot, you will have up to two minutes to browse the feed
-			and may select up to three posts you would like to read more about. You
-			will then rate each selected post on its relevance, trustworthiness, and
-			content quality. After rating your selected posts, you will be shown three
-			additional posts that you did not select and asked to rate them using the
-			same criteria. Once you complete this process for a screenshot, you will
-			move on to the next, continuing until you have completed all three.
+			The experiment includes four stages: (1) pre-experiment questions, (2)
+			feed experiment, (3) post-experiment questionnaire, and (4) compensation.
+			The second stage will take up the majority of your time. During this
+			stage, you will be shown three archived screenshots of Reddit's r/popular
+			feed. For each screenshot, you will have up to two minutes to browse the
+			feed and may select up to three posts you would like to read more about.
+			You will then rate each selected post on its relevance, trustworthiness,
+			and content quality. After rating your selected posts, you will be shown
+			three additional posts that you did not select and asked to rate them
+			using the same criteria. Once you complete this process for a screenshot,
+			you will move on to the next, continuing until you have completed all
+			three.
 		</Body>
 	</>
 );

@@ -55,7 +55,6 @@ function App() {
 		selectionExplained: [],
 		selectedPostExplained: [],
 		nonSelectedPostExplained: [],
-		attentionCheck: -1,
 		age: "",
 		gender: "",
 		education: "",
@@ -89,11 +88,6 @@ function App() {
 		completionCode: "",
 		completionURL: "",
 	});
-
-	// TODO: Delete this, not sure if it's breaking so keeping it for now.
-	// useEffect(() => {
-	// 	setAnswers((state) => ({ ...state }));
-	// }, []);
 
 	return (
 		<SurveyContext.Provider
