@@ -130,7 +130,7 @@ const PostLikelihood = () => {
 
 	return (
 		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
-			<span className="text-gray-600 text-[10pt]">Unlikely</span>
+			<span className="text-gray-600 text-[10pt]">Highly Unlikely</span>
 			{[1, 2, 3, 4, 5].map((score) => (
 				<label
 					key={score}
@@ -149,7 +149,7 @@ const PostLikelihood = () => {
 					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
 				</label>
 			))}
-			<span className="text-gray-600 text-[10pt]">Likely</span>
+			<span className="text-gray-600 text-[10pt]">Highly Likely</span>
 		</div>
 	);
 };
