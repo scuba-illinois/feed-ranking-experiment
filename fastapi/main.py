@@ -203,6 +203,23 @@ async def validate_participant(session: Session):
     }
 
 
+def verify_attention_check(response: dict) -> bool:
+    answers = response["answers"]
+
+    attention_check_answers = None
+
+    for _, user_answer in answers.items():
+        if "attentionCheckAnswer" in user_answer.keys():
+            attention_check_answers = user_answer["attentionCheckAnswer"]
+            break
+
+    for _, rating in attention_check_answers.items():
+        if rating != 2:
+            return False
+
+    return True
+
+
 @app.post("/submit/")
 async def submit_response(response: dict):
 
@@ -216,12 +233,24 @@ async def submit_response(response: dict):
 
         client.close()
 
+        # Check whether the participant answered the attention check question correctly.
+        passed_attention_check = verify_attention_check(response)
+
+        completion_code = (
+            os.environ.get("COMPLETION_CODE", "XXXXXX")
+            if passed_attention_check
+            else os.environ.get("FAILURE_COMPLETION_CODE", "XXXXXX")
+        )
+        completion_url = (
+            os.environ.get("COMPLETION_URL", "https://www.google.com/")
+            if passed_attention_check
+            else os.environ.get("FAILURE_COMPLETION_URL", "https://www.google.com/")
+        )
+
         return {
             "status": "success",
-            "completionCode": os.environ.get("COMPLETION_CODE", "XXXXXX"),
-            "completionURL": os.environ.get(
-                "COMPLETION_URL", "https://www.google.com/"
-            ),
+            "completionCode": completion_code,
+            "completionURL": completion_url,
         }
 
     except Exception as e:
