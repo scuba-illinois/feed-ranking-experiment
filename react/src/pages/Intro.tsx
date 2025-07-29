@@ -189,7 +189,15 @@ const Consent = () => (
 		<Body>
 			Please print this consent form if you would like to retain a copy for your
 			records. The PDF version of this consent form, hosted on Google Docs, is
-			found here: <b>TODO</b>.
+			found here:
+			<a
+				target="_blank"
+				rel="noopener noreferrer"
+				href="https://docs.google.com/document/d/1t-MeyXWf7zZJcpvwBc35QQgQuZtjCS4qhC7yE0dB93A/edit?usp=sharing"
+			>
+				https://docs.google.com/document/d/1t-MeyXWf7zZJcpvwBc35QQgQuZtjCS4qhC7yE0dB93A/edit?usp=sharing
+			</a>
+			.
 		</Body>
 	</>
 );
