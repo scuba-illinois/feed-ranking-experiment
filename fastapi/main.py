@@ -115,11 +115,16 @@ async def validate_participant(session: Session):
         random.randint(0, 9),
     ]
 
-    feeds = [
-        "75c8e402-ac6f-42f2-8d2c-8e8662b80be1",
-        "f807d07e-5a77-49f9-bd02-8935b4d2dcf2",
-        "08253bf4-c284-4599-8533-0ce3c632c691",
-    ]
+    feeds = random.sample(
+        [
+            "749fc4f5-ce90-4a98-b5e7-39db62f1632b",
+            "a602674f-7bc6-47e7-919b-bcde0dcf5f05",
+            "1f9d2527-6430-4c8e-87cf-37a3e14323be",
+            "c9dfbf3e-8655-4059-a1ac-fdb73fd88764",
+            "cd299601-0ec4-49ab-a410-64489a867dea",
+        ],
+        k=3,
+    )
     random.shuffle(feeds)
 
     # Determines how the Likert scale orders are randomized and
