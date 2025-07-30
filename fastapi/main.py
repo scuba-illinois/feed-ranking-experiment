@@ -75,7 +75,9 @@ async def record_session_start(
 
     client = create_client()
 
-    collection = client.get_database("trending-feeds").get_collection("session-starts")
+    collection = client.get_database("trending-feeds").get_collection(
+        os.environ.get("MONGO_SESSION_STARTS_COLLECTION", "session-starts")
+    )
 
     await collection.insert_one(
         {
@@ -232,7 +234,9 @@ async def submit_response(response: dict):
 
         client = create_client()
 
-        collection = client.get_database("trending-feeds").get_collection("responses")
+        collection = client.get_database("trending-feeds").get_collection(
+            os.environ.get("MONGO_RESPONSES_COLLECTION", "responses")
+        )
 
         await collection.insert_one(response)
 
