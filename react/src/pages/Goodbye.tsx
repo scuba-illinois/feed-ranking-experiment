@@ -32,7 +32,7 @@ export default function Goodbye() {
 							<br />
 							<a
 								className="text-blue-500 hover:underline"
-								href="#"
+								href={compensation.completionURL}
 								target="_blank"
 							>
 								{compensation.completionURL}
