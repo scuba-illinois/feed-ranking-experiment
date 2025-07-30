@@ -663,7 +663,8 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(1) How did you determine which posts you selected?
+					(1) How did you determine which posts you selected? Select all that
+					apply.
 					<RedAsterisk />
 				</>
 			),
@@ -687,7 +688,7 @@ export const ExitQuestionnaire = () => {
 					)}
 					<span>
 						(2) This was a post you selected, can you explain what about this
-						post made you select it?
+						post made you select it? Select all that apply.
 						<RedAsterisk />
 					</span>
 				</div>
@@ -711,7 +712,7 @@ export const ExitQuestionnaire = () => {
 						</div>
 					)}
 					(3) This was a post you did not select, can you explain what about
-					this post made you select it?
+					this post made you not select it? Select all that apply.
 					<RedAsterisk />
 				</div>
 			),
