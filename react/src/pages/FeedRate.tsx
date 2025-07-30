@@ -72,7 +72,8 @@ const Directions = () => {
 					</Body>
 
 					<Body>
-						There's no time limit. You must rate every post to continue.
+						There's no time limit. You must rate every required post to
+						continue.
 					</Body>
 				</>
 			)}
