@@ -82,14 +82,15 @@ const Directions = () => {
 };
 
 const Status = ({ ratings }: { ratings: Record<string, QuestionAnswers> }) => {
-	const { answers, feeds, completedFeeds } = useContext(SurveyContext);
+	const { answers, feeds, completedFeeds, attentionChecks } =
+		useContext(SurveyContext);
 
 	const feedUUID = feeds[completedFeeds.length];
 
 	const selectedPosts = answers[feedUUID]?.selectedPosts || [];
 	const nonSelectedPosts = answers[feedUUID]?.nonSelectedPosts || [];
 
-	const attentionCheckAnswers = answers[feedUUID]?.attentionCheckAnswer;
+	const attentionCheckAnswers = attentionChecks["feed"];
 
 	const containsAttentionCheck =
 		answers[feedUUID].attentionCheckPost !== undefined;
@@ -104,7 +105,8 @@ const Status = ({ ratings }: { ratings: Record<string, QuestionAnswers> }) => {
 		<span className="text-[10pt] text-gray-600">
 			<b className="text-black">Posts Rated: </b>{" "}
 			{(
-				Object.keys(ratings).length + (completedAttentionCheck ? 1 : 0)
+				Object.keys(ratings).length +
+				(containsAttentionCheck && completedAttentionCheck ? 1 : 0)
 			).toLocaleString()}{" "}
 			/{" "}
 			{(
@@ -152,7 +154,8 @@ const ContinueButton = ({
 		attentionCheckAnswers.manipulation !== 0;
 
 	const disabled =
-		Object.keys(ratings).length + (completedAttentionCheck ? 1 : 0) !==
+		Object.keys(ratings).length +
+			(containsAttentionCheck && completedAttentionCheck ? 1 : 0) !==
 		numSelected + numNonSelected + (containsAttentionCheck ? 1 : 0);
 
 	return (
@@ -351,6 +354,7 @@ const RateButtons = ({
 				color={
 					ratings.hasOwnProperty(uuid) ||
 					(isAttentionCheck &&
+						attentionChecks["feed"] !== undefined &&
 						attentionChecks["feed"].relevance !== 0 &&
 						attentionChecks["feed"].quality !== 0 &&
 						attentionChecks["feed"].manipulation !== 0)
@@ -360,6 +364,7 @@ const RateButtons = ({
 				label={
 					ratings.hasOwnProperty(uuid) ||
 					(isAttentionCheck &&
+						attentionChecks["feed"] !== undefined &&
 						attentionChecks["feed"].relevance !== 0 &&
 						attentionChecks["feed"].quality !== 0 &&
 						attentionChecks["feed"].manipulation !== 0)
