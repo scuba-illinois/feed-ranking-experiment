@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { SurveyContext } from "../contexts";
-import { Answers, FeedData, QuestionAnswers, RatingLogs } from "../types";
+import { FeedData, QuestionAnswers, RatingLogs } from "../types";
 import { Body, Header } from "../components/general";
 import { FeedView } from "./FeedSelect";
 import { pickRandomItems } from "../utils";
@@ -198,6 +198,81 @@ const ContinueButton = ({
 	);
 };
 
+const Button = ({
+	uuid,
+	color,
+	label,
+	top,
+	left,
+	isAttentionCheck,
+	setSelectedPost,
+	setLogs,
+}: {
+	uuid: string;
+	color: "blue" | "green";
+	label: string;
+	top: number;
+	left: number;
+	isAttentionCheck: boolean;
+	setSelectedPost: React.Dispatch<
+		React.SetStateAction<{ uuid: string; isAttentionCheck: boolean } | null>
+	>;
+	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
+}) => {
+	return (
+		<div
+			className="absolute"
+			style={{
+				top: `${top}px`,
+				left: `${left}px`,
+			}}
+		>
+			{color === "blue" && (
+				<button
+					className="py-2 px-3 rounded-md text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
+					onClick={() => {
+						setSelectedPost({
+							uuid,
+							isAttentionCheck,
+						});
+						setLogs((state) => [
+							...state,
+							{
+								timestamp: new Date().toISOString(),
+								action: "OPEN",
+								uuid: uuid,
+							},
+						]);
+					}}
+				>
+					{label}
+				</button>
+			)}
+			{color === "green" && (
+				<button
+					className="py-2 px-3 rounded-md text-sm text-white bg-green-500 hover:bg-green-600 transition-colors"
+					onClick={() => {
+						setSelectedPost({
+							uuid,
+							isAttentionCheck,
+						});
+						setLogs((state) => [
+							...state,
+							{
+								timestamp: new Date().toISOString(),
+								action: "EDIT",
+								uuid: uuid,
+							},
+						]);
+					}}
+				>
+					{label}
+				</button>
+			)}
+		</div>
+	);
+};
+
 const RateButtons = ({
 	feedData,
 	ratings,
@@ -263,75 +338,6 @@ const RateButtons = ({
 		}));
 	}, []);
 
-	const Button = ({
-		uuid,
-		color,
-		label,
-		top,
-		left,
-		isAttentionCheck,
-	}: {
-		uuid: string;
-		color: "blue" | "green";
-		label: string;
-		top: number;
-		left: number;
-		isAttentionCheck: boolean;
-	}) => {
-		return (
-			<div
-				className="absolute"
-				style={{
-					top: `${top}px`,
-					left: `${left}px`,
-				}}
-			>
-				{color === "blue" && (
-					<button
-						className="py-2 px-3 rounded-md text-sm text-white bg-blue-500 hover:bg-blue-600 transition-colors"
-						onClick={() => {
-							setSelectedPost({
-								uuid,
-								isAttentionCheck,
-							});
-							setLogs((state) => [
-								...state,
-								{
-									timestamp: new Date().toISOString(),
-									action: "OPEN",
-									uuid: uuid,
-								},
-							]);
-						}}
-					>
-						{label}
-					</button>
-				)}
-				{color === "green" && (
-					<button
-						className="py-2 px-3 rounded-md text-sm text-white bg-green-500 hover:bg-green-600 transition-colors"
-						onClick={() => {
-							setSelectedPost({
-								uuid,
-								isAttentionCheck,
-							});
-							setLogs((state) => [
-								...state,
-								{
-									timestamp: new Date().toISOString(),
-									action: "EDIT",
-									uuid: uuid,
-								},
-							]);
-						}}
-					>
-						{label}
-					</button>
-				)}
-			</div>
-		);
-	};
-
 	return [
 		...selectedPostData,
 		...nonSelectedPostsData,
@@ -342,6 +348,8 @@ const RateButtons = ({
 				key={uuid}
 				uuid={uuid}
 				isAttentionCheck={isAttentionCheck}
+				setSelectedPost={setSelectedPost}
+				setLogs={setLogs}
 				color={
 					ratings.hasOwnProperty(uuid) ||
 					(isAttentionCheck &&
@@ -367,6 +375,165 @@ const RateButtons = ({
 	});
 };
 
+const PostPreview = ({ fileName }: { fileName: string }) => (
+	<img
+		src={fileName}
+		style={{ maxHeight: "300px", display: "block" }}
+		className="my-4 mx-auto border-2"
+	/>
+);
+
+const Question = ({
+	question,
+	attentionCheck,
+	selectedPost,
+	popupRatings,
+	setPopupRatings,
+	setLogs,
+}: {
+	question: keyof QuestionAnswers;
+	attentionCheck: boolean;
+	selectedPost: { uuid: string; isAttentionCheck: boolean } | null;
+	popupRatings: QuestionAnswers;
+	setPopupRatings: React.Dispatch<React.SetStateAction<QuestionAnswers>>;
+	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
+}) => (
+	<div>
+		<span className="text-[10pt] text-gray-700">
+			{!attentionCheck
+				? QUESTION_WORDINGS[question]
+				: "Please select 2 on the scale below."}
+		</span>
+		<div className="flex flex-row mt-4 mb-2 mx-4 items-start w-full justify-center">
+			<span className="text-[10pt] text-gray-600 mr-2">Strongly Disagree</span>
+			{[1, 2, 3, 4, 5].map((value) => (
+				<label
+					key={value}
+					className="flex flex-col items-center gap-2 px-4 cursor-pointer"
+				>
+					<input
+						className="cursor-pointer"
+						type="radio"
+						name={question}
+						value={value}
+						checked={popupRatings[question] === value}
+						onChange={() => {
+							setPopupRatings((state) => ({
+								...state,
+								[question]: value,
+							}));
+
+							setLogs((state) => [
+								...state,
+								{
+									timestamp: new Date().toISOString(),
+									action: "RATE",
+									uuid: selectedPost!.uuid,
+									question: question,
+									rating: value,
+								},
+							]);
+						}}
+					/>
+					<span className="text-[10pt] text-gray-600">{value}</span>
+				</label>
+			))}
+			<span className="text-[10pt] text-gray-600 ml-2">Strongly Agree</span>
+		</div>
+	</div>
+);
+
+const CloseButton = ({
+	selectedPost,
+	setSelectedPost,
+	setLogs,
+}: {
+	selectedPost: { uuid: string; isAttentionCheck: boolean } | null;
+	setSelectedPost: React.Dispatch<
+		React.SetStateAction<{ uuid: string; isAttentionCheck: boolean } | null>
+	>;
+	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
+}) => (
+	<button
+		className="rounded mt-4 py-2 px-4 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
+		onClick={() => {
+			setSelectedPost(null);
+			setLogs((state) => [
+				...state,
+				{
+					timestamp: new Date().toISOString(),
+					action: "CLOSE",
+					uuid: selectedPost!.uuid,
+				},
+			]);
+		}}
+	>
+		Close
+	</button>
+);
+
+const SubmitButton = ({
+	isAttentionCheck,
+	popupRatings,
+	selectedPost,
+	setSelectedPost,
+	setRatings,
+	setLogs,
+}: {
+	isAttentionCheck: boolean;
+	popupRatings: QuestionAnswers;
+	selectedPost: { uuid: string; isAttentionCheck: boolean } | null;
+	setSelectedPost: React.Dispatch<
+		React.SetStateAction<{ uuid: string; isAttentionCheck: boolean } | null>
+	>;
+	setRatings: React.Dispatch<
+		React.SetStateAction<Record<string, QuestionAnswers>>
+	>;
+	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
+}) => {
+	const { setAttentionChecks } = useContext(SurveyContext);
+
+	const isValid = Object.values(popupRatings).every((value) => value > 0);
+
+	return (
+		<button
+			className={
+				"mt-4 py-2 px-4 rounded text-white " +
+				(isValid
+					? "bg-blue-500 hover:bg-blue-600"
+					: "bg-gray-200 cursor-not-allowed")
+			}
+			disabled={!isValid}
+			onClick={() => {
+				if (!isAttentionCheck) {
+					setRatings((state) => ({
+						...state,
+						[selectedPost!.uuid]: { ...popupRatings },
+					}));
+				} else {
+					setAttentionChecks((state) => ({
+						...state,
+						feed: {
+							...popupRatings,
+						},
+					}));
+				}
+				setSelectedPost(null);
+				setLogs((state) => [
+					...state,
+					{
+						timestamp: new Date().toISOString(),
+						action: "SUBMIT",
+						uuid: selectedPost!.uuid,
+					},
+				]);
+			}}
+		>
+			Submit
+		</button>
+	);
+};
+
 const RatingPopup = ({
 	selectedPost,
 	setSelectedPost,
@@ -386,7 +553,7 @@ const RatingPopup = ({
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 	selected: boolean;
 }) => {
-	const { feeds, completedFeeds, postURLs, optionOrder, answers, setAnswers } =
+	const { feeds, completedFeeds, postURLs, optionOrder, answers } =
 		useContext(SurveyContext);
 
 	// FIXME: Crappy patch because the names from the server for
@@ -414,136 +581,6 @@ const RatingPopup = ({
 		quality: previousAnswers?.quality || 0,
 		manipulation: previousAnswers?.manipulation || 0,
 	});
-
-	const isValid = () => Object.values(popupRatings).every((value) => value > 0);
-
-	const Question = ({
-		question,
-		attentionCheck,
-	}: {
-		question: keyof QuestionAnswers;
-		attentionCheck: boolean;
-	}) => (
-		<div>
-			<span className="text-[10pt] text-gray-700">
-				{!attentionCheck
-					? QUESTION_WORDINGS[question]
-					: "Please select 2 on the scale below."}
-			</span>
-			<div className="flex flex-row mt-4 mb-2 mx-4 items-start w-full justify-center">
-				<span className="text-[10pt] text-gray-600 mr-2">
-					Strongly Disagree
-				</span>
-				{[1, 2, 3, 4, 5].map((value) => (
-					<label
-						key={value}
-						className="flex flex-col items-center gap-2 px-4 cursor-pointer"
-					>
-						<input
-							className="cursor-pointer"
-							type="radio"
-							name={question}
-							value={value}
-							checked={popupRatings[question] === value}
-							onChange={() => {
-								setPopupRatings((state) => ({
-									...state,
-									[question]: value,
-								}));
-
-								setLogs((state) => [
-									...state,
-									{
-										timestamp: new Date().toISOString(),
-										action: "RATE",
-										uuid: selectedPost!.uuid,
-										question: question,
-										rating: value,
-									},
-								]);
-							}}
-						/>
-						<span className="text-[10pt] text-gray-600">{value}</span>
-					</label>
-				))}
-				<span className="text-[10pt] text-gray-600 ml-2">Strongly Agree</span>
-			</div>
-		</div>
-	);
-
-	const PostPreview = ({ fileName }: { fileName: string }) => (
-		<img
-			src={fileName}
-			style={{ maxHeight: "300px", display: "block" }}
-			className="my-4 mx-auto border-2"
-		/>
-	);
-
-	const SubmitButton = ({
-		isAttentionCheck,
-		setAnswers,
-	}: {
-		isAttentionCheck: boolean;
-		setAnswers: React.Dispatch<React.SetStateAction<Answers>>;
-	}) => {
-		return (
-			<button
-				className={
-					"mt-4 py-2 px-4 rounded text-white " +
-					(isValid()
-						? "bg-blue-500 hover:bg-blue-600"
-						: "bg-gray-200 cursor-not-allowed")
-				}
-				disabled={!isValid()}
-				onClick={() => {
-					if (!isAttentionCheck) {
-						setRatings((state) => ({
-							...state,
-							[selectedPost!.uuid]: { ...popupRatings },
-						}));
-					} else {
-						setAnswers((state) => ({
-							...state,
-							[feedUUID]: {
-								...state[feedUUID],
-								attentionCheckAnswer: { ...popupRatings },
-							},
-						}));
-					}
-					setSelectedPost(null);
-					setLogs((state) => [
-						...state,
-						{
-							timestamp: new Date().toISOString(),
-							action: "SUBMIT",
-							uuid: selectedPost!.uuid,
-						},
-					]);
-				}}
-			>
-				Submit
-			</button>
-		);
-	};
-
-	const CloseButton = () => (
-		<button
-			className="rounded mt-4 py-2 px-4 border border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
-			onClick={() => {
-				setSelectedPost(null);
-				setLogs((state) => [
-					...state,
-					{
-						timestamp: new Date().toISOString(),
-						action: "CLOSE",
-						uuid: selectedPost!.uuid,
-					},
-				]);
-			}}
-		>
-			Close
-		</button>
-	);
 
 	return (
 		<div
@@ -573,7 +610,9 @@ const RatingPopup = ({
 				}}
 			>
 				<>
-					<Header>Rate This Post</Header>
+					<Header>
+						{isAttentionCheck ? "Attention Check" : "Rate This Post"}
+					</Header>
 					{!isAttentionCheck && (
 						<span className="text-[10pt] text-gray-600">
 							{selected ? (
@@ -601,15 +640,27 @@ const RatingPopup = ({
 								key={question}
 								question={question}
 								attentionCheck={selectedPost!.isAttentionCheck}
+								selectedPost={selectedPost}
+								popupRatings={popupRatings}
+								setPopupRatings={setPopupRatings}
+								setLogs={setLogs}
 							/>
 						)
 					)}
 				</div>
 				<div className="flex flex-row gap-2 justify-between">
-					<CloseButton />
+					<CloseButton
+						selectedPost={selectedPost}
+						setSelectedPost={setSelectedPost}
+						setLogs={setLogs}
+					/>
 					<SubmitButton
 						isAttentionCheck={isAttentionCheck}
-						setAnswers={setAnswers}
+						popupRatings={popupRatings}
+						selectedPost={selectedPost}
+						setSelectedPost={setSelectedPost}
+						setRatings={setRatings}
+						setLogs={setLogs}
 					/>
 				</div>
 			</div>

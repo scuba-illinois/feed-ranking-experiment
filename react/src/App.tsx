@@ -31,6 +31,10 @@ function App() {
 		non_selected_multiple_choice: [],
 	});
 
+	const [attentionChecks, setAttentionChecks] = useState<Record<string, any>>(
+		{}
+	);
+
 	const [consentTimestamp, setConsentTimestamp] = useState<string>("");
 	const [feeds, setFeeds] = useState<string[]>([]);
 	const [completedFeeds, setCompletedFeeds] = useState<string[]>([]);
@@ -136,6 +140,8 @@ function App() {
 				setSettings,
 				compensation,
 				setCompensation,
+				attentionChecks,
+				setAttentionChecks,
 			}}
 		>
 			<BrowserRouter>

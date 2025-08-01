@@ -98,6 +98,9 @@ export const SurveyContext = createContext<{
 		}>
 	>;
 
+	attentionChecks: Record<string, any>;
+	setAttentionChecks: React.Dispatch<React.SetStateAction<Record<string, any>>>;
+
 	settings: Settings;
 	setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 }>({
@@ -195,6 +198,9 @@ export const SurveyContext = createContext<{
 		hideRatingDirections: false,
 	},
 	setSettings: () => {},
+
+	attentionChecks: {},
+	setAttentionChecks: () => {},
 
 	compensation: {
 		completionCode: "",

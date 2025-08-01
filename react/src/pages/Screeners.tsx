@@ -1,4 +1,4 @@
-import { JSX, useContext, useEffect, useState } from "react";
+import { JSX, useContext, useEffect } from "react";
 import { Body, Header, RedAsterisk } from "../components/general";
 import { SurveyContext } from "../contexts";
 
@@ -122,20 +122,75 @@ const Interests = () => {
 	);
 };
 
-export const Screeners = () => {
+const ContinueButton = () => {
 	const {
-		setPhase,
-		screenerStart,
-		setScreenerStart,
+		screenerAnswers,
 		setScreenerEnd,
 		setScreenerDuration,
+		setPhase,
+		screenerStart,
+		attentionChecks,
 	} = useContext(SurveyContext);
+
+	const valid =
+		screenerAnswers.interests.length > 0 && attentionChecks.pre !== undefined;
+
+	const handleClick = () => {
+		const screenerEnd = new Date();
+
+		setScreenerEnd(screenerEnd.toISOString());
+		setScreenerDuration(
+			(screenerEnd.getTime() - new Date(screenerStart).getTime()) / 1_000
+		);
+
+		// Determine the next phase based on answers.
+		setPhase("FEED");
+	};
+
+	return (
+		<button
+			className={
+				"bg-blue-500 text-white rounded-md px-4 py-2 mt-2 w-full text-[10pt] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" +
+				(valid ? "" : " opacity-50 cursor-not-allowed")
+			}
+			onClick={handleClick}
+			disabled={!valid}
+		>
+			Continue
+		</button>
+	);
+};
+
+const AttentionCheck = () => {
+	const { setAttentionChecks } = useContext(SurveyContext);
+
+	const OPTIONS = [1, 2, 3, 4, 5];
+
+	return (
+		<>
+			{OPTIONS.map((option) => (
+				<label key={option} className="text-[10pt] text-gray-600 flex gap-2">
+					<input
+						type="radio"
+						name="attentionCheck"
+						value={option}
+						onChange={() =>
+							setAttentionChecks((data) => ({ ...data, pre: option }))
+						}
+					/>
+					{option}
+				</label>
+			))}
+		</>
+	);
+};
+
+export const Screeners = () => {
+	const { setScreenerStart } = useContext(SurveyContext);
 
 	useEffect(() => {
 		setScreenerStart(new Date().toISOString());
 	}, []);
-
-	const [_answers, _setAnswers] = useState<Record<string, any>>({});
 
 	const questions: {
 		question: string | JSX.Element;
@@ -156,6 +211,17 @@ export const Screeners = () => {
 		{
 			question: (
 				<>
+					To ensure you are paying attention, please answer the following
+					question: What is
+					<br /> 2 + 2?
+					<RedAsterisk />
+				</>
+			),
+			component: <AttentionCheck />,
+		},
+		{
+			question: (
+				<>
 					<span>
 						List the subreddits you visit most often. Try to list at least five.
 					</span>
@@ -172,37 +238,6 @@ export const Screeners = () => {
 			component: <Subreddits />,
 		},
 	];
-
-	const ContinueButton = () => {
-		const { screenerAnswers } = useContext(SurveyContext);
-
-		const valid = screenerAnswers.interests.length > 0;
-
-		const handleClick = () => {
-			const screenerEnd = new Date();
-
-			setScreenerEnd(screenerEnd.toISOString());
-			setScreenerDuration(
-				(screenerEnd.getTime() - new Date(screenerStart).getTime()) / 1_000
-			);
-
-			// Determine the next phase based on answers.
-			setPhase("FEED");
-		};
-
-		return (
-			<button
-				className={
-					"bg-blue-500 text-white rounded-md px-4 py-2 mt-2 w-full text-[10pt] hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500" +
-					(valid ? "" : " opacity-50 cursor-not-allowed")
-				}
-				onClick={handleClick}
-				disabled={!valid}
-			>
-				Continue
-			</button>
-		);
-	};
 
 	return (
 		<div className="flex justify-center my-6">

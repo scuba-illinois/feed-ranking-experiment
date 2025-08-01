@@ -41,6 +41,7 @@ const ContinueButton = () => {
 		setTotalDuration,
 		setSubmitted,
 		setCompensation,
+		attentionChecks,
 	} = useContext(SurveyContext);
 
 	const isValid =
@@ -95,6 +96,8 @@ const ContinueButton = () => {
 						exitDuration: exitDuration,
 
 						totalDuration: totalDuration,
+
+						attentionChecks: attentionChecks,
 
 						answers: answers,
 					}),
@@ -623,6 +626,34 @@ const NonSelectedPostExample = () => {
 	);
 };
 
+const AttentionCheck = () => {
+	const { setAttentionChecks } = useContext(SurveyContext);
+
+	return (
+		<div className="flex flex-row items-start w-full justify-center gap-6 mt-4">
+			<span className="text-gray-600 text-[10pt]">Strongly Disagree</span>
+			{[1, 2, 3, 4, 5].map((score) => (
+				<label
+					key={score}
+					className="flex flex-col items-center gap-2 cursor-pointer"
+				>
+					<input
+						type="radio"
+						name="attentionCheck"
+						value={score}
+						onChange={() =>
+							setAttentionChecks((state) => ({ ...state, post: score }))
+						}
+						className="cursor-pointer"
+					/>
+					<span className="text-[10pt] text-gray-600 mt-1">{score}</span>
+				</label>
+			))}
+			<span className="text-gray-600 text-[10pt]">Strongly Agree</span>
+		</div>
+	);
+};
+
 export const ExitQuestionnaire = () => {
 	const { answers, setExitStart, exitAnswers, setExitAnswers, postURLs } =
 		useContext(SurveyContext);
@@ -731,7 +762,17 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(5) Do you have any feedback about your experience participating in
+					(5) To ensure you are paying attention, please select 'Strongly
+					Disagree' (i.e., 1) for this item.
+					<RedAsterisk />
+				</>
+			),
+			component: <AttentionCheck />,
+		},
+		{
+			question: (
+				<>
+					(6) Do you have any feedback about your experience participating in
 					this study?
 				</>
 			),
@@ -740,7 +781,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(6) What is your age?
+					(7) What is your age?
 					<RedAsterisk />
 				</>
 			),
@@ -749,7 +790,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(7) What is your gender?
+					(8) What is your gender?
 					<RedAsterisk />
 				</>
 			),
@@ -758,7 +799,7 @@ export const ExitQuestionnaire = () => {
 		{
 			question: (
 				<>
-					(8) What is the highest level of education you have completed?
+					(9) What is the highest level of education you have completed?
 					<RedAsterisk />
 				</>
 			),

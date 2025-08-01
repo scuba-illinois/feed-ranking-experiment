@@ -75,9 +75,22 @@ async def record_session_start(
 
     client = create_client()
 
-    collection = client.get_database("trending-feeds").get_collection(
-        os.environ.get("MONGO_SESSION_STARTS_COLLECTION", "session-starts")
-    )
+    collection = None
+
+    if (
+        session.PROLIFIC_PID == "test"
+        and session.STUDY_ID == "test"
+        and session.SESSION_ID == "test"
+    ):
+        # If this is a test session, we use the test collection.
+        collection = client.get_database("trending-feeds").get_collection(
+            "session-starts"
+        )
+    else:
+
+        collection = client.get_database("trending-feeds").get_collection(
+            os.environ.get("MONGO_SESSION_STARTS_COLLECTION", "session-starts")
+        )
 
     await collection.insert_one(
         {
@@ -211,20 +224,19 @@ async def validate_participant(session: Session):
 
 
 def verify_attention_check(response: dict) -> bool:
-    answers = response["answers"]
+    attentionChecks = response["attentionChecks"]
+    cases = []
 
-    attention_check_answers = None
+    if attentionChecks["pre"] != 2:
+        cases.append(False)
 
-    for _, user_answer in answers.items():
-        if "attentionCheckAnswer" in user_answer.keys():
-            attention_check_answers = user_answer["attentionCheckAnswer"]
-            break
+    if any([rating != 2 for rating in attentionChecks["feed"].values()]):
+        cases.append(False)
 
-    for _, rating in attention_check_answers.items():
-        if rating != 2:
-            return False
+    if attentionChecks["post"] != 1:
+        cases.append(False)
 
-    return True
+    return False if len(cases) >= 2 else True
 
 
 @app.post("/submit/")
@@ -234,9 +246,18 @@ async def submit_response(response: dict):
 
         client = create_client()
 
-        collection = client.get_database("trending-feeds").get_collection(
-            os.environ.get("MONGO_RESPONSES_COLLECTION", "responses")
-        )
+        if (
+            response.get("PROLIFIC_PID") == "test"
+            and response.get("STUDY_ID") == "test"
+            and response.get("SESSION_ID") == "test"
+        ):
+            collection = client.get_database("trending-feeds").get_collection(
+                "responses"
+            )
+        else:
+            collection = client.get_database("trending-feeds").get_collection(
+                os.environ.get("MONGO_RESPONSES_COLLECTION", "responses")
+            )
 
         await collection.insert_one(response)
 
