@@ -130,6 +130,7 @@ const ContinueButton = ({
 		feeds,
 		completedFeeds,
 		setCompletedFeeds,
+		attentionChecks,
 	} = useContext(SurveyContext);
 
 	const feedUUID = feeds[completedFeeds.length];
@@ -137,8 +138,10 @@ const ContinueButton = ({
 	const numSelected = answers[feedUUID]?.selectedPosts?.length || 0;
 	const numNonSelected = answers[feedUUID]?.nonSelectedPosts?.length || 0;
 
-	const attentionCheckAnswers = answers[feedUUID]?.attentionCheckAnswer;
+	// Get the attention check answers.
+	const attentionCheckAnswers = attentionChecks["feed"];
 
+	// Check whether this feed has an attention check post.
 	const containsAttentionCheck =
 		answers[feedUUID].attentionCheckPost !== undefined;
 
@@ -289,7 +292,7 @@ const RateButtons = ({
 	>;
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 }) => {
-	const { answers, setAnswers, feeds, completedFeeds } =
+	const { answers, setAnswers, feeds, completedFeeds, attentionChecks } =
 		useContext(SurveyContext);
 
 	const feedUUID = feeds[completedFeeds.length];
@@ -327,11 +330,6 @@ const RateButtons = ({
 				...(completedFeeds.length === 1
 					? {
 							attentionCheckPost: nonSelectedPosts[nonSelectedPosts.length - 1],
-							attentionCheckAnswer: {
-								relevance: 0,
-								quality: 0,
-								manipulation: 0,
-							},
 					  }
 					: {}),
 			},
@@ -353,18 +351,18 @@ const RateButtons = ({
 				color={
 					ratings.hasOwnProperty(uuid) ||
 					(isAttentionCheck &&
-						answers[feedUUID]?.attentionCheckAnswer?.relevance !== 0 &&
-						answers[feedUUID]?.attentionCheckAnswer?.quality !== 0 &&
-						answers[feedUUID]?.attentionCheckAnswer?.manipulation !== 0)
+						attentionChecks["feed"].relevance !== 0 &&
+						attentionChecks["feed"].quality !== 0 &&
+						attentionChecks["feed"].manipulation !== 0)
 						? "green"
 						: "blue"
 				}
 				label={
 					ratings.hasOwnProperty(uuid) ||
 					(isAttentionCheck &&
-						answers[feedUUID]?.attentionCheckAnswer?.relevance !== 0 &&
-						answers[feedUUID]?.attentionCheckAnswer?.quality !== 0 &&
-						answers[feedUUID]?.attentionCheckAnswer?.manipulation !== 0)
+						attentionChecks["feed"].relevance !== 0 &&
+						attentionChecks["feed"].quality !== 0 &&
+						attentionChecks["feed"].manipulation !== 0)
 						? "Edit"
 						: "Rate"
 				}
@@ -553,7 +551,7 @@ const RatingPopup = ({
 	setLogs: React.Dispatch<React.SetStateAction<RatingLogs>>;
 	selected: boolean;
 }) => {
-	const { feeds, completedFeeds, postURLs, optionOrder, answers } =
+	const { feeds, completedFeeds, postURLs, optionOrder, attentionChecks } =
 		useContext(SurveyContext);
 
 	// FIXME: Crappy patch because the names from the server for
@@ -573,7 +571,7 @@ const RatingPopup = ({
 	const feedUUID = feeds[completedFeeds.length];
 
 	const previousAnswers = selectedPost?.isAttentionCheck
-		? answers[feedUUID]!.attentionCheckAnswer
+		? attentionChecks["feed"]
 		: ratings[selectedPost!.uuid];
 
 	const [popupRatings, setPopupRatings] = useState<QuestionAnswers>({
