@@ -631,7 +631,8 @@ const RatingPopup = ({
 					)}
 					{isAttentionCheck && (
 						<span className="text-[10pt] text-gray-600">
-							This is an attention check. Please select 2 on all scales below.
+							This is an attention check. Please select 2 on{" "}
+							<span className="italic">all</span> scales below.
 						</span>
 					)}
 				</>
