@@ -247,9 +247,9 @@ async def submit_response(response: dict):
         client = create_client()
 
         if (
-            response.get("PROLIFIC_PID") == "test"
-            and response.get("STUDY_ID") == "test"
-            and response.get("SESSION_ID") == "test"
+            response["prolific"].get("PROLIFIC_PID") == "test"
+            and response["prolific"].get("STUDY_ID") == "test"
+            and response["prolific"].get("SESSION_ID") == "test"
         ):
             collection = client.get_database("trending-feeds").get_collection(
                 "responses"
