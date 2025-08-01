@@ -227,7 +227,7 @@ def verify_attention_check(response: dict) -> bool:
     attentionChecks = response["attentionChecks"]
     cases = []
 
-    if attentionChecks["pre"] != 2:
+    if attentionChecks["pre"] != 4:
         cases.append(False)
 
     if any([rating != 2 for rating in attentionChecks["feed"].values()]):
