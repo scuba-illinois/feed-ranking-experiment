@@ -5,8 +5,6 @@ import { Body, Header } from "../components/general";
 import { FeedView } from "./FeedSelect";
 import { pickRandomItems } from "../utils";
 
-const NUM_NON_SELECTED = 3;
-
 const QUESTION_WORDINGS = {
 	quality: "This post seems well-made and high quality.",
 	relevance: "This post feels personally relevant to me.",
@@ -313,7 +311,10 @@ const RateButtons = ({
 		.filter(({ uuid }) => attentionCheckPost === uuid)
 		.map((data) => ({ ...data, isAttentionCheck: true }));
 
+	// NOTE: Where we pick non-selected posts to rate.
 	useEffect(() => {
+		const NUM_NON_SELECTED = 6 - selectedPostData.length;
+
 		// For this feed, get all the non-selected posts.
 		const allNonSelectedPosts = feedData
 			.filter(({ uuid }) => !answers[feedUUID].selectedPosts?.includes(uuid))
@@ -707,7 +708,7 @@ export const FeedRate = () => {
 				<Status ratings={_ratings} />
 				<ContinueButton ratings={_ratings} logs={_logs} />
 				<div
-					className="overflow-y-scroll relative w-[600px] grid justify-items-end pl-6"
+					className="relative w-[600px] grid justify-items-end pl-6"
 					style={{ direction: "rtl" }}
 				>
 					<FeedView
