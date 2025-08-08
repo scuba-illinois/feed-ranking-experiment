@@ -417,9 +417,10 @@ const SelectedPostExample = () => {
 	const [other, setOther] = useState("");
 
 	const OPTIONS = {
-		relevance: "This post looked relevant to me",
-		trustworthiness: "This post looked trustworthy",
-		content_quality: "This post seemed to be high quality",
+		relevance: "This post felt personally relevant to me",
+		trustworthiness:
+			"This post did not seem exaggerated or misleading to attract attention",
+		content_quality: "This post seemed well-made and high quality",
 	};
 
 	const order: (keyof typeof OPTIONS)[] = optionOrder.selected_multiple_choice;
@@ -524,9 +525,10 @@ const NonSelectedPostExample = () => {
 	const [other, setOther] = useState("");
 
 	const OPTIONS = {
-		relevance: "This post did not look relevant to me",
-		trustworthiness: "This post did not look trustworthy",
-		content_quality: "This post did not seem to be high quality",
+		relevance: "This post did not feel personally relevant to me",
+		trustworthiness:
+			"This post seemed exaggerated or misleading to attract attention",
+		content_quality: "This post did not seem well-made or high quality",
 	};
 
 	const order: (keyof typeof OPTIONS)[] =
