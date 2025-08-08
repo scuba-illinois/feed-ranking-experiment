@@ -720,8 +720,9 @@ export const ExitQuestionnaire = () => {
 						</div>
 					)}
 					<span>
-						(2) This was a post you selected, can you explain what about this
-						post made you select it? Select all that apply.
+						(2) You selected the <span className="italic">above</span> post, can
+						you explain what about this post made you select it? Select all that
+						apply.
 						<RedAsterisk />
 					</span>
 				</div>
@@ -744,8 +745,9 @@ export const ExitQuestionnaire = () => {
 							/>
 						</div>
 					)}
-					(3) This was a post you did not select, can you explain what about
-					this post made you not select it? Select all that apply.
+					(3) You did not select the <span className="italic">above</span> post,
+					can you explain what about this post made you not select it? Select
+					all that apply.
 					<RedAsterisk />
 				</div>
 			),
