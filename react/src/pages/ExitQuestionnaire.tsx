@@ -695,11 +695,11 @@ export const ExitQuestionnaire = () => {
 	}[] = [
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(1) How did you determine which posts you selected? Select all that
 					apply.
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <PostSelection />,
 		},
@@ -719,7 +719,7 @@ export const ExitQuestionnaire = () => {
 							/>
 						</div>
 					)}
-					<span>
+					<span className="font-medium">
 						(2) You selected the <span className="italic">above</span> post, can
 						you explain what about this post made you select it? Select all that
 						apply.
@@ -745,9 +745,11 @@ export const ExitQuestionnaire = () => {
 							/>
 						</div>
 					)}
-					(3) You did not select the <span className="italic">above</span> post,
-					can you explain what about this post made you not select it? Select
-					all that apply.
+					<span className="font-medium">
+						(3) You did not select the <span className="italic">above</span>{" "}
+						post, can you explain what about this post made you not select it?
+						Select all that apply.
+					</span>
 					<RedAsterisk />
 				</div>
 			),
@@ -755,57 +757,57 @@ export const ExitQuestionnaire = () => {
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(4) How likely are you to encounter content similar to what you saw
 					during the experiment?
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <PostLikelihood />,
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(5) To ensure you are paying attention, please select 'Strongly
 					Disagree' (i.e., 1) for this item.
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <AttentionCheck />,
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(6) Do you have any feedback about your experience participating in
 					this study?
-				</>
+				</span>
 			),
 			component: <FeedbackQuestion />,
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(7) What is your age?
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <AgeQuestion />,
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(8) What is your gender?
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <GenderQuestion />,
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					(9) What is the highest level of education you have completed?
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <EducationQuestion />,
 		},

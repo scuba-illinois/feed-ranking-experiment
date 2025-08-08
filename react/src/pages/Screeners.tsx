@@ -198,7 +198,7 @@ export const Screeners = () => {
 	}[] = [
 		{
 			question: (
-				<span>
+				<span className="font-medium">
 					Which of these topics are you generally interested in?{" "}
 					<span className="italic">
 						Please select all that apply. You must choose at least one.
@@ -210,22 +210,22 @@ export const Screeners = () => {
 		},
 		{
 			question: (
-				<>
+				<span className="font-medium">
 					To ensure you are paying attention, please answer the following
 					question: What is
 					<br /> 2 + 2?
 					<RedAsterisk />
-				</>
+				</span>
 			),
 			component: <AttentionCheck />,
 		},
 		{
 			question: (
 				<>
-					<span>
+					<span className="font-medium">
 						List the subreddits you visit most often. Try to list at least five.
 					</span>
-					<div className="mt-2 pl-5">
+					<div className="mt-2 pl-5 font-medium">
 						Press "Enter" to add. The subreddits you add will be listed below.
 						Do not include the <span className="font-mono">"r/"</span> prefix
 						(e.g., use <span className="font-mono">pics</span>, not{" "}
